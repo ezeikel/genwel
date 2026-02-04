@@ -30,7 +30,7 @@ const WaitlistPage = () => {
   return (
     <main className="min-h-screen">
       <Header variant="waitlist" />
-      <HeroSection />
+      <HeroSection variant="waitlist" />
       <TrustSection />
       <HowItWorksSection />
       <CoreFeaturesSection />
