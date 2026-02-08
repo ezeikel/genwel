@@ -93,14 +93,14 @@ model VerificationToken {
 
 // Banking models
 model BankConnection {
-  id             String        @id @default(cuid())
+  id             String    @id @default(cuid())
   userId         String
   providerId     String // e.g., "uk-ob-barclays"
   providerName   String // e.g., "Barclays"
-  accessToken    String        @db.Text
-  refreshToken   String        @db.Text
+  accessToken    String    @db.Text
+  refreshToken   String    @db.Text
   tokenExpiresAt DateTime
-  connectedAt    DateTime      @default(now())
+  connectedAt    DateTime  @default(now())
   lastSyncedAt   DateTime?
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
