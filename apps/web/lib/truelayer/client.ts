@@ -35,8 +35,8 @@ export function getAuthUrl(state: string): string {
     redirect_uri: REDIRECT_URI,
     scope: SCOPES.join(" "),
     state,
-    // Enable providers - show all UK banks
-    providers: "uk-ob-all uk-oauth-all",
+    providers:
+      TRUELAYER_ENV === "sandbox" ? "mock" : "uk-ob-all uk-oauth-all",
   });
 
   return `${AUTH_BASE_URL}/?${params.toString()}`;

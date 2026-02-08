@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import type { NextAuthConfig, Account, User } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Resend from "next-auth/providers/resend";
 import { render } from "@react-email/render";
@@ -6,8 +7,28 @@ import { db } from "@genwel/db";
 import resendClient from "@/lib/resend";
 import MagicLinkEmail from "@/components/emails/MagicLinkEmail";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(db),
+const prismaAdapter = PrismaAdapter(db);
+
+const config = {
+  adapter: {
+    ...prismaAdapter,
+    // Wrap deleteSession to handle stale cookies gracefully.
+    // The default adapter throws P2025 if the session doesn't exist.
+    async deleteSession(sessionToken: string) {
+      try {
+        return await prismaAdapter.deleteSession!(sessionToken);
+      } catch (error: unknown) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "code" in error &&
+          error.code === "P2025"
+        )
+          return null;
+        throw error;
+      }
+    },
+  },
   session: {
     strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -33,40 +54,51 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account, email }) {
+    async signIn({
+      account,
+      email,
+    }: {
+      user: User;
+      account: Account | null;
+      email?: { verificationRequest?: boolean };
+    }) {
       // Handle magic link verification requests
       if (email?.verificationRequest) {
         return true;
       }
 
-      // For Resend provider, create account if user exists
-      if (account?.provider === "resend" && user.id) {
-        const existingAccount = await db.account.findFirst({
-          where: {
-            userId: user.id,
-            provider: "resend",
+      if (account?.provider === "resend") {
+        const userEmail = account.providerAccountId;
+
+        if (!userEmail) return false;
+
+        const existingUser = await db.user.findUnique({
+          where: { email: userEmail },
+        });
+
+        if (existingUser) {
+          return true;
+        }
+
+        await db.user.create({
+          data: {
+            email: userEmail,
           },
         });
 
-        if (!existingAccount) {
-          await db.account.create({
-            data: {
-              userId: user.id,
-              type: "email",
-              provider: "resend",
-              providerAccountId: user.email!,
-            },
-          });
-        }
+        return true;
       }
 
-      return true;
-    },
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-      }
-      return session;
+      return false;
     },
   },
-});
+  secret: process.env.NEXTAUTH_SECRET,
+} satisfies NextAuthConfig;
+
+export const {
+  handlers,
+  auth,
+  signIn,
+  signOut,
+  // @ts-expect-error - Type 'typeof import("next-auth")' has no call signatures
+} = NextAuth(config);

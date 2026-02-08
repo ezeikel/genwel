@@ -2,10 +2,19 @@
 
 ## Database (Neon)
 
-This project uses Neon PostgreSQL:
+This project uses Neon PostgreSQL with branch-based development:
 
 - **Project ID**: `frosty-violet-47225787`
 - **Organization**: Chewy Bytes (`org-fragrant-frog-77141390`)
+
+### Branches
+
+| Branch | ID | Usage |
+|--------|----|-------|
+| production | `br-hidden-violet-ahpayw2m` | Production data. Used by Vercel + GitHub Actions. |
+| development | `br-square-fire-ahs8zxcs` | Local development. Used in `.env.local`. |
+
+**Important**: Always query the **development** branch when running locally. The production branch should only be accessed by CI/CD and the deployed app.
 
 ### Migrations
 
