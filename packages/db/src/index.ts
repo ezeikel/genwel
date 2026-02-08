@@ -16,4 +16,13 @@ export type {
   BankConnection as DbBankConnection,
   BankAccount as DbBankAccount,
   Transaction as DbTransaction,
+  BudgetConfig as DbBudgetConfig,
+  Budget as DbBudget,
+  AiInsight as DbAiInsight,
+} from "./generated/prisma/client";
+
+// Re-export enums
+export {
+  BudgetPeriodType,
+  SpendingCategory,
 } from "./generated/prisma/client";

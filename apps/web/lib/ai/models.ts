@@ -13,6 +13,7 @@ export const MODEL_IDS = {
   // OpenAI Text models
   GPT_4O: 'gpt-4o',
   GPT_4O_MINI: 'gpt-4o-mini',
+  GPT_5_2: 'gpt-5.2',
 
   // Google Gemini models (updated Jan 2026)
   // Most balanced model - speed, scale, and frontier intelligence
@@ -44,6 +45,10 @@ export const models = {
   // Gemini image generation model (uses generateText, not generateImage)
   // Best for: blog featured images when Pexels doesn't have suitable photos
   geminiImage: google(MODEL_IDS.GEMINI_3_PRO_IMAGE),
+
+  // Most capable model for high-value, low-frequency tasks
+  // Best for: financial advice, personalised insights, budget suggestions
+  intelligent: openai(MODEL_IDS.GPT_5_2),
 };
 
 // Type exports

@@ -1,9 +1,20 @@
+import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@genwel/db";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/pro-light-svg-icons";
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import TransactionList from "@/components/dashboard/TransactionList";
 import ConnectBankButton from "@/components/dashboard/ConnectBankButton";
 import EmptyState from "@/components/dashboard/EmptyState";
+import { getBudgetProgress } from "@/actions/budgets";
+import {
+  formatCategoryName,
+  getCategoryIcon,
+  getCategoryColor,
+  formatCurrency,
+  getBudgetStatus,
+} from "@/lib/budget-utils";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -132,6 +143,9 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Budget Status */}
+      <BudgetStatusSummary />
+
       {/* Recent Transactions */}
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -158,6 +172,72 @@ export default async function DashboardPage() {
             providerName: tx.account.connection.providerName,
           }))}
         />
+      </div>
+    </div>
+  );
+}
+
+async function BudgetStatusSummary() {
+  const result = await getBudgetProgress();
+  if ("error" in result || !result.progress || result.progress.length === 0) {
+    return null;
+  }
+
+  // Show top 3 categories by percent used
+  const top3 = [...result.progress]
+    .sort((a, b) => b.percentUsed - a.percentUsed)
+    .slice(0, 3);
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">Budget Status</h2>
+        <Link
+          href="/dashboard/budgets"
+          className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+        >
+          View all
+          <FontAwesomeIcon icon={faArrowRight} className="w-3 h-3" />
+        </Link>
+      </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
+        {top3.map((item) => {
+          const icon = getCategoryIcon(item.category);
+          const colorClass = getCategoryColor(item.category);
+          const status = getBudgetStatus(item.percentUsed);
+          const barColor =
+            status === "over_budget"
+              ? "bg-red-500"
+              : status === "warning"
+                ? "bg-amber-500"
+                : "bg-green-500";
+
+          return (
+            <div key={item.category} className="flex items-center gap-4 p-4">
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${colorClass}`}
+              >
+                <FontAwesomeIcon icon={icon} className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="font-medium text-gray-900">
+                    {formatCategoryName(item.category)}
+                  </span>
+                  <span className="text-gray-500">
+                    {formatCurrency(item.spent)} / {formatCurrency(item.budgetAmount)}
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${barColor} transition-all`}
+                    style={{ width: `${Math.min(item.percentUsed, 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

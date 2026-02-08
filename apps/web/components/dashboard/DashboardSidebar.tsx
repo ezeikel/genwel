@@ -9,6 +9,8 @@ import {
   faHome,
   faCreditCard,
   faReceipt,
+  faChartPie,
+  faLightbulb,
   faSignOut,
   faBars,
   faXmark,
@@ -25,7 +27,9 @@ interface DashboardSidebarProps {
 const navigation = [
   { name: "Overview", href: "/dashboard", icon: faHome },
   { name: "Accounts", href: "/dashboard/accounts", icon: faCreditCard },
+  { name: "Budgets", href: "/dashboard/budgets", icon: faChartPie },
   { name: "Transactions", href: "/dashboard/transactions", icon: faReceipt },
+  { name: "Insights", href: "/dashboard/insights", icon: faLightbulb },
 ];
 
 export default function DashboardSidebar({ user }: DashboardSidebarProps) {

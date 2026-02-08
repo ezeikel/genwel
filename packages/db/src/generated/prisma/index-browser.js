@@ -190,12 +190,48 @@ exports.Prisma.TransactionScalarFieldEnum = {
   description: 'description',
   category: 'category',
   merchantName: 'merchantName',
+  aiCategory: 'aiCategory',
   timestamp: 'timestamp'
+};
+
+exports.Prisma.BudgetConfigScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  periodType: 'periodType',
+  paydayDate: 'paydayDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BudgetScalarFieldEnum = {
+  id: 'id',
+  configId: 'configId',
+  category: 'category',
+  amount: 'amount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AiInsightScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  metadata: 'metadata',
+  read: 'read',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -208,6 +244,35 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.SpendingCategory = exports.$Enums.SpendingCategory = {
+  SHOPPING: 'SHOPPING',
+  GROCERIES: 'GROCERIES',
+  EATING_OUT: 'EATING_OUT',
+  BILLS: 'BILLS',
+  TRANSPORT: 'TRANSPORT',
+  ENTERTAINMENT: 'ENTERTAINMENT',
+  HEALTH: 'HEALTH',
+  PERSONAL_CARE: 'PERSONAL_CARE',
+  EDUCATION: 'EDUCATION',
+  TRANSFER: 'TRANSFER',
+  CASH: 'CASH',
+  INCOME: 'INCOME',
+  FEES: 'FEES',
+  SAVINGS: 'SAVINGS',
+  REMITTANCES: 'REMITTANCES',
+  SUBSCRIPTIONS: 'SUBSCRIPTIONS',
+  OTHER: 'OTHER'
+};
+
+exports.BudgetPeriodType = exports.$Enums.BudgetPeriodType = {
+  CALENDAR_MONTH: 'CALENDAR_MONTH',
+  PAYDAY: 'PAYDAY'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
@@ -216,7 +281,10 @@ exports.Prisma.ModelName = {
   VerificationToken: 'VerificationToken',
   BankConnection: 'BankConnection',
   BankAccount: 'BankAccount',
-  Transaction: 'Transaction'
+  Transaction: 'Transaction',
+  BudgetConfig: 'BudgetConfig',
+  Budget: 'Budget',
+  AiInsight: 'AiInsight'
 };
 
 /**

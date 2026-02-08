@@ -7,6 +7,32 @@ datasource db {
   provider = "postgresql"
 }
 
+// Enums
+enum BudgetPeriodType {
+  CALENDAR_MONTH
+  PAYDAY
+}
+
+enum SpendingCategory {
+  SHOPPING
+  GROCERIES
+  EATING_OUT
+  BILLS
+  TRANSPORT
+  ENTERTAINMENT
+  HEALTH
+  PERSONAL_CARE
+  EDUCATION
+  TRANSFER
+  CASH
+  INCOME
+  FEES
+  SAVINGS
+  REMITTANCES
+  SUBSCRIPTIONS
+  OTHER
+}
+
 // NextAuth.js models
 model User {
   id              String           @id @default(cuid())
@@ -19,6 +45,8 @@ model User {
   accounts        Account[]
   sessions        Session[]
   bankConnections BankConnection[]
+  budgetConfig    BudgetConfig?
+  aiInsights      AiInsight[]
 
   @@map("users")
 }
@@ -99,19 +127,67 @@ model BankAccount {
 }
 
 model Transaction {
-  id           String   @id @default(cuid())
+  id           String            @id @default(cuid())
   accountId    String
   externalId   String // TrueLayer transaction_id
-  amount       Decimal  @db.Decimal(12, 2)
-  currency     String   @default("GBP")
+  amount       Decimal           @db.Decimal(12, 2)
+  currency     String            @default("GBP")
   description  String
   category     String?
   merchantName String?
+  aiCategory   SpendingCategory?
   timestamp    DateTime
 
   account BankAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@unique([accountId, externalId])
   @@index([accountId, timestamp])
+  @@index([accountId, aiCategory, timestamp])
   @@map("transactions")
+}
+
+// Budgeting models
+model BudgetConfig {
+  id         String           @id @default(cuid())
+  userId     String           @unique
+  periodType BudgetPeriodType @default(CALENDAR_MONTH)
+  paydayDate Int? // Day of month (1-31) for payday budgets
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgets Budget[]
+
+  @@map("budget_configs")
+}
+
+model Budget {
+  id        String           @id @default(cuid())
+  configId  String
+  category  SpendingCategory
+  amount    Decimal          @db.Decimal(12, 2)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  config BudgetConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  @@unique([configId, category])
+  @@map("budgets")
+}
+
+model AiInsight {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // spending_trend, anomaly, saving_tip, budget_suggestion
+  title     String
+  body      String   @db.Text
+  metadata  Json?
+  read      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("ai_insights")
 }
