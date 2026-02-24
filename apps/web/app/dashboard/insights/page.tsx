@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import { db } from "@genwel/db";
 import { getInsights } from "@/actions/ai-budgets";
+import { syncUserTransactions } from "@/lib/banking/sync";
+import { categorizeUserTransactions } from "@/lib/banking/categorize";
 import { formatCategoryName } from "@/lib/budget-utils";
 import InsightsList from "@/components/dashboard/insights/InsightsList";
 import InsightsEmptyState from "@/components/dashboard/insights/InsightsEmptyState";
@@ -11,6 +13,10 @@ import type { SpendingCategory } from "@genwel/db";
 export default async function InsightsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  // Sync transactions from TrueLayer, then AI-categorize for insights
+  await syncUserTransactions(session.user.id);
+  await categorizeUserTransactions(session.user.id);
 
   const result = await getInsights();
 

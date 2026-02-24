@@ -3,6 +3,7 @@ import { db } from "@genwel/db";
 import TransactionList from "@/components/dashboard/TransactionList";
 import SpendingChart from "@/components/dashboard/SpendingChart";
 import EmptyState from "@/components/dashboard/EmptyState";
+import { syncUserTransactions } from "@/lib/banking/sync";
 
 export const metadata = {
   title: "Transactions - Genwel",
@@ -16,6 +17,9 @@ export default async function TransactionsPage() {
   if (!userId) {
     return null;
   }
+
+  // Sync transactions from TrueLayer before querying DB
+  await syncUserTransactions(userId);
 
   // Get transactions from last 30 days
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

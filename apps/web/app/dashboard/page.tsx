@@ -8,6 +8,7 @@ import TransactionList from "@/components/dashboard/TransactionList";
 import ConnectBankButton from "@/components/dashboard/ConnectBankButton";
 import EmptyState from "@/components/dashboard/EmptyState";
 import { getBudgetProgress } from "@/actions/budgets";
+import { syncUserTransactions } from "@/lib/banking/sync";
 import {
   formatCategoryName,
   getCategoryIcon,
@@ -23,6 +24,9 @@ export default async function DashboardPage() {
   if (!userId) {
     return null;
   }
+
+  // Sync transactions from TrueLayer before querying DB
+  await syncUserTransactions(userId);
 
   // Get bank accounts
   const bankAccounts = await db.bankAccount.findMany({

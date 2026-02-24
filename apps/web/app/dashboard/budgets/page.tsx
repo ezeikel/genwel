@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { getBudgetProgress } from "@/actions/budgets";
+import { syncUserTransactions } from "@/lib/banking/sync";
+import { categorizeUserTransactions } from "@/lib/banking/categorize";
 import { Button } from "@/components/ui/button";
 import BudgetSummaryCards from "@/components/dashboard/budgets/BudgetSummaryCards";
 import BudgetProgressList from "@/components/dashboard/budgets/BudgetProgressList";
@@ -10,6 +12,10 @@ import BudgetEmptyState from "@/components/dashboard/budgets/BudgetEmptyState";
 export default async function BudgetsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  // Sync transactions from TrueLayer, then AI-categorize for budget tracking
+  await syncUserTransactions(session.user.id);
+  await categorizeUserTransactions(session.user.id);
 
   const result = await getBudgetProgress();
 
