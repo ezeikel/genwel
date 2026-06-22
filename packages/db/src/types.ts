@@ -2,12 +2,12 @@
 // This file is safe to import in Edge Runtime and client side
 // Re-export only types from the main index (no runtime code)
 export type {
-  User as DbUser,
   Account as DbAccount,
-  Session as DbSession,
-  VerificationToken as DbVerificationToken,
-  BankConnection as DbBankConnection,
   BankAccount as DbBankAccount,
-  Transaction as DbTransaction,
+  BankConnection as DbBankConnection,
   Prisma,
-} from "./generated/prisma";
+  Session as DbSession,
+  Transaction as DbTransaction,
+  User as DbUser,
+  VerificationToken as DbVerificationToken,
+} from './generated/prisma';

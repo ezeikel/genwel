@@ -1,22 +1,22 @@
+import { PortableText } from '@portabletext/react';
+import { format } from 'date-fns';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { format } from 'date-fns';
-import { PortableText } from '@portabletext/react';
-import { sanityFetch, isSanityConfigured } from '@/lib/sanity/client';
+import { BlogGrid } from '@/components/blog/BlogGrid';
+import { portableTextComponents } from '@/components/blog/PortableTextComponents';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import { ArticleJsonLd } from '@/components/JsonLd';
+import { isSanityConfigured, sanityFetch } from '@/lib/sanity/client';
+import { urlFor } from '@/lib/sanity/image';
 import {
   postBySlugQuery,
   postSlugsQuery,
   recentPostsQuery,
 } from '@/lib/sanity/queries';
 import type { SanityPost, SanityPostSummary } from '@/lib/sanity/types';
-import { urlFor } from '@/lib/sanity/image';
-import { portableTextComponents } from '@/components/blog/PortableTextComponents';
-import { BlogGrid } from '@/components/blog/BlogGrid';
-import { ArticleJsonLd } from '@/components/JsonLd';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -150,7 +150,9 @@ export default async function BlogPostPage({ params }: Props) {
                 )}
                 <div>
                   {post.author?.name && (
-                    <p className="font-medium text-foreground">{post.author.name}</p>
+                    <p className="font-medium text-foreground">
+                      {post.author.name}
+                    </p>
                   )}
                   <p className="text-sm text-muted-foreground">
                     {format(new Date(post.publishedAt), 'MMMM d, yyyy')}

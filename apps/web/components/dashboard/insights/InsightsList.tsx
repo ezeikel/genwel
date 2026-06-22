@@ -1,4 +1,4 @@
-import InsightCard from "./InsightCard";
+import InsightCard from './InsightCard';
 
 interface Insight {
   id: string;

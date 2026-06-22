@@ -17,7 +17,7 @@ export interface TrueLayerProvider {
 
 export interface TrueLayerAccount {
   account_id: string;
-  account_type: "TRANSACTION" | "SAVINGS" | "BUSINESS" | "CREDIT_CARD";
+  account_type: 'TRANSACTION' | 'SAVINGS' | 'BUSINESS' | 'CREDIT_CARD';
   display_name: string;
   currency: string;
   account_number?: {
@@ -43,24 +43,24 @@ export interface TrueLayerTransaction {
   description: string;
   amount: number;
   currency: string;
-  transaction_type: "DEBIT" | "CREDIT";
+  transaction_type: 'DEBIT' | 'CREDIT';
   transaction_category:
-    | "ATM"
-    | "BILL_PAYMENT"
-    | "CASH"
-    | "CASHBACK"
-    | "CHEQUE"
-    | "CORRECTION"
-    | "CREDIT"
-    | "DIRECT_DEBIT"
-    | "DIVIDEND"
-    | "FEE_CHARGE"
-    | "INTEREST"
-    | "OTHER"
-    | "PURCHASE"
-    | "STANDING_ORDER"
-    | "TRANSFER"
-    | "DEBIT";
+    | 'ATM'
+    | 'BILL_PAYMENT'
+    | 'CASH'
+    | 'CASHBACK'
+    | 'CHEQUE'
+    | 'CORRECTION'
+    | 'CREDIT'
+    | 'DIRECT_DEBIT'
+    | 'DIVIDEND'
+    | 'FEE_CHARGE'
+    | 'INTEREST'
+    | 'OTHER'
+    | 'PURCHASE'
+    | 'STANDING_ORDER'
+    | 'TRANSFER'
+    | 'DEBIT';
   transaction_classification: string[];
   merchant_name?: string;
   running_balance?: {

@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { motion } from "framer-motion";
-import Link from "next/link";
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { signIn } from 'next-auth/react';
+import { useState } from 'react';
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     if (!email) {
-      setError("Please enter your email address");
+      setError('Please enter your email address');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      await signIn("resend", {
+      await signIn('resend', {
         email,
-        callbackUrl: "/dashboard",
+        callbackUrl: '/dashboard',
       });
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError('Something went wrong. Please try again.');
       setIsLoading(false);
     }
   };
@@ -109,7 +109,7 @@ export default function SignInPage() {
                   Sending magic link...
                 </span>
               ) : (
-                "Continue with Email"
+                'Continue with Email'
               )}
             </button>
           </form>
@@ -124,11 +124,11 @@ export default function SignInPage() {
         </div>
 
         <p className="mt-6 text-center text-sm text-gray-500">
-          By signing in, you agree to our{" "}
+          By signing in, you agree to our{' '}
           <Link href="/terms" className="underline hover:text-gray-700">
             Terms of Service
-          </Link>{" "}
-          and{" "}
+          </Link>{' '}
+          and{' '}
           <Link href="/privacy" className="underline hover:text-gray-700">
             Privacy Policy
           </Link>

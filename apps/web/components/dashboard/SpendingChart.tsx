@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface SpendingChartProps {
   data: {
@@ -8,13 +8,13 @@ interface SpendingChartProps {
 }
 
 const categoryColors: Record<string, string> = {
-  Shopping: "#9333ea",
-  Bills: "#2563eb",
-  Transfer: "#6b7280",
-  Cash: "#22c55e",
-  Income: "#10b981",
-  Fees: "#ef4444",
-  Other: "#9ca3af",
+  Shopping: '#9333ea',
+  Bills: '#2563eb',
+  Transfer: '#6b7280',
+  Cash: '#22c55e',
+  Income: '#10b981',
+  Fees: '#ef4444',
+  Other: '#9ca3af',
 };
 
 export default function SpendingChart({ data }: SpendingChartProps) {
@@ -28,16 +28,16 @@ export default function SpendingChart({ data }: SpendingChartProps) {
           <div className="space-y-3">
             {data.slice(0, 6).map((item) => {
               const percentage = (item.amount / total) * 100;
-              const color = categoryColors[item.category] || "#9ca3af";
+              const color = categoryColors[item.category] || '#9ca3af';
 
               return (
                 <div key={item.category}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-600">{item.category}</span>
                     <span className="font-medium text-gray-900">
-                      {new Intl.NumberFormat("en-GB", {
-                        style: "currency",
-                        currency: "GBP",
+                      {new Intl.NumberFormat('en-GB', {
+                        style: 'currency',
+                        currency: 'GBP',
                       }).format(item.amount)}
                     </span>
                   </div>
@@ -60,9 +60,9 @@ export default function SpendingChart({ data }: SpendingChartProps) {
         <div className="w-full md:w-48 flex flex-col justify-center items-center p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-500 mb-1">Total Spent</p>
           <p className="text-2xl font-bold text-gray-900">
-            {new Intl.NumberFormat("en-GB", {
-              style: "currency",
-              currency: "GBP",
+            {new Intl.NumberFormat('en-GB', {
+              style: 'currency',
+              currency: 'GBP',
             }).format(total)}
           </p>
           <p className="text-xs text-gray-400 mt-1">Last 30 days</p>

@@ -1,11 +1,11 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowTrendUp,
-  faTriangleExclamation,
-  faPiggyBank,
   faLightbulb,
-} from "@fortawesome/pro-light-svg-icons";
-import { Badge } from "@/components/ui/badge";
+  faPiggyBank,
+  faTriangleExclamation,
+} from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Badge } from '@/components/ui/badge';
 
 interface InsightCardProps {
   type: string;
@@ -21,23 +21,23 @@ const typeConfig: Record<
 > = {
   spending_trend: {
     icon: faArrowTrendUp,
-    color: "bg-blue-100 text-blue-600",
-    label: "Trend",
+    color: 'bg-blue-100 text-blue-600',
+    label: 'Trend',
   },
   anomaly: {
     icon: faTriangleExclamation,
-    color: "bg-amber-100 text-amber-600",
-    label: "Unusual",
+    color: 'bg-amber-100 text-amber-600',
+    label: 'Unusual',
   },
   saving_tip: {
     icon: faPiggyBank,
-    color: "bg-green-100 text-green-600",
-    label: "Saving Tip",
+    color: 'bg-green-100 text-green-600',
+    label: 'Saving Tip',
   },
   budget_suggestion: {
     icon: faLightbulb,
-    color: "bg-violet-100 text-violet-600",
-    label: "Suggestion",
+    color: 'bg-violet-100 text-violet-600',
+    label: 'Suggestion',
   },
 };
 
@@ -69,9 +69,9 @@ export default function InsightCard({
           </div>
           <p className="text-sm text-gray-600 leading-relaxed">{body}</p>
           <p className="text-xs text-gray-400 mt-2">
-            {new Intl.DateTimeFormat("en-GB", {
-              dateStyle: "medium",
-              timeStyle: "short",
+            {new Intl.DateTimeFormat('en-GB', {
+              dateStyle: 'medium',
+              timeStyle: 'short',
             }).format(createdAt)}
           </p>
         </div>

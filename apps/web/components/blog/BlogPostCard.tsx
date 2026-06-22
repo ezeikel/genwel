@@ -1,8 +1,8 @@
+import { format } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import type { SanityPostSummary } from '@/lib/sanity/types';
 import { urlFor } from '@/lib/sanity/image';
+import type { SanityPostSummary } from '@/lib/sanity/types';
 
 type BlogPostCardProps = {
   post: SanityPostSummary;

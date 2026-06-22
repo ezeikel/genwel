@@ -1,14 +1,14 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
-  faShoppingBag,
-  faReceipt,
   faArrowRightArrowLeft,
-  faMoneyBill,
-  faPiggyBank,
   faCircleDollar,
   faEllipsis,
-} from "@fortawesome/pro-light-svg-icons";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+  faMoneyBill,
+  faPiggyBank,
+  faReceipt,
+  faShoppingBag,
+} from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface Transaction {
   id: string;
@@ -37,13 +37,13 @@ const categoryIcons: Record<string, IconDefinition> = {
 };
 
 const categoryColors: Record<string, string> = {
-  Shopping: "bg-purple-100 text-purple-600",
-  Bills: "bg-blue-100 text-blue-600",
-  Transfer: "bg-gray-100 text-gray-600",
-  Cash: "bg-green-100 text-green-600",
-  Income: "bg-emerald-100 text-emerald-600",
-  Fees: "bg-red-100 text-red-600",
-  Other: "bg-gray-100 text-gray-600",
+  Shopping: 'bg-purple-100 text-purple-600',
+  Bills: 'bg-blue-100 text-blue-600',
+  Transfer: 'bg-gray-100 text-gray-600',
+  Cash: 'bg-green-100 text-green-600',
+  Income: 'bg-emerald-100 text-emerald-600',
+  Fees: 'bg-red-100 text-red-600',
+  Other: 'bg-gray-100 text-gray-600',
 };
 
 export default function TransactionList({
@@ -53,7 +53,7 @@ export default function TransactionList({
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="divide-y divide-gray-100">
         {transactions.map((tx) => {
-          const category = tx.category || "Other";
+          const category = tx.category || 'Other';
           const icon = categoryIcons[category] || faEllipsis;
           const colorClass = categoryColors[category] || categoryColors.Other;
           const isCredit = tx.amount > 0;
@@ -74,9 +74,9 @@ export default function TransactionList({
                   {tx.merchantName || tx.description}
                 </p>
                 <p className="text-sm text-gray-500 truncate">
-                  {tx.accountName} &middot;{" "}
-                  {new Intl.DateTimeFormat("en-GB", {
-                    dateStyle: "medium",
+                  {tx.accountName} &middot;{' '}
+                  {new Intl.DateTimeFormat('en-GB', {
+                    dateStyle: 'medium',
                   }).format(tx.timestamp)}
                 </p>
               </div>
@@ -84,12 +84,12 @@ export default function TransactionList({
               <div className="text-right">
                 <p
                   className={`font-semibold ${
-                    isCredit ? "text-green-600" : "text-gray-900"
+                    isCredit ? 'text-green-600' : 'text-gray-900'
                   }`}
                 >
-                  {isCredit ? "+" : "-"}
-                  {new Intl.NumberFormat("en-GB", {
-                    style: "currency",
+                  {isCredit ? '+' : '-'}
+                  {new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
                     currency: tx.currency,
                   }).format(Math.abs(tx.amount))}
                 </p>

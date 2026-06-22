@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { sanityFetch, isSanityConfigured } from '@/lib/sanity/client';
+import { isSanityConfigured, sanityFetch } from '@/lib/sanity/client';
 
 const BASE_URL = 'https://genwel.com';
 

@@ -1,12 +1,12 @@
-import { auth } from "@/auth";
-import { db } from "@genwel/db";
-import { getInsights } from "@/actions/ai-budgets";
-import { formatCategoryName } from "@/lib/budget-utils";
-import InsightsList from "@/components/dashboard/insights/InsightsList";
-import InsightsEmptyState from "@/components/dashboard/insights/InsightsEmptyState";
-import GenerateInsightsButton from "@/components/dashboard/insights/GenerateInsightsButton";
-import SpendingTrendChart from "@/components/dashboard/insights/SpendingTrendChart";
-import type { SpendingCategory } from "@genwel/db";
+import type { SpendingCategory } from '@genwel/db';
+import { db } from '@genwel/db';
+import { getInsights } from '@/actions/ai-budgets';
+import { auth } from '@/auth';
+import GenerateInsightsButton from '@/components/dashboard/insights/GenerateInsightsButton';
+import InsightsEmptyState from '@/components/dashboard/insights/InsightsEmptyState';
+import InsightsList from '@/components/dashboard/insights/InsightsList';
+import SpendingTrendChart from '@/components/dashboard/insights/SpendingTrendChart';
+import { formatCategoryName } from '@/lib/budget-utils';
 
 export default async function InsightsPage() {
   const session = await auth();
@@ -17,7 +17,7 @@ export default async function InsightsPage() {
   // Build 3-month trend data for chart
   const trendData = await buildTrendData(session.user.id);
 
-  if ("error" in result) return null;
+  if ('error' in result) return null;
 
   const { insights } = result;
 
@@ -49,8 +49,16 @@ async function buildTrendData(userId: string) {
 
   for (let i = 2; i >= 0; i--) {
     const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
-    const label = start.toLocaleDateString("en-GB", { month: "short" });
+    const end = new Date(
+      now.getFullYear(),
+      now.getMonth() - i + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+    const label = start.toLocaleDateString('en-GB', { month: 'short' });
     months.push({ label, start, end });
   }
 
@@ -58,7 +66,7 @@ async function buildTrendData(userId: string) {
 
   for (const month of months) {
     const spending = await db.transaction.groupBy({
-      by: ["aiCategory"],
+      by: ['aiCategory'],
       where: {
         account: { connection: { userId } },
         aiCategory: { not: null },
@@ -68,7 +76,11 @@ async function buildTrendData(userId: string) {
       _sum: { amount: true },
     });
 
-    const entry: { month: string; total: number; [category: string]: string | number } = { month: month.label, total: 0 };
+    const entry: {
+      month: string;
+      total: number;
+      [category: string]: string | number;
+    } = { month: month.label, total: 0 };
     let total = 0;
     for (const s of spending) {
       if (s.aiCategory) {

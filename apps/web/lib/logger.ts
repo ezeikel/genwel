@@ -70,7 +70,7 @@ class Logger {
     level: LogLevel,
     message: string,
     context?: LogContext,
-    error?: Error
+    error?: Error,
   ): LogEntry {
     return {
       level,
@@ -88,7 +88,9 @@ class Logger {
     if (process.env.NODE_ENV !== 'development') return;
 
     const prefix = `[${entry.level.toUpperCase()}] ${entry.timestamp}`;
-    const contextStr = entry.context ? JSON.stringify(entry.context, null, 2) : '';
+    const contextStr = entry.context
+      ? JSON.stringify(entry.context, null, 2)
+      : '';
 
     switch (entry.level) {
       case 'debug':
@@ -235,7 +237,7 @@ class Logger {
         error_type: 'api',
         ...context,
       },
-      error
+      error,
     );
   }
 
@@ -247,7 +249,7 @@ class Logger {
         error_type: 'ai',
         ...context,
       },
-      error
+      error,
     );
   }
 
@@ -258,7 +260,7 @@ class Logger {
         error_type: 'network',
         ...context,
       },
-      error
+      error,
     );
   }
 
@@ -269,7 +271,7 @@ class Logger {
         error_type: 'sanity',
         ...context,
       },
-      error
+      error,
     );
   }
 
@@ -336,7 +338,7 @@ export function createServerLogger(context?: Partial<LogContext>) {
 // Client-side helper with PostHog integration
 export function createClientLogger(
   posthog?: unknown,
-  context?: Partial<LogContext>
+  context?: Partial<LogContext>,
 ) {
   if (posthog) {
     logger.setPostHog(posthog);

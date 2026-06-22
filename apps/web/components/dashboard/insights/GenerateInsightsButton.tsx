@@ -1,11 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWandMagicSparkles, faSpinner } from "@fortawesome/pro-light-svg-icons";
-import { Button } from "@/components/ui/button";
-import { generateInsights } from "@/actions/ai-budgets";
+import {
+  faSpinner,
+  faWandMagicSparkles,
+} from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { generateInsights } from '@/actions/ai-budgets';
+import { Button } from '@/components/ui/button';
 
 export default function GenerateInsightsButton() {
   const router = useRouter();
@@ -32,9 +35,9 @@ export default function GenerateInsightsButton() {
     >
       <FontAwesomeIcon
         icon={loading ? faSpinner : faWandMagicSparkles}
-        className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+        className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
       />
-      {loading ? "Generating..." : "Refresh Insights"}
+      {loading ? 'Generating...' : 'Refresh Insights'}
     </Button>
   );
 }

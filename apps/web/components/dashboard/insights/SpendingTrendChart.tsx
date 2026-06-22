@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { formatCurrency } from "@/lib/budget-utils";
+} from 'recharts';
+import { formatCurrency } from '@/lib/budget-utils';
 
 interface SpendingTrendChartProps {
   data: {
@@ -20,8 +20,14 @@ interface SpendingTrendChartProps {
 }
 
 const COLORS = [
-  "#9333ea", "#2563eb", "#ea580c", "#16a34a", "#db2777",
-  "#0284c7", "#dc2626", "#0d9488",
+  '#9333ea',
+  '#2563eb',
+  '#ea580c',
+  '#16a34a',
+  '#db2777',
+  '#0284c7',
+  '#dc2626',
+  '#0d9488',
 ];
 
 export default function SpendingTrendChart({ data }: SpendingTrendChartProps) {
@@ -29,7 +35,7 @@ export default function SpendingTrendChart({ data }: SpendingTrendChartProps) {
 
   // Extract category keys (everything except 'month' and 'total')
   const categories = Object.keys(data[0] || {}).filter(
-    (k) => k !== "month" && k !== "total",
+    (k) => k !== 'month' && k !== 'total',
   );
 
   return (
@@ -43,12 +49,12 @@ export default function SpendingTrendChart({ data }: SpendingTrendChartProps) {
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
             <XAxis
               dataKey="month"
-              tick={{ fontSize: 12, fill: "#6b7280" }}
+              tick={{ fontSize: 12, fill: '#6b7280' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 12, fill: "#6b7280" }}
+              tick={{ fontSize: 12, fill: '#6b7280' }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => `£${v}`}
@@ -56,9 +62,9 @@ export default function SpendingTrendChart({ data }: SpendingTrendChartProps) {
             <Tooltip
               formatter={(value: number) => formatCurrency(value)}
               contentStyle={{
-                borderRadius: "0.75rem",
-                border: "1px solid #e5e7eb",
-                fontSize: "0.875rem",
+                borderRadius: '0.75rem',
+                border: '1px solid #e5e7eb',
+                fontSize: '0.875rem',
               }}
             />
             {categories.map((cat, i) => (

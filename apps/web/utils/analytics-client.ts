@@ -21,10 +21,10 @@ export function useAnalytics() {
 
       // Log in development
       if (process.env.NODE_ENV === 'development') {
-        console.log('[Analytics]', eventName, enrichedProperties);
+        console.info('[Analytics]', eventName, enrichedProperties);
       }
     },
-    []
+    [],
   );
 
   const identify = useCallback(
@@ -34,10 +34,10 @@ export function useAnalytics() {
       posthog.identify(userId, traits);
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('[Analytics] Identify', userId, traits);
+        console.info('[Analytics] Identify', userId, traits);
       }
     },
-    []
+    [],
   );
 
   return { track, identify };

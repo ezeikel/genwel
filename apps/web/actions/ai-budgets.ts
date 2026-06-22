@@ -1,14 +1,14 @@
-"use server";
+'use server';
 
-import { auth } from "@/auth";
-import { db, SpendingCategory } from "@genwel/db";
-import { revalidatePath } from "next/cache";
+import { db, SpendingCategory } from '@genwel/db';
+import { revalidatePath } from 'next/cache';
+import { auth } from '@/auth';
+import { generateBudgetSuggestions } from '@/lib/ai/budget-suggestions';
 import {
   categorizeTransactionBatch,
   type TransactionForCategorization,
-} from "@/lib/ai/categorization";
-import { generateBudgetSuggestions } from "@/lib/ai/budget-suggestions";
-import { generateSpendingInsights } from "@/lib/ai/insights";
+} from '@/lib/ai/categorization';
+import { generateSpendingInsights } from '@/lib/ai/insights';
 
 const BATCH_SIZE = 20;
 
@@ -21,7 +21,7 @@ export async function categorizeTransactions(options?: {
   limit?: number;
 }) {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   const limit = options?.limit ?? 200;
 
@@ -36,7 +36,7 @@ export async function categorizeTransactions(options?: {
   const uncategorized = await db.transaction.findMany({
     where,
     take: limit,
-    orderBy: { timestamp: "desc" },
+    orderBy: { timestamp: 'desc' },
   });
 
   if (uncategorized.length === 0) return { categorized: 0, cached: 0 };
@@ -49,7 +49,7 @@ export async function categorizeTransactions(options?: {
       merchantName: { not: null },
     },
     select: { merchantName: true, aiCategory: true },
-    distinct: ["merchantName"],
+    distinct: ['merchantName'],
   });
 
   const merchantCache = new Map<string, SpendingCategory>();
@@ -100,12 +100,12 @@ export async function categorizeTransactions(options?: {
         aiCategorized++;
       }
     } catch (error) {
-      console.error("AI categorization batch failed:", error);
+      console.error('AI categorization batch failed:', error);
     }
   }
 
-  revalidatePath("/dashboard/budgets");
-  revalidatePath("/dashboard");
+  revalidatePath('/dashboard/budgets');
+  revalidatePath('/dashboard');
 
   return { categorized: aiCategorized, cached: cachedUpdates.length };
 }
@@ -115,14 +115,14 @@ export async function categorizeTransactions(options?: {
  */
 export async function getAiBudgetSuggestions() {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
   // Get spending aggregated by aiCategory
   const spending = await db.transaction.groupBy({
-    by: ["aiCategory"],
+    by: ['aiCategory'],
     where: {
       account: { connection: { userId: session.user.id } },
       aiCategory: { not: null },
@@ -134,7 +134,10 @@ export async function getAiBudgetSuggestions() {
   });
 
   if (spending.length === 0) {
-    return { error: "Not enough transaction data. Connect a bank and wait for transactions to be categorized." };
+    return {
+      error:
+        'Not enough transaction data. Connect a bank and wait for transactions to be categorized.',
+    };
   }
 
   const spendingData = spending
@@ -155,17 +158,25 @@ export async function getAiBudgetSuggestions() {
  */
 export async function generateInsights() {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   // Get current and previous period spending
   const now = new Date();
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+  const previousMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
 
   const [currentSpending, previousSpending, budgetConfig] = await Promise.all([
     db.transaction.groupBy({
-      by: ["aiCategory"],
+      by: ['aiCategory'],
       where: {
         account: { connection: { userId: session.user.id } },
         aiCategory: { not: null },
@@ -175,7 +186,7 @@ export async function generateInsights() {
       _sum: { amount: true },
     }),
     db.transaction.groupBy({
-      by: ["aiCategory"],
+      by: ['aiCategory'],
       where: {
         account: { connection: { userId: session.user.id } },
         aiCategory: { not: null },
@@ -192,12 +203,14 @@ export async function generateInsights() {
 
   const currentMap = new Map<SpendingCategory, number>();
   for (const s of currentSpending) {
-    if (s.aiCategory) currentMap.set(s.aiCategory, Math.abs(Number(s._sum.amount) || 0));
+    if (s.aiCategory)
+      currentMap.set(s.aiCategory, Math.abs(Number(s._sum.amount) || 0));
   }
 
   const previousMap = new Map<SpendingCategory, number>();
   for (const s of previousSpending) {
-    if (s.aiCategory) previousMap.set(s.aiCategory, Math.abs(Number(s._sum.amount) || 0));
+    if (s.aiCategory)
+      previousMap.set(s.aiCategory, Math.abs(Number(s._sum.amount) || 0));
   }
 
   const budgetMap = new Map<SpendingCategory, number>();
@@ -235,7 +248,7 @@ export async function generateInsights() {
     });
   }
 
-  revalidatePath("/dashboard/insights");
+  revalidatePath('/dashboard/insights');
   return { count: insights.length };
 }
 
@@ -244,14 +257,14 @@ export async function generateInsights() {
  */
 export async function getInsights() {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   let insights = await db.aiInsight.findMany({
     where: {
       userId: session.user.id,
       expiresAt: { gt: new Date() },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: 'desc' },
   });
 
   if (insights.length === 0) {
@@ -263,7 +276,7 @@ export async function getInsights() {
           userId: session.user.id,
           expiresAt: { gt: new Date() },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       });
     } catch {
       // Not enough data
@@ -288,7 +301,7 @@ export async function getInsights() {
  */
 export async function markInsightRead(insightId: string) {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   await db.aiInsight.updateMany({
     where: { id: insightId, userId: session.user.id },

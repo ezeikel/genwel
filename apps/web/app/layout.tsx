@@ -1,8 +1,8 @@
-import type React from 'react';
-import type { Metadata, Viewport } from 'next';
-import { Plus_Jakarta_Sans, Geist_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import type { Metadata, Viewport } from 'next';
+import { Geist_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
+import type React from 'react';
 import { OrganizationJsonLd, WebApplicationJsonLd } from '@/components/JsonLd';
 import './globals.css';
 

@@ -21,3 +21,6 @@ if (typeof window !== 'undefined') {
 export function onRouteError(error: Error) {
   Sentry.captureException(error);
 }
+
+// Instrument client-side navigations (required by Sentry SDK v9+)
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

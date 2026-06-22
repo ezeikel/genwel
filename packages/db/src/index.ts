@@ -1,28 +1,24 @@
 // Re-export the Prisma client
-export { prisma as db } from "./client";
-
-// Re-export everything from Prisma client
-export * from "./generated/prisma/client";
-
-// Re-export Prisma namespace separately for explicit access
-export { Prisma } from "./generated/prisma/client";
-
+export { prisma as db } from './client';
 // Re-export specific model types with Db prefix for convenience
 export type {
-  User as DbUser,
   Account as DbAccount,
-  Session as DbSession,
-  VerificationToken as DbVerificationToken,
-  BankConnection as DbBankConnection,
-  BankAccount as DbBankAccount,
-  Transaction as DbTransaction,
-  BudgetConfig as DbBudgetConfig,
-  Budget as DbBudget,
   AiInsight as DbAiInsight,
-} from "./generated/prisma/client";
-
+  BankAccount as DbBankAccount,
+  BankConnection as DbBankConnection,
+  Budget as DbBudget,
+  BudgetConfig as DbBudgetConfig,
+  Session as DbSession,
+  Transaction as DbTransaction,
+  User as DbUser,
+  VerificationToken as DbVerificationToken,
+} from './generated/prisma/client';
+// Re-export everything from Prisma client
+export * from './generated/prisma/client';
+// Re-export Prisma namespace separately for explicit access
 // Re-export enums
 export {
   BudgetPeriodType,
+  Prisma,
   SpendingCategory,
-} from "./generated/prisma/client";
+} from './generated/prisma/client';

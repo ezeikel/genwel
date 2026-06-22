@@ -1,16 +1,16 @@
-"use server";
+'use server';
 
-import { auth } from "@/auth";
-import { db, BudgetPeriodType, SpendingCategory } from "@genwel/db";
-import { revalidatePath } from "next/cache";
-import { getCurrentPeriod } from "@/lib/budget-utils";
+import { BudgetPeriodType, db, SpendingCategory } from '@genwel/db';
+import { revalidatePath } from 'next/cache';
+import { auth } from '@/auth';
+import { getCurrentPeriod } from '@/lib/budget-utils';
 
 /**
  * Get the current user's budget config with all budget lines.
  */
 export async function getBudgetConfig() {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   const config = await db.budgetConfig.findUnique({
     where: { userId: session.user.id },
@@ -41,12 +41,15 @@ export async function createOrUpdateBudgetConfig(data: {
   paydayDate?: number | null;
 }) {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   const { periodType, paydayDate } = data;
 
-  if (periodType === "PAYDAY" && (!paydayDate || paydayDate < 1 || paydayDate > 31)) {
-    return { error: "Payday date must be between 1 and 31" };
+  if (
+    periodType === 'PAYDAY' &&
+    (!paydayDate || paydayDate < 1 || paydayDate > 31)
+  ) {
+    return { error: 'Payday date must be between 1 and 31' };
   }
 
   const config = await db.budgetConfig.upsert({
@@ -54,16 +57,22 @@ export async function createOrUpdateBudgetConfig(data: {
     create: {
       userId: session.user.id,
       periodType,
-      paydayDate: periodType === "PAYDAY" ? paydayDate : null,
+      paydayDate: periodType === 'PAYDAY' ? paydayDate : null,
     },
     update: {
       periodType,
-      paydayDate: periodType === "PAYDAY" ? paydayDate : null,
+      paydayDate: periodType === 'PAYDAY' ? paydayDate : null,
     },
   });
 
-  revalidatePath("/dashboard/budgets");
-  return { config: { id: config.id, periodType: config.periodType, paydayDate: config.paydayDate } };
+  revalidatePath('/dashboard/budgets');
+  return {
+    config: {
+      id: config.id,
+      periodType: config.periodType,
+      paydayDate: config.paydayDate,
+    },
+  };
 }
 
 /**
@@ -73,13 +82,13 @@ export async function setBudgets(data: {
   budgets: { category: SpendingCategory; amount: number }[];
 }) {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   const config = await db.budgetConfig.findUnique({
     where: { userId: session.user.id },
   });
 
-  if (!config) return { error: "Create a budget configuration first" };
+  if (!config) return { error: 'Create a budget configuration first' };
 
   for (const { category, amount } of data.budgets) {
     if (amount <= 0) continue;
@@ -90,8 +99,8 @@ export async function setBudgets(data: {
     });
   }
 
-  revalidatePath("/dashboard/budgets");
-  revalidatePath("/dashboard");
+  revalidatePath('/dashboard/budgets');
+  revalidatePath('/dashboard');
   return { success: true };
 }
 
@@ -100,24 +109,24 @@ export async function setBudgets(data: {
  */
 export async function deleteBudget(category: SpendingCategory) {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   const config = await db.budgetConfig.findUnique({
     where: { userId: session.user.id },
   });
 
-  if (!config) return { error: "No budget configuration found" };
+  if (!config) return { error: 'No budget configuration found' };
 
   try {
     await db.budget.delete({
       where: { configId_category: { configId: config.id, category } },
     });
   } catch {
-    return { error: "Budget not found" };
+    return { error: 'Budget not found' };
   }
 
-  revalidatePath("/dashboard/budgets");
-  revalidatePath("/dashboard");
+  revalidatePath('/dashboard/budgets');
+  revalidatePath('/dashboard');
   return { success: true };
 }
 
@@ -127,7 +136,7 @@ export interface BudgetProgressItem {
   spent: number;
   remaining: number;
   percentUsed: number;
-  status: "on_track" | "warning" | "over_budget";
+  status: 'on_track' | 'warning' | 'over_budget';
 }
 
 /**
@@ -136,7 +145,7 @@ export interface BudgetProgressItem {
  */
 export async function getBudgetProgress() {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: 'Unauthorized' };
 
   const config = await db.budgetConfig.findUnique({
     where: { userId: session.user.id },
@@ -151,7 +160,7 @@ export async function getBudgetProgress() {
 
   // Get spending grouped by aiCategory for the current period
   const spending = await db.transaction.groupBy({
-    by: ["aiCategory"],
+    by: ['aiCategory'],
     where: {
       account: { connection: { userId: session.user.id } },
       aiCategory: { not: null },
@@ -179,15 +188,22 @@ export async function getBudgetProgress() {
     const percentUsed = budgetAmount > 0 ? (spent / budgetAmount) * 100 : 0;
     const status =
       percentUsed > 100
-        ? ("over_budget" as const)
+        ? ('over_budget' as const)
         : percentUsed >= 75
-          ? ("warning" as const)
-          : ("on_track" as const);
+          ? ('warning' as const)
+          : ('on_track' as const);
 
     totalBudgeted += budgetAmount;
     totalSpent += spent;
 
-    return { category: budget.category, budgetAmount, spent, remaining, percentUsed, status };
+    return {
+      category: budget.category,
+      budgetAmount,
+      spent,
+      remaining,
+      percentUsed,
+      status,
+    };
   });
 
   // Sort: over_budget first, then warning, then on_track

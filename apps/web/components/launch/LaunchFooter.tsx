@@ -1,49 +1,49 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faApple,
   faGooglePlay,
-  faXTwitter,
   faInstagram,
-  faTiktok,
   faLinkedin,
-} from "@fortawesome/free-brands-svg-icons"
-import { Button } from "@/components/ui/button"
+  faTiktok,
+  faXTwitter,
+} from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const LaunchFooter = () => {
   const footerLinks = {
     Product: [
-      { label: "Features", href: "#features" },
-      { label: "Security", href: "#security" },
-      { label: "Pricing", href: "#" },
-      { label: "FAQ", href: "#faq" },
+      { label: 'Features', href: '#features' },
+      { label: 'Security', href: '#security' },
+      { label: 'Pricing', href: '#' },
+      { label: 'FAQ', href: '#faq' },
     ],
     Company: [
-      { label: "About", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: 'About', href: '#' },
+      { label: 'Blog', href: '#' },
+      { label: 'Careers', href: '#' },
+      { label: 'Contact', href: '#' },
     ],
     Support: [
-      { label: "Help Centre", href: "#" },
-      { label: "Community", href: "#" },
-      { label: "Status", href: "#" },
+      { label: 'Help Centre', href: '#' },
+      { label: 'Community', href: '#' },
+      { label: 'Status', href: '#' },
     ],
     Legal: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "Cookie Policy", href: "#" },
+      { label: 'Privacy Policy', href: '#' },
+      { label: 'Terms of Service', href: '#' },
+      { label: 'Cookie Policy', href: '#' },
     ],
-  }
+  };
 
   const socialLinks = [
-    { icon: faXTwitter, href: "#", label: "X" },
-    { icon: faInstagram, href: "#", label: "Instagram" },
-    { icon: faTiktok, href: "#", label: "TikTok" },
-    { icon: faLinkedin, href: "#", label: "LinkedIn" },
-  ]
+    { icon: faXTwitter, href: '#', label: 'X' },
+    { icon: faInstagram, href: '#', label: 'Instagram' },
+    { icon: faTiktok, href: '#', label: 'TikTok' },
+    { icon: faLinkedin, href: '#', label: 'LinkedIn' },
+  ];
 
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -57,7 +57,8 @@ const LaunchFooter = () => {
               <span className="text-xl font-bold">Genwel</span>
             </div>
             <p className="text-primary-foreground/70 max-w-md mb-6">
-              From minus to generational wealth, together. The UK budgeting app built for real-life money pressures.
+              From minus to generational wealth, together. The UK budgeting app
+              built for real-life money pressures.
             </p>
             <div className="flex gap-3">
               <Button size="sm" variant="secondary" className="gap-2">
@@ -96,7 +97,8 @@ const LaunchFooter = () => {
 
         <div className="border-t border-primary-foreground/20 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-primary-foreground/70">
-            © {new Date().getFullYear()} Genwel. All rights reserved. FCA Registered.
+            © {new Date().getFullYear()} Genwel. All rights reserved. FCA
+            Registered.
           </p>
           <div className="flex items-center gap-4">
             {socialLinks.map((social) => (
@@ -106,14 +108,17 @@ const LaunchFooter = () => {
                 className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
                 aria-label={social.label}
               >
-                <FontAwesomeIcon icon={social.icon} className="text-primary-foreground" />
+                <FontAwesomeIcon
+                  icon={social.icon}
+                  className="text-primary-foreground"
+                />
               </a>
             ))}
           </div>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default LaunchFooter
+export default LaunchFooter;

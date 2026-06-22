@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartPie } from "@fortawesome/pro-light-svg-icons";
-import { Button } from "@/components/ui/button";
+import { faChartPie } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function BudgetEmptyState() {
   return (

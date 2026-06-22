@@ -1,30 +1,30 @@
-"use client"
+'use client';
 
-import type React from "react"
+import { faArrowRight, faPlay } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import type React from 'react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import Link from "next/link"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowRight, faPlay } from "@fortawesome/pro-regular-svg-icons"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-
-type HeroVariant = "landing" | "waitlist"
+type HeroVariant = 'landing' | 'waitlist';
 
 interface HeroSectionProps {
-  variant?: HeroVariant
+  variant?: HeroVariant;
 }
 
-const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
-  const [email, setEmail] = useState("")
+const HeroSection = ({ variant = 'landing' }: HeroSectionProps) => {
+  const [email, setEmail] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Waitlist signup:", email)
-  }
+    e.preventDefault();
+    // TODO(phase-3): POST to /api/waitlist + emit posthog waitlist_signup
+    console.info('Waitlist signup:', email);
+  };
 
-  const isLanding = variant === "landing"
+  const isLanding = variant === 'landing';
 
   return (
     <section className="pt-24 pb-16 md:pt-32 md:pb-24 bg-background">
@@ -79,11 +79,15 @@ const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
             >
               {isLanding ? (
                 <>
-                  Take control of your <span className="text-primary">financial future</span>, starting today.
+                  Take control of your{' '}
+                  <span className="text-primary">financial future</span>,
+                  starting today.
                 </>
               ) : (
                 <>
-                  From minus to <span className="text-primary">generational wealth</span>, together.
+                  From minus to{' '}
+                  <span className="text-primary">generational wealth</span>,
+                  together.
                 </>
               )}
             </motion.h1>
@@ -96,8 +100,8 @@ const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
               className="text-lg text-muted-foreground leading-relaxed mb-8"
             >
               {isLanding
-                ? "Try our alpha and help shape the UK budgeting app built for real-life money pressures—supporting family, managing debt, and building wealth without guilt."
-                : "The UK budgeting app that connects to your bank and is built for real-life money pressures—supporting family, managing debt, and building wealth without guilt."}
+                ? 'Try our alpha and help shape the UK budgeting app built for real-life money pressures—supporting family, managing debt, and building wealth without guilt.'
+                : 'The UK budgeting app that connects to your bank and is built for real-life money pressures—supporting family, managing debt, and building wealth without guilt.'}
             </motion.p>
 
             {isLanding ? (
@@ -111,10 +115,19 @@ const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
                 <Button asChild size="lg" className="h-12 px-8">
                   <Link href="/signin">
                     Try the Alpha
-                    <FontAwesomeIcon icon={faArrowRight} size="sm" className="ml-2" />
+                    <FontAwesomeIcon
+                      icon={faArrowRight}
+                      size="sm"
+                      className="ml-2"
+                    />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-12 px-6">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="h-12 px-6"
+                >
                   <Link href="/waitlist">Join Waitlist</Link>
                 </Button>
               </motion.div>
@@ -137,7 +150,11 @@ const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
                 />
                 <Button type="submit" size="lg" className="h-12 px-6">
                   Join the Waitlist
-                  <FontAwesomeIcon icon={faArrowRight} size="sm" className="ml-2" />
+                  <FontAwesomeIcon
+                    icon={faArrowRight}
+                    size="sm"
+                    className="ml-2"
+                  />
                 </Button>
               </motion.form>
             )}
@@ -151,7 +168,11 @@ const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
             >
               <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                  <FontAwesomeIcon icon={faPlay} size="sm" className="text-primary ml-0.5" />
+                  <FontAwesomeIcon
+                    icon={faPlay}
+                    size="sm"
+                    className="text-primary ml-0.5"
+                  />
                 </span>
                 See how it works
               </button>
@@ -162,7 +183,7 @@ const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
             className="relative lg:justify-self-end"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+            transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
           >
             <div className="relative w-full max-w-sm mx-auto">
               <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl" />
@@ -178,7 +199,7 @@ const HeroSection = ({ variant = "landing" }: HeroSectionProps) => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default HeroSection
+export default HeroSection;

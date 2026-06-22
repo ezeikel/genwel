@@ -1,26 +1,26 @@
-import { generateObject } from "ai";
-import { z } from "zod";
-import { models } from "@/lib/ai/models";
-import type { SpendingCategory } from "@genwel/db";
+import type { SpendingCategory } from '@genwel/db';
+import { generateObject } from 'ai';
+import { z } from 'zod/v3';
+import { models } from '@/lib/ai/models';
 
 const SPENDING_CATEGORIES = [
-  "SHOPPING",
-  "GROCERIES",
-  "EATING_OUT",
-  "BILLS",
-  "TRANSPORT",
-  "ENTERTAINMENT",
-  "HEALTH",
-  "PERSONAL_CARE",
-  "EDUCATION",
-  "TRANSFER",
-  "CASH",
-  "INCOME",
-  "FEES",
-  "SAVINGS",
-  "REMITTANCES",
-  "SUBSCRIPTIONS",
-  "OTHER",
+  'SHOPPING',
+  'GROCERIES',
+  'EATING_OUT',
+  'BILLS',
+  'TRANSPORT',
+  'ENTERTAINMENT',
+  'HEALTH',
+  'PERSONAL_CARE',
+  'EDUCATION',
+  'TRANSFER',
+  'CASH',
+  'INCOME',
+  'FEES',
+  'SAVINGS',
+  'REMITTANCES',
+  'SUBSCRIPTIONS',
+  'OTHER',
 ] as const;
 
 const suggestionsSchema = z.object({
@@ -46,7 +46,9 @@ interface SpendingData {
  */
 export async function generateBudgetSuggestions(
   spendingData: SpendingData[],
-): Promise<{ category: SpendingCategory; amount: number; reasoning: string }[]> {
+): Promise<
+  { category: SpendingCategory; amount: number; reasoning: string }[]
+> {
   const formattedSpending = spendingData.map((s) => ({
     category: s.category,
     monthlyAverage: `£${s.monthlyAverage.toFixed(2)}`,
@@ -73,5 +75,9 @@ User's spending data (last 3 months):
 ${JSON.stringify(formattedSpending, null, 2)}`,
   });
 
-  return object.suggestions as { category: SpendingCategory; amount: number; reasoning: string }[];
+  return object.suggestions as {
+    category: SpendingCategory;
+    amount: number;
+    reasoning: string;
+  }[];
 }

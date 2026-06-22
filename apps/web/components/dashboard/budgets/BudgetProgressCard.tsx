@@ -1,12 +1,12 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { SpendingCategory } from "@genwel/db";
-import { Badge } from "@/components/ui/badge";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { SpendingCategory } from '@genwel/db';
+import { Badge } from '@/components/ui/badge';
 import {
   formatCategoryName,
-  getCategoryIcon,
-  getCategoryColor,
   formatCurrency,
-} from "@/lib/budget-utils";
+  getCategoryColor,
+  getCategoryIcon,
+} from '@/lib/budget-utils';
 
 interface BudgetProgressCardProps {
   category: SpendingCategory;
@@ -14,13 +14,25 @@ interface BudgetProgressCardProps {
   spent: number;
   remaining: number;
   percentUsed: number;
-  status: "on_track" | "warning" | "over_budget";
+  status: 'on_track' | 'warning' | 'over_budget';
 }
 
 const statusConfig = {
-  on_track: { label: "On Track", variant: "secondary" as const, progressColor: "bg-green-500" },
-  warning: { label: "Warning", variant: "outline" as const, progressColor: "bg-amber-500" },
-  over_budget: { label: "Over Budget", variant: "destructive" as const, progressColor: "bg-red-500" },
+  on_track: {
+    label: 'On Track',
+    variant: 'secondary' as const,
+    progressColor: 'bg-green-500',
+  },
+  warning: {
+    label: 'Warning',
+    variant: 'outline' as const,
+    progressColor: 'bg-amber-500',
+  },
+  over_budget: {
+    label: 'Over Budget',
+    variant: 'destructive' as const,
+    progressColor: 'bg-red-500',
+  },
 };
 
 export default function BudgetProgressCard({

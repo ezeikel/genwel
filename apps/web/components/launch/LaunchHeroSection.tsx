@@ -1,9 +1,9 @@
-"use client"
-import { motion } from "framer-motion"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faStar } from "@fortawesome/pro-solid-svg-icons"
-import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons"
-import { Button } from "@/components/ui/button"
+'use client';
+import { faApple, faGooglePlay } from '@fortawesome/free-brands-svg-icons';
+import { faStar } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 const LaunchHeroSection = () => {
   const containerVariants = {
@@ -12,12 +12,16 @@ const LaunchHeroSection = () => {
       opacity: 1,
       transition: { staggerChildren: 0.15, delayChildren: 0.2 },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-  }
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: 'easeOut' },
+    },
+  };
 
   return (
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
@@ -36,22 +40,25 @@ const LaunchHeroSection = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent mb-6"
             >
               <FontAwesomeIcon icon={faStar} size="sm" />
-              <span className="text-sm font-medium">Now Available on iOS and Android</span>
+              <span className="text-sm font-medium">
+                Now Available on iOS and Android
+              </span>
             </motion.div>
 
             <motion.h1
               variants={itemVariants}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight text-balance"
             >
-              From Minus to <span className="text-primary">Generational Wealth</span>
+              From Minus to{' '}
+              <span className="text-primary">Generational Wealth</span>
             </motion.h1>
 
             <motion.p
               variants={itemVariants}
               className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 text-pretty"
             >
-              The UK budgeting app built for real-life money pressures. Join 50,000+ people already building their
-              financial future.
+              The UK budgeting app built for real-life money pressures. Join
+              50,000+ people already building their financial future.
             </motion.p>
 
             <motion.div
@@ -62,7 +69,11 @@ const LaunchHeroSection = () => {
                 <FontAwesomeIcon icon={faApple} size="lg" />
                 Download for iOS
               </Button>
-              <Button size="lg" variant="outline" className="gap-2 bg-transparent">
+              <Button
+                size="lg"
+                variant="outline"
+                className="gap-2 bg-transparent"
+              >
                 <FontAwesomeIcon icon={faGooglePlay} size="lg" />
                 Get it on Android
               </Button>
@@ -74,10 +85,17 @@ const LaunchHeroSection = () => {
             >
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <FontAwesomeIcon key={i} icon={faStar} size="sm" className="text-accent" />
+                  <FontAwesomeIcon
+                    key={i}
+                    icon={faStar}
+                    size="sm"
+                    className="text-accent"
+                  />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">4.9 rating from 12,000+ reviews</span>
+              <span className="text-sm text-muted-foreground">
+                4.9 rating from 12,000+ reviews
+              </span>
             </motion.div>
           </div>
 
@@ -92,10 +110,16 @@ const LaunchHeroSection = () => {
               <div className="w-full h-full bg-gradient-to-b from-primary/20 to-primary/5 rounded-[2.5rem] flex items-center justify-center">
                 <div className="text-center p-6">
                   <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <span className="text-primary-foreground font-bold text-2xl">G</span>
+                    <span className="text-primary-foreground font-bold text-2xl">
+                      G
+                    </span>
                   </div>
-                  <p className="text-foreground font-medium">Your Wealth Journey</p>
-                  <p className="text-muted-foreground text-sm mt-1">Starts Here</p>
+                  <p className="text-foreground font-medium">
+                    Your Wealth Journey
+                  </p>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Starts Here
+                  </p>
                 </div>
               </div>
             </div>
@@ -103,7 +127,7 @@ const LaunchHeroSection = () => {
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default LaunchHeroSection
+export default LaunchHeroSection;

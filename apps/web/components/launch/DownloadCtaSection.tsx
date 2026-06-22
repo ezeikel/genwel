@@ -1,18 +1,20 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { useInView } from "framer-motion"
-import { useRef } from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons"
-import { Button } from "@/components/ui/button"
+import { faApple, faGooglePlay } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { Button } from '@/components/ui/button';
 
 const DownloadCtaSection = () => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="py-20 bg-gradient-to-br from-primary to-primary/80">
+    <section
+      ref={ref}
+      className="py-20 bg-gradient-to-br from-primary to-primary/80"
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -23,7 +25,8 @@ const DownloadCtaSection = () => {
             Start Your Journey Today
           </h2>
           <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto text-pretty">
-            Download Genwel and take the first step from minus to generational wealth. Your future self will thank you.
+            Download Genwel and take the first step from minus to generational
+            wealth. Your future self will thank you.
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -41,11 +44,13 @@ const DownloadCtaSection = () => {
             </Button>
           </div>
 
-          <p className="mt-6 text-sm text-primary-foreground/60">Free to download. No hidden fees. Cancel anytime.</p>
+          <p className="mt-6 text-sm text-primary-foreground/60">
+            Free to download. No hidden fees. Cancel anytime.
+          </p>
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default DownloadCtaSection
+export default DownloadCtaSection;

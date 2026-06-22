@@ -4,16 +4,30 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "format": "biome format --write .",
     "check-types": "turbo run check-types",
     "clean": "rm -rf apps/*/node_modules packages/*/node_modules",
-    "clean:deep": "rm -rf apps/*/node_modules packages/*/node_modules pnpm-lock.yaml && pnpm install"
+    "clean:deep": "rm -rf apps/*/node_modules packages/*/node_modules pnpm-lock.yaml && pnpm install",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "prettier": "^3.6.2",
+    "@biomejs/biome": "^2.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
     "turbo": "^2.5.6",
     "typescript": "5.8.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,jsonc,css,md}": [
+      "biome check --write --no-errors-on-unmatched"
+    ],
+    "**/prisma/schema.prisma": [
+      "pnpm --filter @genwel/db exec prisma format"
+    ]
   },
   "packageManager": "pnpm@10.6.1",
   "engines": {

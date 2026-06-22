@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuildingColumns } from "@fortawesome/pro-light-svg-icons";
-import ConnectBankButton from "./ConnectBankButton";
+import { faBuildingColumns } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ConnectBankButton from './ConnectBankButton';
 
 export default function EmptyState() {
   return (

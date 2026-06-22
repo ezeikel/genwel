@@ -39,7 +39,7 @@ export async function searchPhotos(
     perPage?: number;
     page?: number;
     orientation?: 'landscape' | 'portrait' | 'square';
-  } = {}
+  } = {},
 ): Promise<PexelsSearchResponse> {
   const { perPage = 15, page = 1, orientation = 'landscape' } = options;
 
@@ -70,9 +70,14 @@ export async function searchPhotos(
 }
 
 export async function getPhoto(id: number): Promise<PexelsPhoto> {
+  const apiKey = getPexelsApiKey();
+  if (!apiKey) {
+    throw new Error('PEXELS_API_KEY is not configured');
+  }
+
   const response = await fetch(`${PEXELS_API_URL}/photos/${id}`, {
     headers: {
-      Authorization: PEXELS_API_KEY,
+      Authorization: apiKey,
     },
   });
 
@@ -85,7 +90,7 @@ export async function getPhoto(id: number): Promise<PexelsPhoto> {
 
 export async function downloadPhoto(
   photo: PexelsPhoto,
-  size: keyof PexelsPhoto['src'] = 'large'
+  size: keyof PexelsPhoto['src'] = 'large',
 ): Promise<Buffer> {
   const response = await fetch(photo.src[size]);
   const arrayBuffer = await response.arrayBuffer();
@@ -114,7 +119,7 @@ export async function fetchBlogPhotosForEvaluation(
     orientation?: 'landscape' | 'portrait' | 'square';
     size?: 'large' | 'medium' | 'small';
     excludeIds?: string[];
-  } = {}
+  } = {},
 ): Promise<{
   photos: Array<{ photo: PexelsPhoto; searchTerm: string }>;
 }> {
@@ -155,7 +160,7 @@ export async function fetchBlogPhoto(
   options: {
     orientation?: 'landscape' | 'portrait' | 'square';
     size?: 'large' | 'medium' | 'small';
-  } = {}
+  } = {},
 ): Promise<{
   photo: PexelsPhoto | null;
   searchTerm: string;

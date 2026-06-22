@@ -1,5 +1,5 @@
-import type { BudgetProgressItem } from "@/actions/budgets";
-import BudgetProgressCard from "./BudgetProgressCard";
+import type { BudgetProgressItem } from '@/actions/budgets';
+import BudgetProgressCard from './BudgetProgressCard';
 
 interface BudgetProgressListProps {
   items: BudgetProgressItem[];

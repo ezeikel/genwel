@@ -55,47 +55,182 @@ export const CATEGORY_SEARCH_TERMS: Record<string, string[]> = {
 // Topic-specific search terms (matched against blog title/content)
 export const TOPIC_SEARCH_TERMS: Record<string, string[]> = {
   // Budgeting topics
-  budget: ['budget planning', 'expense tracker', 'money management', 'financial planning'],
-  '50/30/20': ['pie chart money', 'budget allocation', 'money percentages', 'financial split'],
-  'zero-based': ['budget spreadsheet', 'every dollar', 'income allocation', 'zero balance'],
-  envelope: ['cash envelopes', 'money envelopes', 'budget categories', 'cash budgeting'],
-  spending: ['shopping receipt', 'spending habits', 'purchase decision', 'money spending'],
-  track: ['expense tracking', 'financial app', 'money tracker', 'budget monitoring'],
+  budget: [
+    'budget planning',
+    'expense tracker',
+    'money management',
+    'financial planning',
+  ],
+  '50/30/20': [
+    'pie chart money',
+    'budget allocation',
+    'money percentages',
+    'financial split',
+  ],
+  'zero-based': [
+    'budget spreadsheet',
+    'every dollar',
+    'income allocation',
+    'zero balance',
+  ],
+  envelope: [
+    'cash envelopes',
+    'money envelopes',
+    'budget categories',
+    'cash budgeting',
+  ],
+  spending: [
+    'shopping receipt',
+    'spending habits',
+    'purchase decision',
+    'money spending',
+  ],
+  track: [
+    'expense tracking',
+    'financial app',
+    'money tracker',
+    'budget monitoring',
+  ],
 
   // Saving topics
-  'emergency fund': ['piggy bank', 'savings jar', 'rainy day fund', 'emergency savings'],
-  'house deposit': ['house keys', 'home buying', 'property deposit', 'first home'],
-  isa: ['savings account', 'investment account', 'tax free savings', 'isa investment'],
-  'lifetime isa': ['first time buyer', 'retirement savings', 'government bonus', 'lisa savings'],
+  'emergency fund': [
+    'piggy bank',
+    'savings jar',
+    'rainy day fund',
+    'emergency savings',
+  ],
+  'house deposit': [
+    'house keys',
+    'home buying',
+    'property deposit',
+    'first home',
+  ],
+  isa: [
+    'savings account',
+    'investment account',
+    'tax free savings',
+    'isa investment',
+  ],
+  'lifetime isa': [
+    'first time buyer',
+    'retirement savings',
+    'government bonus',
+    'lisa savings',
+  ],
   saving: ['money saving', 'coins jar', 'savings goal', 'financial security'],
 
   // Debt topics
-  'credit score': ['credit report', 'credit check', 'financial score', 'credit rating'],
-  'payday loan': ['urgent money', 'short term loan', 'financial emergency', 'loan stress'],
-  overdraft: ['bank account', 'negative balance', 'bank fees', 'account overdraft'],
-  'buy now pay later': ['online shopping', 'payment plan', 'installment payment', 'klarna'],
+  'credit score': [
+    'credit report',
+    'credit check',
+    'financial score',
+    'credit rating',
+  ],
+  'payday loan': [
+    'urgent money',
+    'short term loan',
+    'financial emergency',
+    'loan stress',
+  ],
+  overdraft: [
+    'bank account',
+    'negative balance',
+    'bank fees',
+    'account overdraft',
+  ],
+  'buy now pay later': [
+    'online shopping',
+    'payment plan',
+    'installment payment',
+    'klarna',
+  ],
   debt: ['credit card', 'debt free', 'paying off debt', 'financial burden'],
-  snowball: ['debt payoff', 'smallest first', 'debt strategy', 'momentum payment'],
-  avalanche: ['high interest', 'debt priority', 'interest rate', 'efficient payoff'],
+  snowball: [
+    'debt payoff',
+    'smallest first',
+    'debt strategy',
+    'momentum payment',
+  ],
+  avalanche: [
+    'high interest',
+    'debt priority',
+    'interest rate',
+    'efficient payoff',
+  ],
 
   // Income topics
-  'side hustle': ['freelance work', 'extra income', 'gig economy', 'multiple jobs'],
-  'self-employed': ['home office', 'entrepreneur', 'freelancer', 'small business'],
+  'side hustle': [
+    'freelance work',
+    'extra income',
+    'gig economy',
+    'multiple jobs',
+  ],
+  'self-employed': [
+    'home office',
+    'entrepreneur',
+    'freelancer',
+    'small business',
+  ],
   'gig economy': ['delivery driver', 'rideshare', 'flexible work', 'app work'],
-  freelance: ['laptop work', 'remote work', 'independent worker', 'creative professional'],
+  freelance: [
+    'laptop work',
+    'remote work',
+    'independent worker',
+    'creative professional',
+  ],
   tax: ['tax return', 'hmrc forms', 'tax calculator', 'tax documents'],
 
   // Family & remittances
-  remittance: ['money transfer', 'sending money', 'international transfer', 'family abroad'],
-  'family abroad': ['global family', 'international family', 'overseas relatives', 'family connection'],
-  'supporting family': ['family support', 'helping relatives', 'financial help', 'family care'],
-  children: ['kids money', 'teaching children', 'family finances', 'pocket money'],
+  remittance: [
+    'money transfer',
+    'sending money',
+    'international transfer',
+    'family abroad',
+  ],
+  'family abroad': [
+    'global family',
+    'international family',
+    'overseas relatives',
+    'family connection',
+  ],
+  'supporting family': [
+    'family support',
+    'helping relatives',
+    'financial help',
+    'family care',
+  ],
+  children: [
+    'kids money',
+    'teaching children',
+    'family finances',
+    'pocket money',
+  ],
 
   // UK-specific
-  'universal credit': ['benefits', 'government support', 'welfare', 'social security'],
-  pension: ['retirement', 'pension pot', 'retirement planning', 'elderly couple'],
-  'national insurance': ['payslip', 'ni contributions', 'employment', 'tax deductions'],
-  'council tax': ['local government', 'property tax', 'council services', 'municipal'],
+  'universal credit': [
+    'benefits',
+    'government support',
+    'welfare',
+    'social security',
+  ],
+  pension: [
+    'retirement',
+    'pension pot',
+    'retirement planning',
+    'elderly couple',
+  ],
+  'national insurance': [
+    'payslip',
+    'ni contributions',
+    'employment',
+    'tax deductions',
+  ],
+  'council tax': [
+    'local government',
+    'property tax',
+    'council services',
+    'municipal',
+  ],
   nhs: ['healthcare', 'medical', 'hospital', 'health service'],
   hmrc: ['tax office', 'government', 'tax return', 'revenue customs'],
 
@@ -103,21 +238,46 @@ export const TOPIC_SEARCH_TERMS: Record<string, string[]> = {
   wedding: ['wedding planning', 'marriage', 'engagement', 'wedding budget'],
   baby: ['new baby', 'parenting', 'nursery', 'maternity'],
   university: ['student', 'graduation', 'university campus', 'student life'],
-  'first job': ['career start', 'young professional', 'new employee', 'workplace'],
+  'first job': [
+    'career start',
+    'young professional',
+    'new employee',
+    'workplace',
+  ],
   moving: ['moving boxes', 'new home', 'relocation', 'apartment'],
   redundancy: ['job loss', 'unemployment', 'career change', 'job search'],
 
   // Mindset & behaviour
-  'financial stress': ['stressed person', 'money worry', 'anxiety', 'overwhelmed'],
-  'money anxiety': ['worried', 'concerned face', 'stress relief', 'calm finance'],
-  guilt: ['emotional', 'feeling guilty', 'internal conflict', 'self reflection'],
+  'financial stress': [
+    'stressed person',
+    'money worry',
+    'anxiety',
+    'overwhelmed',
+  ],
+  'money anxiety': [
+    'worried',
+    'concerned face',
+    'stress relief',
+    'calm finance',
+  ],
+  guilt: [
+    'emotional',
+    'feeling guilty',
+    'internal conflict',
+    'self reflection',
+  ],
   habits: ['routine', 'daily habits', 'behavior change', 'positive habits'],
 
   // Bills & expenses
   bills: ['utility bills', 'paying bills', 'monthly expenses', 'bill payment'],
   energy: ['electricity', 'gas meter', 'energy bills', 'heating'],
   groceries: ['supermarket', 'food shopping', 'grocery store', 'weekly shop'],
-  subscription: ['streaming service', 'monthly subscription', 'app subscription', 'recurring payment'],
+  subscription: [
+    'streaming service',
+    'monthly subscription',
+    'app subscription',
+    'recurring payment',
+  ],
   'mobile phone': ['smartphone', 'mobile contract', 'phone bill', 'telecom'],
 };
 
@@ -165,7 +325,10 @@ export function getSearchTermsForTopic(text: string): string[] {
 /**
  * Combine category and topic search terms, deduplicating
  */
-export function getCombinedSearchTerms(category: string, title: string): string[] {
+export function getCombinedSearchTerms(
+  category: string,
+  title: string,
+): string[] {
   const categoryTerms = getSearchTermsForCategory(category);
   const topicTerms = getSearchTermsForTopic(title);
 
@@ -179,7 +342,7 @@ export function getCombinedSearchTerms(category: string, title: string): string[
  */
 export function generateAltText(
   searchTerm: string,
-  context: { title?: string; category?: string } = {}
+  context: { title?: string; category?: string } = {},
 ): string {
   // If we have title context, use it
   if (context.title) {

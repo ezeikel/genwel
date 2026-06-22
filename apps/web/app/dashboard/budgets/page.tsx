@@ -1,11 +1,11 @@
-import Link from "next/link";
-import { auth } from "@/auth";
-import { getBudgetProgress } from "@/actions/budgets";
-import { Button } from "@/components/ui/button";
-import BudgetSummaryCards from "@/components/dashboard/budgets/BudgetSummaryCards";
-import BudgetProgressList from "@/components/dashboard/budgets/BudgetProgressList";
-import SpendingDonutChart from "@/components/dashboard/budgets/SpendingDonutChart";
-import BudgetEmptyState from "@/components/dashboard/budgets/BudgetEmptyState";
+import Link from 'next/link';
+import { getBudgetProgress } from '@/actions/budgets';
+import { auth } from '@/auth';
+import BudgetEmptyState from '@/components/dashboard/budgets/BudgetEmptyState';
+import BudgetProgressList from '@/components/dashboard/budgets/BudgetProgressList';
+import BudgetSummaryCards from '@/components/dashboard/budgets/BudgetSummaryCards';
+import SpendingDonutChart from '@/components/dashboard/budgets/SpendingDonutChart';
+import { Button } from '@/components/ui/button';
 
 export default async function BudgetsPage() {
   const session = await auth();
@@ -13,7 +13,7 @@ export default async function BudgetsPage() {
 
   const result = await getBudgetProgress();
 
-  if ("error" in result) return null;
+  if ('error' in result) return null;
 
   const { progress, totalBudgeted, totalSpent } = result;
 

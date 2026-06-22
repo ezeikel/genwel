@@ -1,12 +1,12 @@
-import { auth } from "@/auth";
-import { db } from "@genwel/db";
-import TransactionList from "@/components/dashboard/TransactionList";
-import SpendingChart from "@/components/dashboard/SpendingChart";
-import EmptyState from "@/components/dashboard/EmptyState";
+import { db } from '@genwel/db';
+import { auth } from '@/auth';
+import EmptyState from '@/components/dashboard/EmptyState';
+import SpendingChart from '@/components/dashboard/SpendingChart';
+import TransactionList from '@/components/dashboard/TransactionList';
 
 export const metadata = {
-  title: "Transactions - Genwel",
-  description: "View your transaction history",
+  title: 'Transactions - Genwel',
+  description: 'View your transaction history',
 };
 
 export default async function TransactionsPage() {
@@ -43,7 +43,7 @@ export default async function TransactionsPage() {
         },
       },
     },
-    orderBy: { timestamp: "desc" },
+    orderBy: { timestamp: 'desc' },
   });
 
   // Check if user has any accounts
@@ -66,14 +66,14 @@ export default async function TransactionsPage() {
 
   // Calculate spending by category
   const spendingByCategory = transactions.reduce(
-    (acc: Record<string, number>, tx: typeof transactions[number]) => {
+    (acc: Record<string, number>, tx: (typeof transactions)[number]) => {
       if (Number(tx.amount) < 0) {
-        const category = tx.category || "Other";
+        const category = tx.category || 'Other';
         acc[category] = (acc[category] || 0) + Math.abs(Number(tx.amount));
       }
       return acc;
     },
-    {} as Record<string, number>
+    {} as Record<string, number>,
   );
 
   const chartData = Object.entries(spendingByCategory)
@@ -111,17 +111,19 @@ export default async function TransactionsPage() {
           </div>
         ) : (
           <TransactionList
-            transactions={transactions.map((tx: typeof transactions[number]) => ({
-              id: tx.id,
-              description: tx.description,
-              amount: Number(tx.amount),
-              currency: tx.currency,
-              category: tx.category,
-              merchantName: tx.merchantName,
-              timestamp: tx.timestamp,
-              accountName: tx.account.displayName,
-              providerName: tx.account.connection.providerName,
-            }))}
+            transactions={transactions.map(
+              (tx: (typeof transactions)[number]) => ({
+                id: tx.id,
+                description: tx.description,
+                amount: Number(tx.amount),
+                currency: tx.currency,
+                category: tx.category,
+                merchantName: tx.merchantName,
+                timestamp: tx.timestamp,
+                accountName: tx.account.displayName,
+                providerName: tx.account.connection.providerName,
+              }),
+            )}
           />
         )}
       </div>

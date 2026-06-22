@@ -52,7 +52,8 @@ export const styles = {
   card: {
     backgroundColor: colors.bgWhite,
     borderRadius: '24px',
-    boxShadow: '0 8px 32px rgba(26, 90, 90, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05)',
+    boxShadow:
+      '0 8px 32px rgba(26, 90, 90, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05)',
   },
   pill: {
     backgroundColor: `${colors.primary}15`,

@@ -2,7 +2,7 @@
 type CleanPropertyValue = string | number | boolean | null;
 
 export function cleanVercelProperties(
-  properties: Record<string, unknown>
+  properties: Record<string, unknown>,
 ): Record<string, CleanPropertyValue> {
   const cleaned: Record<string, CleanPropertyValue> = {};
 

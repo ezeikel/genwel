@@ -1,13 +1,13 @@
-import Header from "@/components/Header"
-import HeroSection from "@/components/HeroSection"
-import TrustSection from "@/components/TrustSection"
-import HowItWorksSection from "@/components/HowItWorksSection"
-import CoreFeaturesSection from "@/components/CoreFeaturesSection"
-import UniqueFeaturesSection from "@/components/UniqueFeaturesSection"
-import PersonasSection from "@/components/PersonasSection"
-import SecuritySection from "@/components/SecuritySection"
-import FaqSection from "@/components/FaqSection"
-import Footer from "@/components/Footer"
+import CoreFeaturesSection from '@/components/CoreFeaturesSection';
+import FaqSection from '@/components/FaqSection';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
+import PersonasSection from '@/components/PersonasSection';
+import SecuritySection from '@/components/SecuritySection';
+import TrustSection from '@/components/TrustSection';
+import UniqueFeaturesSection from '@/components/UniqueFeaturesSection';
 
 const HomePage = () => {
   return (
@@ -23,7 +23,7 @@ const HomePage = () => {
       <FaqSection />
       <Footer />
     </main>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

@@ -1,6 +1,6 @@
 import { withSentryConfig } from '@sentry/nextjs';
-import { withPlausibleProxy } from 'next-plausible';
 import type { NextConfig } from 'next';
+import { withPlausibleProxy } from 'next-plausible';
 
 const nextConfig: NextConfig = {
   typescript: {

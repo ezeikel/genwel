@@ -1,10 +1,10 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 
 export const metadata = {
-  title: "Dashboard - Genwel",
-  description: "Manage your finances with Genwel",
+  title: 'Dashboard - Genwel',
+  description: 'Manage your finances with Genwel',
 };
 
 export default async function DashboardLayout({
@@ -15,7 +15,7 @@ export default async function DashboardLayout({
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/signin?redirect=/dashboard");
+    redirect('/signin?redirect=/dashboard');
   }
 
   return (

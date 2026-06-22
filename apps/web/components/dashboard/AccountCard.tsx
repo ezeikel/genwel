@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/pro-light-svg-icons";
-import { disconnectBank } from "@/actions/banking";
+import { faTrash } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { disconnectBank } from '@/actions/banking';
 
 interface AccountCardProps {
   account: {
@@ -28,7 +28,7 @@ export default function AccountCard({
   const handleDisconnect = async () => {
     if (
       !confirm(
-        "Are you sure you want to disconnect this bank? All account data will be removed."
+        'Are you sure you want to disconnect this bank? All account data will be removed.',
       )
     ) {
       return;
@@ -45,7 +45,7 @@ export default function AccountCard({
 
       router.refresh();
     } catch {
-      alert("Failed to disconnect bank. Please try again.");
+      alert('Failed to disconnect bank. Please try again.');
     } finally {
       setIsDisconnecting(false);
     }
@@ -55,7 +55,7 @@ export default function AccountCard({
     <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <span className="text-xs bg-gray-100 px-2 py-1 rounded-full capitalize text-gray-600">
-          {account.accountType.replace("_", " ")}
+          {account.accountType.replace('_', ' ')}
         </span>
         <button
           onClick={handleDisconnect}
@@ -70,18 +70,18 @@ export default function AccountCard({
       <p className="font-medium text-gray-900 mb-1">{account.displayName}</p>
 
       <p className="text-2xl font-bold text-gray-900 mb-2">
-        {new Intl.NumberFormat("en-GB", {
-          style: "currency",
+        {new Intl.NumberFormat('en-GB', {
+          style: 'currency',
           currency: account.currency,
         }).format(account.balance)}
       </p>
 
       {account.balanceUpdatedAt && (
         <p className="text-xs text-gray-400">
-          Updated{" "}
-          {new Intl.DateTimeFormat("en-GB", {
-            dateStyle: "short",
-            timeStyle: "short",
+          Updated{' '}
+          {new Intl.DateTimeFormat('en-GB', {
+            dateStyle: 'short',
+            timeStyle: 'short',
           }).format(account.balanceUpdatedAt)}
         </p>
       )}

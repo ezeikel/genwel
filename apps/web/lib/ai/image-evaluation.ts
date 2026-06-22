@@ -6,7 +6,7 @@
  */
 
 import { generateObject } from 'ai';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { models } from './models';
 
 // Schema for image evaluation response
@@ -19,7 +19,7 @@ const ImageEvaluationSchema = z.object({
   concerns: z
     .array(z.string())
     .describe(
-      'Any concerns about the image (e.g., too generic, wrong context, misleading)'
+      'Any concerns about the image (e.g., too generic, wrong context, misleading)',
     ),
 });
 
@@ -49,7 +49,7 @@ export interface EvaluateImageOptions {
  * @returns Evaluation result with relevance decision, confidence, and reasoning
  */
 export async function evaluateImageRelevance(
-  options: EvaluateImageOptions
+  options: EvaluateImageOptions,
 ): Promise<ImageEvaluation> {
   const { title, excerpt, category, imageUrl, searchTerm } = options;
 
@@ -123,7 +123,7 @@ Analyze the attached image and determine if it's a good match for this blog post
 export async function findBestImage(
   images: Array<{ url: string; searchTerm: string }>,
   context: { title: string; excerpt: string; category: string },
-  minConfidence: number = 60
+  minConfidence: number = 60,
 ): Promise<{
   selectedIndex: number | null;
   evaluations: ImageEvaluation[];
@@ -136,8 +136,8 @@ export async function findBestImage(
         imageUrl: img.url,
         searchTerm: img.searchTerm,
         minConfidence,
-      })
-    )
+      }),
+    ),
   );
 
   // Find the best qualifying image

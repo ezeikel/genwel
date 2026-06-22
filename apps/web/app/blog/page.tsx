@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import { BlogGrid } from '@/components/blog/BlogGrid';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 import { sanityFetch } from '@/lib/sanity/client';
 import { postsQuery } from '@/lib/sanity/queries';
 import type { SanityPostSummary } from '@/lib/sanity/types';
-import { BlogGrid } from '@/components/blog/BlogGrid';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -43,8 +43,9 @@ export default async function BlogPage() {
                 The Genwel <span className="text-primary">Blog</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Practical advice on budgeting, saving, debt recovery, and building
-                generational wealth—written for real-life money pressures.
+                Practical advice on budgeting, saving, debt recovery, and
+                building generational wealth—written for real-life money
+                pressures.
               </p>
             </div>
           </div>
@@ -74,8 +75,8 @@ export default async function BlogPage() {
                   Coming Soon
                 </h2>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  We&apos;re working on some great content for you. Check back soon
-                  for tips on budgeting, saving, and building wealth.
+                  We&apos;re working on some great content for you. Check back
+                  soon for tips on budgeting, saving, and building wealth.
                 </p>
               </div>
             )}

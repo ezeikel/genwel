@@ -1,25 +1,25 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faBars, faXmark } from "@fortawesome/pro-light-svg-icons"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { faBars, faXmark } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 type HeaderProps = {
-  variant?: "waitlist" | "launch"
-}
+  variant?: 'waitlist' | 'launch';
+};
 
-const Header = ({ variant = "waitlist" }: HeaderProps) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+const Header = ({ variant = 'waitlist' }: HeaderProps) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: "#how-it-works", label: "How it works" },
-    { href: "#features", label: "Features" },
-    { href: "#security", label: "Security" },
-    { href: "#faq", label: "FAQ" },
-    { href: "/blog", label: "Blog" },
-  ]
+    { href: '#how-it-works', label: 'How it works' },
+    { href: '#features', label: 'Features' },
+    { href: '#security', label: 'Security' },
+    { href: '#faq', label: 'FAQ' },
+    { href: '/blog', label: 'Blog' },
+  ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -27,7 +27,9 @@ const Header = ({ variant = "waitlist" }: HeaderProps) => {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">G</span>
+              <span className="text-primary-foreground font-bold text-lg">
+                G
+              </span>
             </div>
             <span className="text-xl font-bold text-foreground">Genwel</span>
           </Link>
@@ -45,16 +47,26 @@ const Header = ({ variant = "waitlist" }: HeaderProps) => {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            {variant === "launch" && (
+            {variant === 'launch' && (
               <Button variant="ghost" size="sm">
                 Log in
               </Button>
             )}
-            <Button size="sm">{variant === "waitlist" ? "Join Waitlist" : "Download App"}</Button>
+            <Button size="sm">
+              {variant === 'waitlist' ? 'Join Waitlist' : 'Download App'}
+            </Button>
           </div>
 
-          <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
-            <FontAwesomeIcon icon={mobileMenuOpen ? faXmark : faBars} size="lg" className="text-foreground" />
+          <button
+            className="md:hidden p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <FontAwesomeIcon
+              icon={mobileMenuOpen ? faXmark : faBars}
+              size="lg"
+              className="text-foreground"
+            />
           </button>
         </div>
 
@@ -72,19 +84,21 @@ const Header = ({ variant = "waitlist" }: HeaderProps) => {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                {variant === "launch" && (
+                {variant === 'launch' && (
                   <Button variant="ghost" size="sm" className="justify-start">
                     Log in
                   </Button>
                 )}
-                <Button size="sm">{variant === "waitlist" ? "Join Waitlist" : "Download App"}</Button>
+                <Button size="sm">
+                  {variant === 'waitlist' ? 'Join Waitlist' : 'Download App'}
+                </Button>
               </div>
             </nav>
           </div>
         )}
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

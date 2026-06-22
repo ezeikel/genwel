@@ -8,9 +8,6 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": ["**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
     "check-types": {
       "dependsOn": ["^check-types"]
     },

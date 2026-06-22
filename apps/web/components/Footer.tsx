@@ -1,49 +1,54 @@
-"use client"
+'use client';
 
-import type React from "react"
-
-import { useState } from "react"
-import Link from "next/link"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowRight } from "@fortawesome/pro-regular-svg-icons"
-import { faXTwitter, faInstagram, faTiktok, faLinkedin } from "@fortawesome/free-brands-svg-icons"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import {
+  faInstagram,
+  faLinkedin,
+  faTiktok,
+  faXTwitter,
+} from '@fortawesome/free-brands-svg-icons';
+import { faArrowRight } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import type React from 'react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const Footer = () => {
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Footer waitlist signup:", email)
-  }
+    e.preventDefault();
+    // TODO(phase-3): POST to /api/waitlist + emit posthog waitlist_signup
+    console.info('Footer waitlist signup:', email);
+  };
 
   const footerLinks = {
     Product: [
-      { label: "Features", href: "#features" },
-      { label: "Security", href: "#security" },
-      { label: "Roadmap", href: "#roadmap" },
-      { label: "FAQ", href: "#faq" },
+      { label: 'Features', href: '#features' },
+      { label: 'Security', href: '#security' },
+      { label: 'Roadmap', href: '#roadmap' },
+      { label: 'FAQ', href: '#faq' },
     ],
     Company: [
-      { label: "About", href: "#" },
-      { label: "Blog", href: "/blog" },
-      { label: "Careers", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: 'About', href: '#' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Careers', href: '#' },
+      { label: 'Contact', href: '#' },
     ],
     Legal: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "Cookie Policy", href: "#" },
+      { label: 'Privacy Policy', href: '#' },
+      { label: 'Terms of Service', href: '#' },
+      { label: 'Cookie Policy', href: '#' },
     ],
-  }
+  };
 
   const socialLinks = [
-    { icon: faXTwitter, href: "#", label: "X" },
-    { icon: faInstagram, href: "#", label: "Instagram" },
-    { icon: faTiktok, href: "#", label: "TikTok" },
-    { icon: faLinkedin, href: "#", label: "LinkedIn" },
-  ]
+    { icon: faXTwitter, href: '#', label: 'X' },
+    { icon: faInstagram, href: '#', label: 'Instagram' },
+    { icon: faTiktok, href: '#', label: 'TikTok' },
+    { icon: faLinkedin, href: '#', label: 'LinkedIn' },
+  ];
 
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -57,9 +62,13 @@ const Footer = () => {
               <span className="text-xl font-bold">Genwel</span>
             </div>
             <p className="text-primary-foreground/70 max-w-md mb-6">
-              From minus to generational wealth, together. The UK budgeting app built for real-life money pressures.
+              From minus to generational wealth, together. The UK budgeting app
+              built for real-life money pressures.
             </p>
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col sm:flex-row gap-3 max-w-md"
+            >
               <Input
                 type="email"
                 placeholder="Enter your email"
@@ -70,7 +79,11 @@ const Footer = () => {
               />
               <Button type="submit" variant="secondary" className="shrink-0">
                 Join Waitlist
-                <FontAwesomeIcon icon={faArrowRight} size="sm" className="ml-2" />
+                <FontAwesomeIcon
+                  icon={faArrowRight}
+                  size="sm"
+                  className="ml-2"
+                />
               </Button>
             </form>
           </div>
@@ -108,14 +121,17 @@ const Footer = () => {
                 className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
                 aria-label={social.label}
               >
-                <FontAwesomeIcon icon={social.icon} className="text-primary-foreground" />
+                <FontAwesomeIcon
+                  icon={social.icon}
+                  className="text-primary-foreground"
+                />
               </a>
             ))}
           </div>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

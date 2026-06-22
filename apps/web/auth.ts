@@ -1,11 +1,11 @@
-import NextAuth from "next-auth";
-import type { NextAuthConfig, Account, User } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import Resend from "next-auth/providers/resend";
-import { render } from "@react-email/render";
-import { db } from "@genwel/db";
-import resendClient from "@/lib/resend";
-import MagicLinkEmail from "@/components/emails/MagicLinkEmail";
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { db } from '@genwel/db';
+import { render } from '@react-email/render';
+import type { Account, NextAuthConfig, User } from 'next-auth';
+import NextAuth from 'next-auth';
+import Resend from 'next-auth/providers/resend';
+import MagicLinkEmail from '@/components/emails/MagicLinkEmail';
+import resendClient from '@/lib/resend';
 
 const prismaAdapter = PrismaAdapter(db);
 
@@ -20,9 +20,9 @@ const config = {
       } catch (error: unknown) {
         if (
           error &&
-          typeof error === "object" &&
-          "code" in error &&
-          error.code === "P2025"
+          typeof error === 'object' &&
+          'code' in error &&
+          error.code === 'P2025'
         )
           return null;
         throw error;
@@ -30,24 +30,25 @@ const config = {
     },
   },
   session: {
-    strategy: "database",
+    strategy: 'database',
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
-    signIn: "/signin",
-    verifyRequest: "/auth/verify-request",
+    signIn: '/signin',
+    verifyRequest: '/auth/verify-request',
   },
   providers: [
     Resend({
-      from: process.env.DEFAULT_FROM_EMAIL || "Genwel <no-reply@genwel.com>",
+      from: process.env.DEFAULT_FROM_EMAIL || 'Genwel <no-reply@genwel.com>',
       async sendVerificationRequest({ identifier: email, url }) {
         const emailHtml = await render(MagicLinkEmail({ magicLink: url }));
 
         await resendClient.emails.send({
-          from: process.env.DEFAULT_FROM_EMAIL || "Genwel <no-reply@genwel.com>",
+          from:
+            process.env.DEFAULT_FROM_EMAIL || 'Genwel <no-reply@genwel.com>',
           to: email,
-          subject: "Sign in to Genwel",
+          subject: 'Sign in to Genwel',
           html: emailHtml,
         });
       },
@@ -67,7 +68,7 @@ const config = {
         return true;
       }
 
-      if (account?.provider === "resend") {
+      if (account?.provider === 'resend') {
         const userEmail = account.providerAccountId;
 
         if (!userEmail) return false;

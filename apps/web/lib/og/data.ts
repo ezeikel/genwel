@@ -1,4 +1,4 @@
-import { sanityFetch, isSanityConfigured } from '@/lib/sanity/client';
+import { isSanityConfigured, sanityFetch } from '@/lib/sanity/client';
 import { urlFor } from '@/lib/sanity/image';
 import type { SanityPost } from '@/lib/sanity/types';
 
@@ -33,7 +33,7 @@ const postForOGQuery = `*[_type == "post" && slug.current == $slug && status == 
 }`;
 
 export async function getBlogPostForOG(
-  slug: string
+  slug: string,
 ): Promise<BlogPostOGData | null> {
   if (!isSanityConfigured) {
     return null;

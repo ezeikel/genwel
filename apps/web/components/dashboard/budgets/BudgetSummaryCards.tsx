@@ -1,4 +1,4 @@
-import BalanceCard from "@/components/dashboard/BalanceCard";
+import BalanceCard from '@/components/dashboard/BalanceCard';
 
 interface BudgetSummaryCardsProps {
   totalBudgeted: number;
@@ -25,11 +25,7 @@ export default function BudgetSummaryCards({
         currency="GBP"
         label="Spent"
       />
-      <BalanceCard
-        title="Remaining"
-        amount={remaining}
-        currency="GBP"
-      />
+      <BalanceCard title="Remaining" amount={remaining} currency="GBP" />
     </div>
   );
 }

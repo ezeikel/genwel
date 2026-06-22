@@ -1,31 +1,28 @@
 'use server';
 
 import { generateObject, generateText } from 'ai';
-import { z } from 'zod';
+import { z } from 'zod/v3';
+import { findBestImage, type ImageEvaluation } from '@/lib/ai/image-evaluation';
 import { models } from '@/lib/ai/models';
 import {
-  BLOG_TOPICS,
-  BLOG_META_PROMPT,
   BLOG_CONTENT_PROMPT,
   BLOG_IMAGE_GENERATION_PROMPT,
+  BLOG_META_PROMPT,
+  BLOG_TOPICS,
 } from '@/lib/ai/prompts';
-import { writeClient, sanityFetch } from '@/lib/sanity/client';
-import { coveredTopicsQuery } from '@/lib/sanity/queries';
+import { createServerLogger } from '@/lib/logger';
 import {
-  fetchBlogPhotosForEvaluation,
   downloadPhoto,
+  fetchBlogPhotosForEvaluation,
   formatPhotoCredit,
   type PexelsPhoto,
 } from '@/lib/pexels/client';
 import {
-  getCombinedSearchTerms,
   generateAltText,
+  getCombinedSearchTerms,
 } from '@/lib/pexels/search-terms';
-import {
-  findBestImage,
-  type ImageEvaluation,
-} from '@/lib/ai/image-evaluation';
-import { createServerLogger } from '@/lib/logger';
+import { sanityFetch, writeClient } from '@/lib/sanity/client';
+import { coveredTopicsQuery } from '@/lib/sanity/queries';
 
 // Create a server logger for blog generation
 const log = createServerLogger({ action: 'blog_generation' });
@@ -68,7 +65,7 @@ export async function getCoveredTopics(): Promise<string[]> {
 export async function getRandomUncoveredTopic(): Promise<string | null> {
   const coveredTopics = await getCoveredTopics();
   const uncoveredTopics = BLOG_TOPICS.filter(
-    (topic) => !coveredTopics.includes(topic)
+    (topic) => !coveredTopics.includes(topic),
   );
 
   if (uncoveredTopics.length === 0) {
@@ -105,7 +102,7 @@ async function generateBlogMeta(topic: string): Promise<BlogMeta> {
 // Generate blog content
 async function generateBlogContent(
   meta: BlogMeta,
-  existingPosts: string[]
+  existingPosts: string[],
 ): Promise<string> {
   const existingContext =
     existingPosts.length > 0
@@ -127,7 +124,7 @@ async function generateBlogContent(
  */
 function getImageSearchTerms(
   title: string,
-  category: string
+  category: string,
 ): { searchTerms: string[]; altText: string } {
   const searchTerms = getCombinedSearchTerms(category, title);
   const altText = generateAltText(searchTerms[0] || 'finance', { title });
@@ -139,7 +136,7 @@ function getImageSearchTerms(
  * Uses Google's Gemini 3 Pro Image model via Vercel AI SDK
  */
 async function generateImageWithGemini(
-  title: string
+  title: string,
 ): Promise<{ buffer: Buffer; mimeType: string } | null> {
   const prompt = BLOG_IMAGE_GENERATION_PROMPT.replace('{{TITLE}}', title);
 
@@ -160,7 +157,7 @@ async function generateImageWithGemini(
 
     // Images come back in result.files for image generation models
     const imageFile = result.files?.find((f) =>
-      f.mimeType?.startsWith('image/')
+      f.mediaType?.startsWith('image/'),
     );
 
     if (imageFile) {
@@ -169,7 +166,7 @@ async function generateImageWithGemini(
 
       return {
         buffer,
-        mimeType: imageFile.mimeType,
+        mimeType: imageFile.mediaType,
       };
     }
 
@@ -183,7 +180,7 @@ async function generateImageWithGemini(
     log.error(
       'Gemini image generation failed',
       { title },
-      error instanceof Error ? error : undefined
+      error instanceof Error ? error : undefined,
     );
     return null;
   }
@@ -194,7 +191,7 @@ async function generateImageWithGemini(
  */
 async function uploadImageToSanity(
   buffer: Buffer,
-  filename: string
+  filename: string,
 ): Promise<{ _type: 'reference'; _ref: string }> {
   const asset = await writeClient.assets.upload('image', buffer, {
     filename,
@@ -221,7 +218,7 @@ async function getFeaturedImage(
   excerpt: string,
   category: string,
   slug: string,
-  excludeIds: string[] = []
+  excludeIds: string[] = [],
 ): Promise<FeaturedImage | null> {
   log.info('Getting featured image', {
     title,
@@ -262,7 +259,7 @@ async function getFeaturedImage(
             searchTerm: p.searchTerm,
           })),
           { title, excerpt, category },
-          IMAGE_EVALUATION_THRESHOLD
+          IMAGE_EVALUATION_THRESHOLD,
         );
 
         if (selectedIndex !== null) {
@@ -280,7 +277,7 @@ async function getFeaturedImage(
           // Log why no photo was selected
           const bestEvaluation = evaluations.reduce(
             (best, curr) => (curr.confidence > best.confidence ? curr : best),
-            evaluations[0]
+            evaluations[0],
           );
           log.info('AI rejected all Pexels images', {
             bestConfidence: bestEvaluation?.confidence ?? 0,
@@ -292,7 +289,7 @@ async function getFeaturedImage(
         log.warn(
           'AI evaluation failed, using first Pexels photo',
           {},
-          evalError instanceof Error ? evalError : undefined
+          evalError instanceof Error ? evalError : undefined,
         );
         selectedPhoto = pexelsResult.photos[0].photo;
         selectedSearchTerm = pexelsResult.photos[0].searchTerm;
@@ -302,7 +299,10 @@ async function getFeaturedImage(
     // 4. Use selected Pexels photo if available
     if (selectedPhoto) {
       const buffer = await downloadPhoto(selectedPhoto, 'large2x');
-      const assetRef = await uploadImageToSanity(buffer, `${slug}-featured.jpg`);
+      const assetRef = await uploadImageToSanity(
+        buffer,
+        `${slug}-featured.jpg`,
+      );
       const credit = formatPhotoCredit(selectedPhoto);
 
       return {
@@ -321,7 +321,7 @@ async function getFeaturedImage(
     if (geminiResult) {
       const assetRef = await uploadImageToSanity(
         geminiResult.buffer,
-        `${slug}-featured-generated.png`
+        `${slug}-featured-generated.png`,
       );
 
       return {
@@ -337,7 +337,7 @@ async function getFeaturedImage(
     log.error(
       'Error getting featured image',
       { title },
-      error instanceof Error ? error : undefined
+      error instanceof Error ? error : undefined,
     );
     return null;
   }
@@ -351,9 +351,9 @@ function parseInlineMarkdown(text: string): unknown[] {
   // Regex to match **bold**, *italic*, or ***bold italic***
   const regex = /(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*)/g;
   let lastIndex = 0;
-  let match;
+  let match = regex.exec(text);
 
-  while ((match = regex.exec(text)) !== null) {
+  while (match !== null) {
     // Add text before the match
     if (match.index > lastIndex) {
       const beforeText = text.slice(lastIndex, match.index);
@@ -394,6 +394,7 @@ function parseInlineMarkdown(text: string): unknown[] {
     }
 
     lastIndex = regex.lastIndex;
+    match = regex.exec(text);
   }
 
   // Add remaining text
@@ -513,11 +514,11 @@ async function createSanityPost(
   meta: BlogMeta,
   body: unknown[],
   featuredImage: FeaturedImage | null,
-  topic: string
+  topic: string,
 ): Promise<{ _id: string; slug: string }> {
   // Find or create default author
   const authors = await writeClient.fetch(
-    `*[_type == "author"][0]{ _id, name }`
+    `*[_type == "author"][0]{ _id, name }`,
   );
 
   let authorRef = authors?._id;
@@ -548,7 +549,7 @@ async function createSanityPost(
   // Find matching category
   const categories = await writeClient.fetch(
     `*[_type == "category" && title == $category]{ _id }`,
-    { category: meta.category }
+    { category: meta.category },
   );
 
   let categoryRef = categories?.[0]?._id;
@@ -605,9 +606,12 @@ async function createSanityPost(
 }
 
 // Main generation function
-export async function generateBlogPostForTopic(
-  topic: string
-): Promise<{ success: boolean; slug?: string; title?: string; error?: string }> {
+export async function generateBlogPostForTopic(topic: string): Promise<{
+  success: boolean;
+  slug?: string;
+  title?: string;
+  error?: string;
+}> {
   try {
     // 1. Generate metadata
     const meta = await generateBlogMeta(topic);
@@ -615,7 +619,7 @@ export async function generateBlogPostForTopic(
     // 2. Check if slug already exists
     const existingPost = await writeClient.fetch(
       `*[_type == "post" && slug.current == $slug][0]{ _id }`,
-      { slug: meta.slug }
+      { slug: meta.slug },
     );
 
     if (existingPost) {
@@ -633,13 +637,15 @@ export async function generateBlogPostForTopic(
 
     // 5. Get featured image (Pexels first with AI evaluation, then Gemini)
     const usedPexelsIds = await getUsedPexelsIds();
-    log.debug('Excluding already-used Pexels photos', { count: usedPexelsIds.length });
+    log.debug('Excluding already-used Pexels photos', {
+      count: usedPexelsIds.length,
+    });
     const featuredImage = await getFeaturedImage(
       meta.title,
       meta.excerpt,
       meta.category,
       meta.slug,
-      usedPexelsIds
+      usedPexelsIds,
     );
 
     // 6. Convert to Portable Text
@@ -653,7 +659,7 @@ export async function generateBlogPostForTopic(
     log.error(
       'Error generating blog post',
       { topic },
-      error instanceof Error ? error : undefined
+      error instanceof Error ? error : undefined,
     );
     return {
       success: false,
@@ -682,9 +688,7 @@ export async function generateRandomBlogPost(): Promise<{
  * Regenerate featured image for an existing post
  * Uses AI Judge + Gemini fallback flow
  */
-export async function regeneratePostImage(
-  postId: string
-): Promise<{
+export async function regeneratePostImage(postId: string): Promise<{
   success: boolean;
   imageSource?: 'pexels' | 'gemini';
   error?: string;
@@ -699,7 +703,7 @@ export async function regeneratePostImage(
         "slug": slug.current,
         "category": categories[0]->title
       }`,
-      { postId }
+      { postId },
     );
 
     if (!post) {
@@ -710,14 +714,16 @@ export async function regeneratePostImage(
 
     // 2. Get used Pexels IDs (excluding this post's current ID)
     const usedPexelsIds = await getUsedPexelsIds(postId);
-    log.debug('Excluding already-used Pexels photos', { count: usedPexelsIds.length });
+    log.debug('Excluding already-used Pexels photos', {
+      count: usedPexelsIds.length,
+    });
 
     const featuredImage = await getFeaturedImage(
       post.title,
       post.excerpt || '',
       post.category || 'Budgeting',
       post.slug,
-      usedPexelsIds
+      usedPexelsIds,
     );
 
     if (!featuredImage) {
@@ -758,7 +764,7 @@ export async function regeneratePostImage(
     log.error(
       'Failed to regenerate post image',
       { postId },
-      error instanceof Error ? error : undefined
+      error instanceof Error ? error : undefined,
     );
     return {
       success: false,
@@ -784,7 +790,7 @@ export async function regenerateAllPostImages(): Promise<{
 }> {
   // Fetch all posts
   const posts = await writeClient.fetch<Array<{ _id: string; title: string }>>(
-    `*[_type == "post"] | order(publishedAt desc) { _id, title }`
+    `*[_type == "post"] | order(publishedAt desc) { _id, title }`,
   );
 
   log.info('Starting batch image regeneration', { totalPosts: posts.length });
@@ -802,7 +808,11 @@ export async function regenerateAllPostImages(): Promise<{
 
   for (const post of posts) {
     const progress = results.length + 1;
-    log.debug('Processing post', { progress, total: posts.length, title: post.title });
+    log.debug('Processing post', {
+      progress,
+      total: posts.length,
+      title: post.title,
+    });
 
     const result = await regeneratePostImage(post._id);
 
@@ -824,7 +834,11 @@ export async function regenerateAllPostImages(): Promise<{
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
-  log.info('Batch regeneration complete', { successful, failed, total: posts.length });
+  log.info('Batch regeneration complete', {
+    successful,
+    failed,
+    total: posts.length,
+  });
 
   return {
     total: posts.length,

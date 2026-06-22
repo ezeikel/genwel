@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSpinner } from "@fortawesome/pro-light-svg-icons";
-import { connectBank } from "@/actions/banking";
+import { faPlus, faSpinner } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState } from 'react';
+import { connectBank } from '@/actions/banking';
 
 export default function ConnectBankButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function ConnectBankButton() {
         window.location.href = result.url;
       }
     } catch {
-      alert("Failed to connect bank. Please try again.");
+      alert('Failed to connect bank. Please try again.');
       setIsLoading(false);
     }
   };
@@ -35,9 +35,9 @@ export default function ConnectBankButton() {
     >
       <FontAwesomeIcon
         icon={isLoading ? faSpinner : faPlus}
-        className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+        className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
       />
-      {isLoading ? "Connecting..." : "Connect Bank"}
+      {isLoading ? 'Connecting...' : 'Connect Bank'}
     </button>
   );
 }

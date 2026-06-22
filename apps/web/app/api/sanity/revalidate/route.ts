@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
         });
     }
 
-    console.log(
+    console.info(
       `[Sanity Webhook] Revalidated tags for ${_type} (${_id}):`,
       revalidatedTags,
     );

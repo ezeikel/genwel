@@ -1,25 +1,25 @@
-import { generateObject } from "ai";
-import { z } from "zod";
-import { models } from "@/lib/ai/models";
+import { generateObject } from 'ai';
+import { z } from 'zod/v3';
+import { models } from '@/lib/ai/models';
 
 const SPENDING_CATEGORIES = [
-  "SHOPPING",
-  "GROCERIES",
-  "EATING_OUT",
-  "BILLS",
-  "TRANSPORT",
-  "ENTERTAINMENT",
-  "HEALTH",
-  "PERSONAL_CARE",
-  "EDUCATION",
-  "TRANSFER",
-  "CASH",
-  "INCOME",
-  "FEES",
-  "SAVINGS",
-  "REMITTANCES",
-  "SUBSCRIPTIONS",
-  "OTHER",
+  'SHOPPING',
+  'GROCERIES',
+  'EATING_OUT',
+  'BILLS',
+  'TRANSPORT',
+  'ENTERTAINMENT',
+  'HEALTH',
+  'PERSONAL_CARE',
+  'EDUCATION',
+  'TRANSFER',
+  'CASH',
+  'INCOME',
+  'FEES',
+  'SAVINGS',
+  'REMITTANCES',
+  'SUBSCRIPTIONS',
+  'OTHER',
 ] as const;
 
 const categorizationSchema = z.object({
@@ -53,9 +53,9 @@ export async function categorizeTransactionBatch(
   // Format transactions for the prompt — only merchant/description/category/amount
   const txList = transactions.map((tx) => ({
     id: tx.id,
-    merchant: tx.merchantName || "Unknown",
+    merchant: tx.merchantName || 'Unknown',
     description: tx.description,
-    originalCategory: tx.category || "Unknown",
+    originalCategory: tx.category || 'Unknown',
     amount: tx.amount,
   }));
 

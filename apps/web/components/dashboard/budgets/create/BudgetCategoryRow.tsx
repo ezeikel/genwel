@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import type { SpendingCategory } from "@genwel/db";
-import { Input } from "@/components/ui/input";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { SpendingCategory } from '@genwel/db';
+import { Input } from '@/components/ui/input';
 import {
   formatCategoryName,
-  getCategoryIcon,
   getCategoryColor,
-} from "@/lib/budget-utils";
-import AiSuggestionBadge from "./AiSuggestionBadge";
+  getCategoryIcon,
+} from '@/lib/budget-utils';
+import AiSuggestionBadge from './AiSuggestionBadge';
 
 interface BudgetCategoryRowProps {
   category: SpendingCategory;

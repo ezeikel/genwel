@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope } from "@fortawesome/pro-light-svg-icons";
+import { faEnvelope } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 
 export const metadata = {
-  title: "Check your email - Genwel",
-  description: "We sent you a magic link to sign in",
+  title: 'Check your email - Genwel',
+  description: 'We sent you a magic link to sign in',
 };
 
 export default function VerifyRequestPage() {
@@ -36,7 +36,7 @@ export default function VerifyRequestPage() {
           </div>
 
           <p className="text-sm text-gray-500">
-            Didn&apos;t receive the email?{" "}
+            Didn&apos;t receive the email?{' '}
             <Link
               href="/signin"
               className="text-black underline hover:no-underline"

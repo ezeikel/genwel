@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Header from "@/components/Header"
+import Header from '@/components/Header';
 
 export const metadata: Metadata = {
   title: 'Join the Waitlist',
@@ -15,16 +15,17 @@ export const metadata: Metadata = {
     url: 'https://genwel.com/waitlist',
   },
 };
-import HeroSection from "@/components/HeroSection"
-import TrustSection from "@/components/TrustSection"
-import HowItWorksSection from "@/components/HowItWorksSection"
-import CoreFeaturesSection from "@/components/CoreFeaturesSection"
-import UniqueFeaturesSection from "@/components/UniqueFeaturesSection"
-import PersonasSection from "@/components/PersonasSection"
-import SecuritySection from "@/components/SecuritySection"
-import RoadmapSection from "@/components/RoadmapSection"
-import FaqSection from "@/components/FaqSection"
-import Footer from "@/components/Footer"
+
+import CoreFeaturesSection from '@/components/CoreFeaturesSection';
+import FaqSection from '@/components/FaqSection';
+import Footer from '@/components/Footer';
+import HeroSection from '@/components/HeroSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
+import PersonasSection from '@/components/PersonasSection';
+import RoadmapSection from '@/components/RoadmapSection';
+import SecuritySection from '@/components/SecuritySection';
+import TrustSection from '@/components/TrustSection';
+import UniqueFeaturesSection from '@/components/UniqueFeaturesSection';
 
 const WaitlistPage = () => {
   return (
@@ -41,7 +42,7 @@ const WaitlistPage = () => {
       <FaqSection />
       <Footer />
     </main>
-  )
-}
+  );
+};
 
-export default WaitlistPage
+export default WaitlistPage;

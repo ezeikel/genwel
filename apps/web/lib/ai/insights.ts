@@ -1,13 +1,18 @@
-import { generateObject } from "ai";
-import { z } from "zod";
-import { models } from "@/lib/ai/models";
-import type { SpendingCategory } from "@genwel/db";
-import { formatCategoryName } from "@/lib/budget-utils";
+import type { SpendingCategory } from '@genwel/db';
+import { generateObject } from 'ai';
+import { z } from 'zod/v3';
+import { models } from '@/lib/ai/models';
+import { formatCategoryName } from '@/lib/budget-utils';
 
 const insightSchema = z.object({
   insights: z.array(
     z.object({
-      type: z.enum(["spending_trend", "anomaly", "saving_tip", "budget_suggestion"]),
+      type: z.enum([
+        'spending_trend',
+        'anomaly',
+        'saving_tip',
+        'budget_suggestion',
+      ]),
       title: z.string(),
       body: z.string(),
       metadata: z
@@ -51,8 +56,8 @@ export async function generateSpendingInsights(input: InsightInput) {
       categoryKey: cat,
       currentMonth: `£${current.toFixed(2)}`,
       previousMonth: `£${previous.toFixed(2)}`,
-      percentChange: `${change > 0 ? "+" : ""}${change.toFixed(0)}%`,
-      budget: budget ? `£${budget.toFixed(2)}` : "No budget set",
+      percentChange: `${change > 0 ? '+' : ''}${change.toFixed(0)}%`,
+      budget: budget ? `£${budget.toFixed(2)}` : 'No budget set',
       overBudget: budget ? current > budget : false,
     };
   });
@@ -61,8 +66,14 @@ export async function generateSpendingInsights(input: InsightInput) {
     return [];
   }
 
-  const totalCurrent = Array.from(currentSpending.values()).reduce((a, b) => a + b, 0);
-  const totalPrevious = Array.from(previousSpending.values()).reduce((a, b) => a + b, 0);
+  const totalCurrent = Array.from(currentSpending.values()).reduce(
+    (a, b) => a + b,
+    0,
+  );
+  const totalPrevious = Array.from(previousSpending.values()).reduce(
+    (a, b) => a + b,
+    0,
+  );
 
   const { object } = await generateObject({
     model: models.intelligent,

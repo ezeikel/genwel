@@ -54,3 +54,4 @@ android/app/build/
 # Misc
 *.pem
 .cache
+*.tsbuildinfo

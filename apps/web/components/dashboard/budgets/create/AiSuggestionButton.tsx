@@ -1,15 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWandMagicSparkles, faSpinner } from "@fortawesome/pro-light-svg-icons";
-import { Button } from "@/components/ui/button";
-import { getAiBudgetSuggestions } from "@/actions/ai-budgets";
-import type { SpendingCategory } from "@genwel/db";
+import {
+  faSpinner,
+  faWandMagicSparkles,
+} from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { SpendingCategory } from '@genwel/db';
+import { useState } from 'react';
+import { getAiBudgetSuggestions } from '@/actions/ai-budgets';
+import { Button } from '@/components/ui/button';
 
 interface AiSuggestionButtonProps {
   onSuggestionsReceived: (
-    suggestions: { category: SpendingCategory; amount: number; reasoning: string }[],
+    suggestions: {
+      category: SpendingCategory;
+      amount: number;
+      reasoning: string;
+    }[],
   ) => void;
 }
 
@@ -24,13 +31,13 @@ export default function AiSuggestionButton({
     setError(null);
     try {
       const result = await getAiBudgetSuggestions();
-      if ("error" in result && result.error) {
+      if ('error' in result && result.error) {
         setError(result.error);
-      } else if ("suggestions" in result && result.suggestions) {
+      } else if ('suggestions' in result && result.suggestions) {
         onSuggestionsReceived(result.suggestions);
       }
     } catch {
-      setError("Failed to get AI suggestions");
+      setError('Failed to get AI suggestions');
     } finally {
       setLoading(false);
     }
@@ -47,9 +54,9 @@ export default function AiSuggestionButton({
       >
         <FontAwesomeIcon
           icon={loading ? faSpinner : faWandMagicSparkles}
-          className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+          className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
         />
-        {loading ? "Analysing spending..." : "Get AI Suggestions"}
+        {loading ? 'Analysing spending...' : 'Get AI Suggestions'}
       </Button>
       {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
     </div>

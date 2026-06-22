@@ -1,20 +1,20 @@
-import Link from "next/link";
-import { auth } from "@/auth";
-import { db } from "@genwel/db";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/pro-light-svg-icons";
-import BalanceCard from "@/components/dashboard/BalanceCard";
-import TransactionList from "@/components/dashboard/TransactionList";
-import ConnectBankButton from "@/components/dashboard/ConnectBankButton";
-import EmptyState from "@/components/dashboard/EmptyState";
-import { getBudgetProgress } from "@/actions/budgets";
+import { faArrowRight } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { db } from '@genwel/db';
+import Link from 'next/link';
+import { getBudgetProgress } from '@/actions/budgets';
+import { auth } from '@/auth';
+import BalanceCard from '@/components/dashboard/BalanceCard';
+import ConnectBankButton from '@/components/dashboard/ConnectBankButton';
+import EmptyState from '@/components/dashboard/EmptyState';
+import TransactionList from '@/components/dashboard/TransactionList';
 import {
   formatCategoryName,
-  getCategoryIcon,
-  getCategoryColor,
   formatCurrency,
   getBudgetStatus,
-} from "@/lib/budget-utils";
+  getCategoryColor,
+  getCategoryIcon,
+} from '@/lib/budget-utils';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -61,14 +61,15 @@ export default async function DashboardPage() {
         },
       },
     },
-    orderBy: { timestamp: "desc" },
+    orderBy: { timestamp: 'desc' },
     take: 10,
   });
 
   // Calculate total balance
   const totalBalance = bankAccounts.reduce(
-    (sum: number, account: typeof bankAccounts[number]) => sum + (Number(account.balance) || 0),
-    0
+    (sum: number, account: (typeof bankAccounts)[number]) =>
+      sum + (Number(account.balance) || 0),
+    0,
   );
 
   // If no accounts, show empty state
@@ -104,8 +105,9 @@ export default async function DashboardPage() {
         <BalanceCard
           title="This Month"
           amount={recentTransactions.reduce(
-            (sum: number, tx: typeof recentTransactions[number]) => sum + (Number(tx.amount) < 0 ? Number(tx.amount) : 0),
-            0
+            (sum: number, tx: (typeof recentTransactions)[number]) =>
+              sum + (Number(tx.amount) < 0 ? Number(tx.amount) : 0),
+            0,
           )}
           currency="GBP"
           label="Spent"
@@ -118,7 +120,7 @@ export default async function DashboardPage() {
           Your Accounts
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {bankAccounts.map((account: typeof bankAccounts[number]) => (
+          {bankAccounts.map((account: (typeof bankAccounts)[number]) => (
             <div
               key={account.id}
               className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
@@ -133,8 +135,8 @@ export default async function DashboardPage() {
               </div>
               <p className="font-medium text-gray-900">{account.displayName}</p>
               <p className="text-xl font-bold text-gray-900 mt-2">
-                {new Intl.NumberFormat("en-GB", {
-                  style: "currency",
+                {new Intl.NumberFormat('en-GB', {
+                  style: 'currency',
                   currency: account.currency,
                 }).format(Number(account.balance) || 0)}
               </p>
@@ -160,17 +162,19 @@ export default async function DashboardPage() {
           </a>
         </div>
         <TransactionList
-          transactions={recentTransactions.map((tx: typeof recentTransactions[number]) => ({
-            id: tx.id,
-            description: tx.description,
-            amount: Number(tx.amount),
-            currency: tx.currency,
-            category: tx.category,
-            merchantName: tx.merchantName,
-            timestamp: tx.timestamp,
-            accountName: tx.account.displayName,
-            providerName: tx.account.connection.providerName,
-          }))}
+          transactions={recentTransactions.map(
+            (tx: (typeof recentTransactions)[number]) => ({
+              id: tx.id,
+              description: tx.description,
+              amount: Number(tx.amount),
+              currency: tx.currency,
+              category: tx.category,
+              merchantName: tx.merchantName,
+              timestamp: tx.timestamp,
+              accountName: tx.account.displayName,
+              providerName: tx.account.connection.providerName,
+            }),
+          )}
         />
       </div>
     </div>
@@ -179,7 +183,7 @@ export default async function DashboardPage() {
 
 async function BudgetStatusSummary() {
   const result = await getBudgetProgress();
-  if ("error" in result || !result.progress || result.progress.length === 0) {
+  if ('error' in result || !result.progress || result.progress.length === 0) {
     return null;
   }
 
@@ -206,11 +210,11 @@ async function BudgetStatusSummary() {
           const colorClass = getCategoryColor(item.category);
           const status = getBudgetStatus(item.percentUsed);
           const barColor =
-            status === "over_budget"
-              ? "bg-red-500"
-              : status === "warning"
-                ? "bg-amber-500"
-                : "bg-green-500";
+            status === 'over_budget'
+              ? 'bg-red-500'
+              : status === 'warning'
+                ? 'bg-amber-500'
+                : 'bg-green-500';
 
           return (
             <div key={item.category} className="flex items-center gap-4 p-4">
@@ -225,7 +229,8 @@ async function BudgetStatusSummary() {
                     {formatCategoryName(item.category)}
                   </span>
                   <span className="text-gray-500">
-                    {formatCurrency(item.spent)} / {formatCurrency(item.budgetAmount)}
+                    {formatCurrency(item.spent)} /{' '}
+                    {formatCurrency(item.budgetAmount)}
                   </span>
                 </div>
                 <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">

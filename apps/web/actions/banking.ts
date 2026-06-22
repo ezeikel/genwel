@@ -1,18 +1,18 @@
-"use server";
+'use server';
 
-import { auth } from "@/auth";
-import { db } from "@genwel/db";
-import { revalidatePath } from "next/cache";
-import { randomBytes } from "crypto";
+import { db } from '@genwel/db';
+import { randomBytes } from 'crypto';
+import { revalidatePath } from 'next/cache';
+import { auth } from '@/auth';
 import {
+  getAccountBalance,
   getAuthUrl,
   getAccounts as getTrueLayerAccounts,
-  getAccountBalance,
   getTransactions as getTrueLayerTransactions,
-  refreshToken,
   mapAccountType,
   mapTransactionCategory,
-} from "@/lib/truelayer/client";
+  refreshToken,
+} from '@/lib/truelayer/client';
 
 /**
  * Initiate bank connection - returns TrueLayer auth URL
@@ -21,12 +21,12 @@ export async function connectBank() {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { error: "Unauthorized" };
+    return { error: 'Unauthorized' };
   }
 
   // Generate a state parameter to prevent CSRF attacks
   // Include user ID so we can identify them on callback
-  const state = `${session.user.id}:${randomBytes(16).toString("hex")}`;
+  const state = `${session.user.id}:${randomBytes(16).toString('hex')}`;
 
   const url = getAuthUrl(state);
 
@@ -40,7 +40,7 @@ export async function getAccounts() {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { error: "Unauthorized", accounts: [] };
+    return { error: 'Unauthorized', accounts: [] };
   }
 
   // Get all bank connections for user
@@ -74,7 +74,7 @@ export async function getAccounts() {
       } catch (err) {
         console.error(
           `Failed to refresh token for connection ${connection.id}:`,
-          err
+          err,
         );
         continue;
       }
@@ -94,7 +94,7 @@ export async function getAccounts() {
         for (const account of accounts) {
           const balance = await getAccountBalance(
             connection.accessToken,
-            account.account_id
+            account.account_id,
           );
 
           await db.bankAccount.upsert({
@@ -127,7 +127,7 @@ export async function getAccounts() {
       } catch (err) {
         console.error(
           `Failed to sync accounts for connection ${connection.id}:`,
-          err
+          err,
         );
       }
     }
@@ -139,7 +139,7 @@ export async function getAccounts() {
     include: {
       bankAccounts: true,
     },
-    orderBy: { connectedAt: "desc" },
+    orderBy: { connectedAt: 'desc' },
   });
 
   // Format response
@@ -154,11 +154,11 @@ export async function getAccounts() {
           accountType: account.accountType,
           displayName: account.displayName,
           currency: account.currency,
-          balance: account.balance?.toString() || "0",
+          balance: account.balance?.toString() || '0',
           balanceUpdatedAt: account.balanceUpdatedAt,
           connectedAt: connection.connectedAt,
-        })
-      )
+        }),
+      ),
   );
 
   return { accounts };
@@ -175,7 +175,7 @@ export async function getTransactions(options?: {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { error: "Unauthorized", transactions: [] };
+    return { error: 'Unauthorized', transactions: [] };
   }
 
   const { accountId, from, to } = options || {};
@@ -222,7 +222,7 @@ export async function getTransactions(options?: {
         connection.accessToken,
         account.externalId,
         fromDate,
-        toDate
+        toDate,
       );
 
       // Upsert transactions
@@ -254,7 +254,7 @@ export async function getTransactions(options?: {
     } catch (err) {
       console.error(
         `Failed to sync transactions for account ${account.id}:`,
-        err
+        err,
       );
     }
   }
@@ -296,7 +296,7 @@ export async function getTransactions(options?: {
         },
       },
     },
-    orderBy: { timestamp: "desc" },
+    orderBy: { timestamp: 'desc' },
     take: 100,
   });
 
@@ -313,7 +313,7 @@ export async function getTransactions(options?: {
       category: tx.category,
       merchantName: tx.merchantName,
       timestamp: tx.timestamp,
-    })
+    }),
   );
 
   return { transactions: formattedTransactions };
@@ -326,11 +326,11 @@ export async function disconnectBank(connectionId: string) {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { error: "Unauthorized" };
+    return { error: 'Unauthorized' };
   }
 
   if (!connectionId) {
-    return { error: "connectionId is required" };
+    return { error: 'connectionId is required' };
   }
 
   // Verify the connection belongs to the user
@@ -342,7 +342,7 @@ export async function disconnectBank(connectionId: string) {
   });
 
   if (!connection) {
-    return { error: "Connection not found" };
+    return { error: 'Connection not found' };
   }
 
   // Delete connection (cascades to accounts and transactions)
@@ -350,9 +350,9 @@ export async function disconnectBank(connectionId: string) {
     where: { id: connectionId },
   });
 
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/accounts");
-  revalidatePath("/dashboard/transactions");
+  revalidatePath('/dashboard');
+  revalidatePath('/dashboard/accounts');
+  revalidatePath('/dashboard/transactions');
 
   return { success: true };
 }

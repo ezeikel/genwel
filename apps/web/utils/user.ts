@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
-import { db } from "@genwel/db";
+import { db } from '@genwel/db';
+import { auth } from '@/auth';
 
 export type CurrentUser = {
   id: string;

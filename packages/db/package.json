@@ -24,15 +24,15 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
-    "@prisma/adapter-neon": "^6.9.0",
-    "@prisma/client": "^7.3.0",
+    "@prisma/adapter-neon": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "ws": "^8.18.2"
   },
   "devDependencies": {
     "@types/node": "^22.15.21",
     "@types/ws": "^8.18.1",
     "dotenv": "^17.2.3",
-    "prisma": "^7.3.0",
+    "prisma": "^7.8.0",
     "typescript": "^5.8.3"
   }
 }

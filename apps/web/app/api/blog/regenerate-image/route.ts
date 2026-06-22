@@ -1,6 +1,9 @@
 import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
-import { regeneratePostImage, regenerateAllPostImages } from '@/app/actions/blog';
+import {
+  regenerateAllPostImages,
+  regeneratePostImage,
+} from '@/app/actions/blog';
 import { createServerLogger } from '@/lib/logger';
 
 const log = createServerLogger({ action: 'regenerate-image-api' });
@@ -39,7 +42,7 @@ export async function POST(request: NextRequest) {
     if (!postId) {
       return NextResponse.json(
         { success: false, error: 'Missing postId parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -67,14 +70,14 @@ export async function POST(request: NextRequest) {
     log.error(
       'Image regeneration error',
       {},
-      error instanceof Error ? error : undefined
+      error instanceof Error ? error : undefined,
     );
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

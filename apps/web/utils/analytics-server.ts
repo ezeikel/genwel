@@ -4,7 +4,7 @@ type EventProperties = Record<string, unknown>;
 
 export async function track(
   eventName: string,
-  properties?: EventProperties
+  properties?: EventProperties,
 ): Promise<void> {
   const posthog = getPostHogClient();
 
@@ -22,7 +22,7 @@ export async function track(
 
   // Log in development
   if (process.env.NODE_ENV === 'development') {
-    console.log('[Analytics Server]', eventName, enrichedProperties);
+    console.info('[Analytics Server]', eventName, enrichedProperties);
   }
 
   // Ensure the event is sent before the function completes
@@ -32,7 +32,7 @@ export async function track(
 export async function trackWithUser(
   userId: string,
   eventName: string,
-  properties?: EventProperties
+  properties?: EventProperties,
 ): Promise<void> {
   const posthog = getPostHogClient();
 
@@ -50,7 +50,7 @@ export async function trackWithUser(
   });
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('[Analytics Server]', eventName, enrichedProperties);
+    console.info('[Analytics Server]', eventName, enrichedProperties);
   }
 
   await shutdownPostHog();

@@ -73,4 +73,7 @@ export type SanityPost = {
   readingTime?: number;
 };
 
-export type SanityPostSummary = Omit<SanityPost, 'body' | 'seo' | 'generationMeta'>;
+export type SanityPostSummary = Omit<
+  SanityPost,
+  'body' | 'seo' | 'generationMeta'
+>;

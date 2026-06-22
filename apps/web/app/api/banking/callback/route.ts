@@ -1,38 +1,38 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@genwel/db";
+import { db } from '@genwel/db';
+import { NextRequest, NextResponse } from 'next/server';
 import {
   exchangeCode,
-  getAccounts,
   getAccountBalance,
+  getAccounts,
   mapAccountType,
-} from "@/lib/truelayer/client";
+} from '@/lib/truelayer/client';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const code = searchParams.get("code");
-  const state = searchParams.get("state");
-  const error = searchParams.get("error");
+  const code = searchParams.get('code');
+  const state = searchParams.get('state');
+  const error = searchParams.get('error');
 
   // Handle errors from TrueLayer
   if (error) {
-    const errorDescription = searchParams.get("error_description");
-    console.error("TrueLayer error:", error, errorDescription);
+    const errorDescription = searchParams.get('error_description');
+    console.error('TrueLayer error:', error, errorDescription);
     return NextResponse.redirect(
-      new URL("/dashboard?error=connection_failed", request.url)
+      new URL('/dashboard?error=connection_failed', request.url),
     );
   }
 
   if (!code || !state) {
     return NextResponse.redirect(
-      new URL("/dashboard?error=invalid_callback", request.url)
+      new URL('/dashboard?error=invalid_callback', request.url),
     );
   }
 
   // Extract user ID from state
-  const [userId] = state.split(":");
+  const [userId] = state.split(':');
   if (!userId) {
     return NextResponse.redirect(
-      new URL("/dashboard?error=invalid_state", request.url)
+      new URL('/dashboard?error=invalid_state', request.url),
     );
   }
 
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     if (accounts.length === 0) {
       return NextResponse.redirect(
-        new URL("/dashboard?error=no_accounts", request.url)
+        new URL('/dashboard?error=no_accounts', request.url),
       );
     }
 
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       try {
         const balance = await getAccountBalance(
           tokens.access_token,
-          account.account_id
+          account.account_id,
         );
 
         await db.bankAccount.create({
@@ -88,21 +88,18 @@ export async function GET(request: NextRequest) {
           },
         });
       } catch (err) {
-        console.error(
-          `Failed to sync account ${account.account_id}:`,
-          err
-        );
+        console.error(`Failed to sync account ${account.account_id}:`, err);
         // Continue with other accounts
       }
     }
 
     return NextResponse.redirect(
-      new URL("/dashboard?success=bank_connected", request.url)
+      new URL('/dashboard?success=bank_connected', request.url),
     );
   } catch (err) {
-    console.error("Failed to connect bank:", err);
+    console.error('Failed to connect bank:', err);
     return NextResponse.redirect(
-      new URL("/dashboard?error=connection_failed", request.url)
+      new URL('/dashboard?error=connection_failed', request.url),
     );
   }
 }

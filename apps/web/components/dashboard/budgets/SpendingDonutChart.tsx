@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import type { BudgetProgressItem } from "@/actions/budgets";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import type { BudgetProgressItem } from '@/actions/budgets';
 import {
   formatCategoryName,
-  getCategoryChartColor,
   formatCurrency,
-} from "@/lib/budget-utils";
+  getCategoryChartColor,
+} from '@/lib/budget-utils';
 
 interface SpendingDonutChartProps {
   items: BudgetProgressItem[];
@@ -57,9 +57,9 @@ export default function SpendingDonutChart({ items }: SpendingDonutChartProps) {
               <Tooltip
                 formatter={(value: number) => formatCurrency(value)}
                 contentStyle={{
-                  borderRadius: "0.75rem",
-                  border: "1px solid #e5e7eb",
-                  fontSize: "0.875rem",
+                  borderRadius: '0.75rem',
+                  border: '1px solid #e5e7eb',
+                  fontSize: '0.875rem',
                 }}
               />
             </PieChart>
@@ -67,7 +67,10 @@ export default function SpendingDonutChart({ items }: SpendingDonutChartProps) {
         </div>
         <div className="flex-1 space-y-2">
           {data.map((entry) => (
-            <div key={entry.name} className="flex items-center justify-between text-sm">
+            <div
+              key={entry.name}
+              className="flex items-center justify-between text-sm"
+            >
               <div className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full"
