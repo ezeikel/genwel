@@ -4,110 +4,28 @@ import { db, SpendingCategory } from '@genwel/db';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { generateBudgetSuggestions } from '@/lib/ai/budget-suggestions';
-import {
-  categorizeTransactionBatch,
-  type TransactionForCategorization,
-} from '@/lib/ai/categorization';
 import { generateSpendingInsights } from '@/lib/ai/insights';
-
-const BATCH_SIZE = 20;
+import { categorizeUserTransactions } from '@/lib/banking/categorize';
+import { effectiveCategory } from '@/lib/budget-utils';
 
 /**
- * Categorize uncategorized transactions using AI.
- * Uses merchant caching: if a merchant was already categorized, reuse that.
+ * Categorize uncategorized transactions using AI (explicit user trigger).
+ * Delegates to the shared lib util (merchant-key cache + retry/backoff).
  */
 export async function categorizeTransactions(options?: {
-  force?: boolean;
-  limit?: number;
+  maxAiBatches?: number;
 }) {
   const session = await auth();
   if (!session?.user?.id) return { error: 'Unauthorized' };
 
-  const limit = options?.limit ?? 200;
-
-  // Fetch uncategorized transactions (or all if force)
-  const where = options?.force
-    ? { account: { connection: { userId: session.user.id } } }
-    : {
-        account: { connection: { userId: session.user.id } },
-        aiCategory: null,
-      };
-
-  const uncategorized = await db.transaction.findMany({
-    where,
-    take: limit,
-    orderBy: { timestamp: 'desc' },
+  const result = await categorizeUserTransactions(session.user.id, {
+    maxAiBatches: options?.maxAiBatches ?? 10,
   });
-
-  if (uncategorized.length === 0) return { categorized: 0, cached: 0 };
-
-  // Build merchant cache from already-categorized transactions
-  const existingCategorized = await db.transaction.findMany({
-    where: {
-      account: { connection: { userId: session.user.id } },
-      aiCategory: { not: null },
-      merchantName: { not: null },
-    },
-    select: { merchantName: true, aiCategory: true },
-    distinct: ['merchantName'],
-  });
-
-  const merchantCache = new Map<string, SpendingCategory>();
-  for (const tx of existingCategorized) {
-    if (tx.merchantName && tx.aiCategory) {
-      merchantCache.set(tx.merchantName.toLowerCase(), tx.aiCategory);
-    }
-  }
-
-  // Split into cached and uncached
-  const needsAi: TransactionForCategorization[] = [];
-  const cachedUpdates: { id: string; category: SpendingCategory }[] = [];
-
-  for (const tx of uncategorized) {
-    const merchant = tx.merchantName?.toLowerCase();
-    if (merchant && merchantCache.has(merchant)) {
-      cachedUpdates.push({ id: tx.id, category: merchantCache.get(merchant)! });
-    } else {
-      needsAi.push({
-        id: tx.id,
-        merchantName: tx.merchantName,
-        description: tx.description,
-        category: tx.category,
-        amount: Number(tx.amount),
-      });
-    }
-  }
-
-  // Apply cached categories
-  for (const { id, category } of cachedUpdates) {
-    await db.transaction.update({
-      where: { id },
-      data: { aiCategory: category },
-    });
-  }
-
-  // Batch AI categorization
-  let aiCategorized = 0;
-  for (let i = 0; i < needsAi.length; i += BATCH_SIZE) {
-    const batch = needsAi.slice(i, i + BATCH_SIZE);
-    try {
-      const results = await categorizeTransactionBatch(batch);
-      for (const [txId, category] of results) {
-        await db.transaction.update({
-          where: { id: txId },
-          data: { aiCategory: category as SpendingCategory },
-        });
-        aiCategorized++;
-      }
-    } catch (error) {
-      console.error('AI categorization batch failed:', error);
-    }
-  }
 
   revalidatePath('/dashboard/budgets');
   revalidatePath('/dashboard');
 
-  return { categorized: aiCategorized, cached: cachedUpdates.length };
+  return result;
 }
 
 /**
@@ -120,34 +38,39 @@ export async function getAiBudgetSuggestions() {
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  // Get spending aggregated by aiCategory
-  const spending = await db.transaction.groupBy({
-    by: ['aiCategory'],
+  // Aggregate debits by effective category (aiCategory with TrueLayer fallback)
+  // so suggestions work before AI categorization has fully caught up.
+  const transactions = await db.transaction.findMany({
     where: {
       account: { connection: { userId: session.user.id } },
-      aiCategory: { not: null },
       amount: { lt: 0 }, // debits only
       timestamp: { gte: threeMonthsAgo },
     },
-    _sum: { amount: true },
-    _count: true,
+    select: { amount: true, aiCategory: true, category: true },
   });
 
-  if (spending.length === 0) {
+  if (transactions.length === 0) {
     return {
       error:
-        'Not enough transaction data. Connect a bank and wait for transactions to be categorized.',
+        'Not enough transaction data. Connect a bank and wait for transactions to sync.',
     };
   }
 
-  const spendingData = spending
-    .filter((s) => s.aiCategory != null)
-    .map((s) => ({
-      category: s.aiCategory!,
-      totalSpent: Math.abs(Number(s._sum.amount) || 0),
-      transactionCount: s._count,
-      monthlyAverage: Math.abs(Number(s._sum.amount) || 0) / 3,
-    }));
+  const totals = new Map<SpendingCategory, { sum: number; count: number }>();
+  for (const tx of transactions) {
+    const cat = effectiveCategory(tx);
+    const entry = totals.get(cat) ?? { sum: 0, count: 0 };
+    entry.sum += Math.abs(Number(tx.amount) || 0);
+    entry.count += 1;
+    totals.set(cat, entry);
+  }
+
+  const spendingData = Array.from(totals.entries()).map(([category, t]) => ({
+    category,
+    totalSpent: t.sum,
+    transactionCount: t.count,
+    monthlyAverage: t.sum / 3,
+  }));
 
   const suggestions = await generateBudgetSuggestions(spendingData);
   return { suggestions };
@@ -174,26 +97,22 @@ export async function generateInsights() {
     999,
   );
 
-  const [currentSpending, previousSpending, budgetConfig] = await Promise.all([
-    db.transaction.groupBy({
-      by: ['aiCategory'],
+  const [currentTxns, previousTxns, budgetConfig] = await Promise.all([
+    db.transaction.findMany({
       where: {
         account: { connection: { userId: session.user.id } },
-        aiCategory: { not: null },
         amount: { lt: 0 },
         timestamp: { gte: currentMonthStart },
       },
-      _sum: { amount: true },
+      select: { amount: true, aiCategory: true, category: true },
     }),
-    db.transaction.groupBy({
-      by: ['aiCategory'],
+    db.transaction.findMany({
       where: {
         account: { connection: { userId: session.user.id } },
-        aiCategory: { not: null },
         amount: { lt: 0 },
         timestamp: { gte: previousMonthStart, lte: previousMonthEnd },
       },
-      _sum: { amount: true },
+      select: { amount: true, aiCategory: true, category: true },
     }),
     db.budgetConfig.findUnique({
       where: { userId: session.user.id },
@@ -201,17 +120,24 @@ export async function generateInsights() {
     }),
   ]);
 
-  const currentMap = new Map<SpendingCategory, number>();
-  for (const s of currentSpending) {
-    if (s.aiCategory)
-      currentMap.set(s.aiCategory, Math.abs(Number(s._sum.amount) || 0));
-  }
+  // Aggregate by effective category (aiCategory with TrueLayer fallback).
+  const aggregateByCategory = (
+    txns: {
+      amount: unknown;
+      aiCategory: SpendingCategory | null;
+      category: string | null;
+    }[],
+  ): Map<SpendingCategory, number> => {
+    const map = new Map<SpendingCategory, number>();
+    for (const tx of txns) {
+      const cat = effectiveCategory(tx);
+      map.set(cat, (map.get(cat) || 0) + Math.abs(Number(tx.amount) || 0));
+    }
+    return map;
+  };
 
-  const previousMap = new Map<SpendingCategory, number>();
-  for (const s of previousSpending) {
-    if (s.aiCategory)
-      previousMap.set(s.aiCategory, Math.abs(Number(s._sum.amount) || 0));
-  }
+  const currentMap = aggregateByCategory(currentTxns);
+  const previousMap = aggregateByCategory(previousTxns);
 
   const budgetMap = new Map<SpendingCategory, number>();
   if (budgetConfig) {

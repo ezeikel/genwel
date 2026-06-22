@@ -1,6 +1,7 @@
 import { generateObject } from 'ai';
 import { z } from 'zod/v3';
 import { models } from '@/lib/ai/models';
+import { withRetry } from '@/lib/ai/retry-utils';
 
 const SPENDING_CATEGORIES = [
   'SHOPPING',
@@ -59,10 +60,12 @@ export async function categorizeTransactionBatch(
     amount: tx.amount,
   }));
 
-  const { object } = await generateObject({
-    model: models.analytics,
-    schema: categorizationSchema,
-    prompt: `You are a UK financial transaction categorizer. Categorize each transaction into one of these categories:
+  const { object } = await withRetry(
+    () =>
+      generateObject({
+        model: models.analytics,
+        schema: categorizationSchema,
+        prompt: `You are a UK financial transaction categorizer. Categorize each transaction into one of these categories:
 
 SHOPPING - Retail purchases (Amazon, John Lewis, Primark, etc.)
 GROCERIES - Supermarkets and food shops (Tesco, Sainsbury's, Aldi, Lidl, M&S Food, etc.)
@@ -86,7 +89,9 @@ For each transaction, return the ID, best-fit category, and confidence (0-1).
 
 Transactions to categorize:
 ${JSON.stringify(txList, null, 2)}`,
-  });
+      }),
+    { label: 'categorize-batch', maxAttempts: 4 },
+  );
 
   const resultMap = new Map<string, (typeof SPENDING_CATEGORIES)[number]>();
   for (const r of object.results) {

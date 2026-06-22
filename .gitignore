@@ -55,3 +55,6 @@ android/app/build/
 *.pem
 .cache
 *.tsbuildinfo
+
+# Next.js generated
+next-env.d.ts

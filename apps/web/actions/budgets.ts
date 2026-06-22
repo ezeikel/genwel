@@ -3,7 +3,7 @@
 import { BudgetPeriodType, db, SpendingCategory } from '@genwel/db';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
-import { getCurrentPeriod } from '@/lib/budget-utils';
+import { effectiveCategory, getCurrentPeriod } from '@/lib/budget-utils';
 
 /**
  * Get the current user's budget config with all budget lines.
@@ -158,24 +158,24 @@ export async function getBudgetProgress() {
 
   const { start, end } = getCurrentPeriod(config.periodType, config.paydayDate);
 
-  // Get spending grouped by aiCategory for the current period
-  const spending = await db.transaction.groupBy({
-    by: ['aiCategory'],
+  // Fetch period debits and group by effective category (aiCategory with a
+  // TrueLayer-category fallback), so budgets render before AI categorization
+  // has caught up. groupBy can't compute the fallback, so we aggregate here.
+  const transactions = await db.transaction.findMany({
     where: {
       account: { connection: { userId: session.user.id } },
-      aiCategory: { not: null },
       timestamp: { gte: start, lte: end },
       amount: { lt: 0 }, // only debits
     },
-    _sum: { amount: true },
+    select: { amount: true, aiCategory: true, category: true },
   });
 
   const spendingMap = new Map<SpendingCategory, number>();
-  for (const row of spending) {
-    if (row.aiCategory) {
-      // amount is negative for debits — take absolute value
-      spendingMap.set(row.aiCategory, Math.abs(Number(row._sum.amount) || 0));
-    }
+  for (const tx of transactions) {
+    const cat = effectiveCategory(tx);
+    // amount is negative for debits — take absolute value
+    const prev = spendingMap.get(cat) || 0;
+    spendingMap.set(cat, prev + Math.abs(Number(tx.amount) || 0));
   }
 
   let totalBudgeted = 0;

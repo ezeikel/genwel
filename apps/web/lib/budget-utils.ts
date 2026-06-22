@@ -177,6 +177,45 @@ export function getCategoryChartColor(category: SpendingCategory): string {
   return colors[category] ?? '#9ca3af';
 }
 
+/**
+ * Map a TrueLayer text category to our SpendingCategory enum.
+ *
+ * Used as a fallback so budgets/insights render meaningful data before AI
+ * categorization (aiCategory) has run. TrueLayer's `category` is present on
+ * every transaction; aiCategory is filled in incrementally in the background.
+ */
+export function mapTrueLayerCategory(
+  category: string | null | undefined,
+): SpendingCategory {
+  switch ((category ?? '').toLowerCase()) {
+    case 'shopping':
+      return 'SHOPPING';
+    case 'bills':
+      return 'BILLS';
+    case 'transfer':
+      return 'TRANSFER';
+    case 'cash':
+      return 'CASH';
+    case 'income':
+      return 'INCOME';
+    case 'fees':
+      return 'FEES';
+    default:
+      return 'OTHER';
+  }
+}
+
+/**
+ * Resolve the effective spending category for a transaction: prefer the AI
+ * category, fall back to the mapped TrueLayer category.
+ */
+export function effectiveCategory(tx: {
+  aiCategory: SpendingCategory | null;
+  category: string | null;
+}): SpendingCategory {
+  return tx.aiCategory ?? mapTrueLayerCategory(tx.category);
+}
+
 /** Budget status based on percentage used. */
 export function getBudgetStatus(
   percentUsed: number,

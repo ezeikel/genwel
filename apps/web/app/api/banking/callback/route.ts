@@ -1,5 +1,7 @@
 import { db } from '@genwel/db';
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
+import { categorizeUserTransactions } from '@/lib/banking/categorize';
+import { syncUserTransactions } from '@/lib/banking/sync';
 import {
   exchangeCode,
   getAccountBalance,
@@ -92,6 +94,17 @@ export async function GET(request: NextRequest) {
         // Continue with other accounts
       }
     }
+
+    // Seed transactions + a first categorization pass after the redirect is
+    // sent, so the user lands on the dashboard immediately while data fills in.
+    after(async () => {
+      try {
+        await syncUserTransactions(userId, { days: 90 });
+        await categorizeUserTransactions(userId, { maxAiBatches: 5 });
+      } catch (err) {
+        console.error('[callback] Post-connect sync/categorize failed:', err);
+      }
+    });
 
     return NextResponse.redirect(
       new URL('/dashboard?success=bank_connected', request.url),

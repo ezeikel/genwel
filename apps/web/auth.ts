@@ -1,7 +1,7 @@
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { db } from '@genwel/db';
 import { render } from '@react-email/render';
-import type { Account, NextAuthConfig, User } from 'next-auth';
+import type { NextAuthConfig } from 'next-auth';
 import NextAuth from 'next-auth';
 import Resend from 'next-auth/providers/resend';
 import MagicLinkEmail from '@/components/emails/MagicLinkEmail';
@@ -14,9 +14,12 @@ const config = {
     ...prismaAdapter,
     // Wrap deleteSession to handle stale cookies gracefully.
     // The default adapter throws P2025 if the session doesn't exist.
-    async deleteSession(sessionToken: string) {
+    // @ts-expect-error - next-auth beta types deleteSession as a union
+    // (Awaitable<AdapterSession|null|undefined> | Promise<void>) that an
+    // arrow literal can't satisfy cleanly; runtime behaviour is correct.
+    deleteSession: async (sessionToken: string) => {
       try {
-        return await prismaAdapter.deleteSession!(sessionToken);
+        return await prismaAdapter.deleteSession?.(sessionToken);
       } catch (error: unknown) {
         if (
           error &&
@@ -24,7 +27,7 @@ const config = {
           'code' in error &&
           error.code === 'P2025'
         )
-          return null;
+          return undefined;
         throw error;
       }
     },
@@ -55,14 +58,7 @@ const config = {
     }),
   ],
   callbacks: {
-    async signIn({
-      account,
-      email,
-    }: {
-      user: User;
-      account: Account | null;
-      email?: { verificationRequest?: boolean };
-    }) {
+    async signIn({ account, email }) {
       // Handle magic link verification requests
       if (email?.verificationRequest) {
         return true;

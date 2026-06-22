@@ -2,6 +2,7 @@ import type { SpendingCategory } from '@genwel/db';
 import { generateObject } from 'ai';
 import { z } from 'zod/v3';
 import { models } from '@/lib/ai/models';
+import { withRetry } from '@/lib/ai/retry-utils';
 
 const SPENDING_CATEGORIES = [
   'SHOPPING',
@@ -56,10 +57,12 @@ export async function generateBudgetSuggestions(
     transactionCount: s.transactionCount,
   }));
 
-  const { object } = await generateObject({
-    model: models.intelligent,
-    schema: suggestionsSchema,
-    prompt: `You are a UK personal finance advisor. Based on this user's spending over the last 3 months, suggest monthly budget limits for each category.
+  const { object } = await withRetry(
+    () =>
+      generateObject({
+        model: models.intelligent,
+        schema: suggestionsSchema,
+        prompt: `You are a UK personal finance advisor. Based on this user's spending over the last 3 months, suggest monthly budget limits for each category.
 
 Guidelines:
 - Round all amounts to the nearest £5
@@ -73,7 +76,9 @@ Guidelines:
 
 User's spending data (last 3 months):
 ${JSON.stringify(formattedSpending, null, 2)}`,
-  });
+      }),
+    { label: 'budget-suggestions', maxAttempts: 3 },
+  );
 
   return object.suggestions as {
     category: SpendingCategory;

@@ -8,6 +8,7 @@
 import { generateObject } from 'ai';
 import { z } from 'zod/v3';
 import { models } from './models';
+import { mapWithConcurrency, withRetry } from './retry-utils';
 
 // Schema for image evaluation response
 const ImageEvaluationSchema = z.object({
@@ -86,19 +87,23 @@ Poor images would be:
 Analyze the attached image and determine if it's a good match for this blog post.`;
 
   try {
-    const { object: evaluation } = await generateObject({
-      model: models.vision,
-      schema: ImageEvaluationSchema,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            { type: 'image', image: imageUrl },
+    const { object: evaluation } = await withRetry(
+      () =>
+        generateObject({
+          model: models.vision,
+          schema: ImageEvaluationSchema,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                { type: 'image', image: imageUrl },
+              ],
+            },
           ],
-        },
-      ],
-    });
+        }),
+      { label: 'image-eval', maxAttempts: 3 },
+    );
 
     return evaluation;
   } catch (error) {
@@ -128,16 +133,15 @@ export async function findBestImage(
   selectedIndex: number | null;
   evaluations: ImageEvaluation[];
 }> {
-  // Evaluate all images in parallel
-  const evaluations = await Promise.all(
-    images.map((img) =>
-      evaluateImageRelevance({
-        ...context,
-        imageUrl: img.url,
-        searchTerm: img.searchTerm,
-        minConfidence,
-      }),
-    ),
+  // Evaluate sequentially (concurrency 1) — Gemini free tier is ~5 req/min,
+  // so parallel evaluation reliably triggers 429s.
+  const evaluations = await mapWithConcurrency(images, 1, (img) =>
+    evaluateImageRelevance({
+      ...context,
+      imageUrl: img.url,
+      searchTerm: img.searchTerm,
+      minConfidence,
+    }),
   );
 
   // Find the best qualifying image

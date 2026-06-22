@@ -3,10 +3,6 @@ import type { NextConfig } from 'next';
 import { withPlausibleProxy } from 'next-plausible';
 
 const nextConfig: NextConfig = {
-  typescript: {
-    // TODO: Fix v0-generated component type errors and enable strict checking
-    ignoreBuildErrors: true,
-  },
   // Cache strategy for different data types
   cacheLife: {
     // Blog/static content - rarely changes after publication
@@ -72,7 +68,9 @@ const sentryConfig = withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   widenClientFileUpload: true,
   tunnelRoute: '/monitoring',
-  hideSourceMaps: true,
+  // Sentry v9 hides source maps from the client bundle by default and removes
+  // them after upload (the old `hideSourceMaps` option was removed).
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
   disableLogger: true,
   automaticVercelMonitors: true,
 });

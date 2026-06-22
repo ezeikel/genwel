@@ -2,6 +2,7 @@ import type { SpendingCategory } from '@genwel/db';
 import { generateObject } from 'ai';
 import { z } from 'zod/v3';
 import { models } from '@/lib/ai/models';
+import { withRetry } from '@/lib/ai/retry-utils';
 import { formatCategoryName } from '@/lib/budget-utils';
 
 const insightSchema = z.object({
@@ -75,10 +76,12 @@ export async function generateSpendingInsights(input: InsightInput) {
     0,
   );
 
-  const { object } = await generateObject({
-    model: models.intelligent,
-    schema: insightSchema,
-    prompt: `You are a friendly UK personal finance advisor. Generate 3-5 personalised spending insights for this user.
+  const { object } = await withRetry(
+    () =>
+      generateObject({
+        model: models.intelligent,
+        schema: insightSchema,
+        prompt: `You are a friendly UK personal finance advisor. Generate 3-5 personalised spending insights for this user.
 
 Rules:
 - Use British English (£, "favourite" not "favorite", etc.)
@@ -94,7 +97,9 @@ Total spending: £${totalCurrent.toFixed(2)} this month vs £${totalPrevious.toF
 
 Category breakdown:
 ${JSON.stringify(comparisonData, null, 2)}`,
-  });
+      }),
+    { label: 'generate-insights', maxAttempts: 3 },
+  );
 
   return object.insights;
 }
