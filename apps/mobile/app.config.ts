@@ -43,7 +43,8 @@ const facebookClientToken = process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_TOKEN;
 
 // `eas init` (chewybytes org → @chewybytes/genwel) mints the real project id.
 // Until then this stays empty; OTA updates are inert (no id → no updates.url).
-const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID ?? '';
+const EAS_PROJECT_ID =
+  process.env.EAS_PROJECT_ID ?? '53254185-1bd7-4d7b-8647-cd10bbb0020b';
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const variantSuffix =
