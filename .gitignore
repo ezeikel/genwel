@@ -58,3 +58,4 @@ android/app/build/
 
 # Next.js generated
 next-env.d.ts
+.auth-secrets/

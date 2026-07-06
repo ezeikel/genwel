@@ -27,11 +27,13 @@ const TOKEN_KEY = 'genwel.session.token.v1';
 type SignInProvider =
   | { kind: 'apple'; identityToken: string }
   | { kind: 'google'; idToken: string }
+  | { kind: 'facebook'; accessToken: string }
   | { kind: 'magic-link'; token: string };
 
 const PROVIDER_PATH: Record<SignInProvider['kind'], string> = {
   apple: '/api/auth/mobile/apple',
   google: '/api/auth/mobile/google',
+  facebook: '/api/auth/mobile/facebook',
   'magic-link': '/api/auth/mobile/magic-link/verify',
 };
 
@@ -89,7 +91,9 @@ export const useSession = create<SessionState>((set) => ({
         ? { token: provider.token }
         : provider.kind === 'apple'
           ? { identityToken: provider.identityToken }
-          : { idToken: provider.idToken };
+          : provider.kind === 'facebook'
+            ? { accessToken: provider.accessToken }
+            : { idToken: provider.idToken };
 
     const { sessionToken } = await apiFetch<{ sessionToken: string }>(
       PROVIDER_PATH[provider.kind],

@@ -35,6 +35,12 @@ const googleIosUrlScheme = googleIosClientId
   ? googleIosClientId.split('.').reverse().join('.')
   : undefined;
 
+// Facebook needs its app id + client token in Info.plist + a fb<appId> URL
+// scheme. All optional — the fbsdk plugin + button hide themselves when the env
+// isn't set, so the app builds/runs without a Facebook app configured.
+const facebookAppId = process.env.EXPO_PUBLIC_FACEBOOK_APP_ID;
+const facebookClientToken = process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_TOKEN;
+
 // `eas init` (chewybytes org → @chewybytes/genwel) mints the real project id.
 // Until then this stays empty; OTA updates are inert (no id → no updates.url).
 const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID ?? '';
@@ -55,6 +61,20 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     'expo-secure-store',
     'expo-apple-authentication',
     '@react-native-google-signin/google-signin',
+    // Facebook SDK (native FB login). Only added when the FB env is present.
+    ...(facebookAppId
+      ? [
+          [
+            'react-native-fbsdk-next',
+            {
+              appID: facebookAppId,
+              clientToken: facebookClientToken,
+              displayName: 'Genwel',
+              scheme: `fb${facebookAppId}`,
+            },
+          ] as [string, Record<string, unknown>],
+        ]
+      : []),
     [
       'expo-splash-screen',
       {
@@ -105,10 +125,25 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       associatedDomains: ['applinks:genwel.com'],
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        // Google OAuth redirect scheme (reversed iOS client id).
-        CFBundleURLTypes: googleIosUrlScheme
-          ? [{ CFBundleURLSchemes: [googleIosUrlScheme] }]
-          : [],
+        // Google OAuth redirect scheme (reversed iOS client id) + Facebook's
+        // fb<appId> scheme. Each only present when configured.
+        CFBundleURLTypes: [
+          ...(googleIosUrlScheme
+            ? [{ CFBundleURLSchemes: [googleIosUrlScheme] }]
+            : []),
+          ...(facebookAppId
+            ? [{ CFBundleURLSchemes: [`fb${facebookAppId}`] }]
+            : []),
+        ],
+        // Facebook SDK Info.plist keys (only when configured).
+        ...(facebookAppId
+          ? {
+              FacebookAppID: facebookAppId,
+              FacebookClientToken: facebookClientToken,
+              FacebookDisplayName: 'Genwel',
+              LSApplicationQueriesSchemes: ['fbapi', 'fb-messenger-share-api'],
+            }
+          : {}),
       },
       entitlements: {
         'com.apple.developer.applesignin': ['Default'],
@@ -117,7 +152,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: {
         foregroundImage: pickIcon('adaptive-icon'),
-        backgroundColor: '#ffffff',
+        // Genwel forest green — the adaptive foreground is a transparent white "G",
+        // so Android composites it edge-to-edge over this green, matching the iOS icon.
+        backgroundColor: '#114E37',
       },
       package: bundleId,
       intentFilters: [

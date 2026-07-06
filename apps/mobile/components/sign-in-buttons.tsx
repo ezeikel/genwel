@@ -2,6 +2,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
 import { toast } from 'sonner-native';
 import { API_BASE } from '@/lib/api';
 import { useSession } from '@/lib/session';
@@ -14,14 +15,17 @@ import { useSession } from '@/lib/session';
 
 const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 const googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+const facebookEnabled = !!process.env.EXPO_PUBLIC_FACEBOOK_APP_ID;
 
 const isCancel = (err: unknown): boolean => {
   const code = (err as { code?: string })?.code ?? '';
+  const message = (err as { message?: string })?.message ?? '';
   return (
     code === 'SIGN_IN_CANCELLED' ||
     code === '-5' ||
     code === 'ERR_REQUEST_CANCELED' ||
-    code === 'ERR_CANCELED'
+    code === 'ERR_CANCELED' ||
+    /cancel/i.test(message)
   );
 };
 
@@ -78,6 +82,25 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
       onSignedIn?.();
     } catch (err) {
       if (!isCancel(err)) toast.error("Couldn't sign in with Apple.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const onFacebook = async () => {
+    setBusy('facebook');
+    try {
+      const result = await LoginManager.logInWithPermissions([
+        'public_profile',
+        'email',
+      ]);
+      if (result.isCancelled) return;
+      const token = await AccessToken.getCurrentAccessToken();
+      if (!token?.accessToken) throw new Error('no access token');
+      await signIn({ kind: 'facebook', accessToken: token.accessToken });
+      onSignedIn?.();
+    } catch (err) {
+      if (!isCancel(err)) toast.error("Couldn't sign in with Facebook.");
     } finally {
       setBusy(null);
     }
@@ -144,6 +167,20 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
         >
           <Text className="text-[15px] font-semibold text-neutral-900">
             Continue with Google
+          </Text>
+        </Pressable>
+      ) : null}
+
+      {facebookEnabled ? (
+        <Pressable
+          onPress={busy ? undefined : onFacebook}
+          disabled={!!busy}
+          accessibilityRole="button"
+          accessibilityLabel="Continue with Facebook"
+          className={`items-center rounded-2xl border border-neutral-300 px-6 py-4 ${busy ? 'opacity-50' : 'active:bg-neutral-50'}`}
+        >
+          <Text className="text-[15px] font-semibold text-neutral-900">
+            Continue with Facebook
           </Text>
         </Pressable>
       ) : null}
