@@ -165,6 +165,20 @@ const config = {
   secret: process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;
 
+// Provider availability computed on the server from the same env conditions the
+// `providers` array uses above, so the sign-in UI can render exactly the buttons
+// that won't 404. Passed as a prop into the client sign-in form — the flags must
+// be derived here (server) rather than from NEXT_PUBLIC_* flags on the client.
+export const configuredProviders = {
+  google: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+  apple: !!(process.env.APPLE_CLIENT_ID && appleClientSecret),
+  facebook: !!(
+    process.env.FACEBOOK_CONSUMER_APP_ID &&
+    process.env.FACEBOOK_CONSUMER_APP_SECRET
+  ),
+  resend: !!process.env.RESEND_API_KEY,
+};
+
 export const {
   handlers,
   auth,
