@@ -31,6 +31,9 @@ importers:
 
   apps/mobile:
     dependencies:
+      '@fortawesome/react-native-fontawesome':
+        specifier: ^1.0.0
+        version: 1.0.0(@fortawesome/fontawesome-svg-core@6.7.2)(react-native-svg@15.15.4(react-native@0.85.3(@babel/core@7.28.6)(@react-native/metro-config@0.85.3(@babel/core@7.28.6))(@types/react@19.2.8)(react@19.1.0))(react@19.1.0))(react-native@0.85.3(@babel/core@7.28.6)(@react-native/metro-config@0.85.3(@babel/core@7.28.6))(@types/react@19.2.8)(react@19.1.0))(react@19.1.0)
       '@react-native-async-storage/async-storage':
         specifier: 2.2.0
         version: 2.2.0(react-native@0.85.3(@babel/core@7.28.6)(@react-native/metro-config@0.85.3(@babel/core@7.28.6))(@types/react@19.2.8)(react@19.1.0))
@@ -1867,6 +1870,14 @@ packages:
     peerDependencies:
       '@fortawesome/fontawesome-svg-core': ~1 || ~6 || ~7
       react: 19.1.0
+
+  '@fortawesome/react-native-fontawesome@1.0.0':
+    resolution: {integrity: sha512-whGM1GewA1kO0r+RxSY4cefcXNAiKGMh9PIkfid8lMd7ndO/yDAEHBiHTYVfeCICm7DwbmcAUWBJZ6HcFeN7fg==}
+    peerDependencies:
+      '@fortawesome/fontawesome-svg-core': ~7
+      react: 19.1.0
+      react-native: '*'
+      react-native-svg: '>=11'
 
   '@hono/node-server@1.19.11':
     resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
@@ -7333,6 +7344,9 @@ packages:
   humanize-list@1.0.1:
     resolution: {integrity: sha512-4+p3fCRF21oUqxhK0yZ6yaSP/H5/wZumc7q1fH99RkW7Q13aAxDeP78BKjoR+6y+kaHqKF/JWuQhsNuuI2NKtA==}
 
+  humps@2.0.1:
+    resolution: {integrity: sha512-E0eIbrFWUhwfXJmsbdjRQFQPrl5pTEoKlz163j1mTqqUnU9PgR4AgB8AIITzuB3vLBdxZXyZ9TDIrwB2OASz4g==}
+
   husky@9.1.7:
     resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
     engines: {node: '>=18'}
@@ -12342,6 +12356,14 @@ snapshots:
       '@fortawesome/fontawesome-svg-core': 6.7.2
       prop-types: 15.8.1
       react: 19.1.0
+
+  '@fortawesome/react-native-fontawesome@1.0.0(@fortawesome/fontawesome-svg-core@6.7.2)(react-native-svg@15.15.4(react-native@0.85.3(@babel/core@7.28.6)(@react-native/metro-config@0.85.3(@babel/core@7.28.6))(@types/react@19.2.8)(react@19.1.0))(react@19.1.0))(react-native@0.85.3(@babel/core@7.28.6)(@react-native/metro-config@0.85.3(@babel/core@7.28.6))(@types/react@19.2.8)(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@fortawesome/fontawesome-svg-core': 6.7.2
+      humps: 2.0.1
+      react: 19.1.0
+      react-native: 0.85.3(@babel/core@7.28.6)(@react-native/metro-config@0.85.3(@babel/core@7.28.6))(@types/react@19.2.8)(react@19.1.0)
+      react-native-svg: 15.15.4(react-native@0.85.3(@babel/core@7.28.6)(@react-native/metro-config@0.85.3(@babel/core@7.28.6))(@types/react@19.2.8)(react@19.1.0))(react@19.1.0)
 
   '@hono/node-server@1.19.11(hono@4.12.26)':
     dependencies:
@@ -18470,6 +18492,8 @@ snapshots:
       - supports-color
 
   humanize-list@1.0.1: {}
+
+  humps@2.0.1: {}
 
   husky@9.1.7: {}
 

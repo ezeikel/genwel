@@ -33,6 +33,7 @@
     "test": "echo \"no unit tests in apps/mobile yet\" && exit 0"
   },
   "dependencies": {
+    "@fortawesome/react-native-fontawesome": "^1.0.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-google-signin/google-signin": "^16.1.2",
     "expo": "~56.0.5",

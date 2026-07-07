@@ -1,9 +1,26 @@
 'use client';
 
+import {
+  faApple,
+  faFacebookF,
+  faGoogle,
+} from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+
+// Providers are env-gated in auth.ts, so only render a button that won't 404.
+// Apple / Facebook OAuth apps are provisioned per-app; show them outside prod
+// until the public flags are set.
+const appleEnabled =
+  process.env.NEXT_PUBLIC_APPLE_ENABLED === '1' ||
+  process.env.NODE_ENV !== 'production';
+const facebookEnabled =
+  process.env.NEXT_PUBLIC_FACEBOOK_ENABLED === '1' ||
+  process.env.NODE_ENV !== 'production';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -48,6 +65,49 @@ export default function SignInPage() {
             <p className="mt-2 text-gray-600">
               Sign in to access your dashboard
             </p>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+              className="w-full flex items-center justify-center gap-3 border border-gray-300 py-3 px-4 rounded-lg font-medium text-gray-800 hover:bg-gray-50 transition-colors"
+            >
+              <FontAwesomeIcon icon={faGoogle} className="text-[#EA4335]" />
+              Continue with Google
+            </button>
+
+            {appleEnabled && (
+              <button
+                type="button"
+                onClick={() => signIn('apple', { callbackUrl: '/dashboard' })}
+                className="w-full flex items-center justify-center gap-3 bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              >
+                <FontAwesomeIcon icon={faApple} />
+                Continue with Apple
+              </button>
+            )}
+
+            {facebookEnabled && (
+              <button
+                type="button"
+                onClick={() =>
+                  signIn('facebook', { callbackUrl: '/dashboard' })
+                }
+                className="w-full flex items-center justify-center gap-3 bg-[#1877F2] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#1877F2]/90 transition-colors"
+              >
+                <FontAwesomeIcon icon={faFacebookF} />
+                Continue with Facebook
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 my-6">
+            <span className="h-px flex-1 bg-gray-200" />
+            <span className="text-xs text-gray-500">
+              or continue with email
+            </span>
+            <span className="h-px flex-1 bg-gray-200" />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -109,7 +169,10 @@ export default function SignInPage() {
                   Sending magic link...
                 </span>
               ) : (
-                'Continue with Email'
+                <span className="flex items-center justify-center gap-2.5">
+                  <FontAwesomeIcon icon={faEnvelope} />
+                  Email me a sign-in link
+                </span>
               )}
             </button>
           </form>

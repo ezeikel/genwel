@@ -60,6 +60,7 @@ const config = {
   pages: {
     signIn: '/signin',
     verifyRequest: '/auth/verify-request',
+    error: '/auth/error',
   },
   providers: [
     // OAuth providers are included only when their env is present, so the app

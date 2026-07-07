@@ -48,8 +48,8 @@ const Header = ({ variant = 'waitlist' }: HeaderProps) => {
 
           <div className="hidden md:flex items-center gap-3">
             {variant === 'launch' && (
-              <Button variant="ghost" size="sm">
-                Log in
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/signin">Log in</Link>
               </Button>
             )}
             <Button size="sm">
@@ -85,8 +85,18 @@ const Header = ({ variant = 'waitlist' }: HeaderProps) => {
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
                 {variant === 'launch' && (
-                  <Button variant="ghost" size="sm" className="justify-start">
-                    Log in
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start"
+                    asChild
+                  >
+                    <Link
+                      href="/signin"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Log in
+                    </Link>
                   </Button>
                 )}
                 <Button size="sm">
