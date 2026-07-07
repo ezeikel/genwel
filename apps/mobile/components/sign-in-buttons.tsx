@@ -1,3 +1,11 @@
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
+import {
+  faApple,
+  faFacebookF,
+  faGoogle,
+} from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
@@ -6,6 +14,25 @@ import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
 import { toast } from 'sonner-native';
 import { API_BASE } from '@/lib/api';
 import { useSession } from '@/lib/session';
+
+// Icon + label row for a provider button (icon left, label centred) — matches
+// the web sign-in surface and keeps the buttons visually consistent.
+const ProviderLabel = ({
+  icon,
+  color,
+  label,
+  className,
+}: {
+  icon: IconProp;
+  color: string;
+  label: string;
+  className: string;
+}) => (
+  <View className="flex-row items-center justify-center gap-3">
+    <FontAwesomeIcon icon={icon} size={18} color={color} />
+    <Text className={className}>{label}</Text>
+  </View>
+);
 
 // Real sign-in for the entry screen. Runs the NATIVE Apple / Google flow to get a
 // provider token, then hands it to useSession().signIn — which POSTs to
@@ -151,9 +178,12 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
           accessibilityLabel="Continue with Apple"
           className={`items-center rounded-2xl bg-neutral-900 px-6 py-4 ${busy ? 'opacity-50' : 'active:opacity-90'}`}
         >
-          <Text className="text-[15px] font-semibold text-white">
-            Continue with Apple
-          </Text>
+          <ProviderLabel
+            icon={faApple}
+            color="#ffffff"
+            label="Continue with Apple"
+            className="text-[15px] font-semibold text-white"
+          />
         </Pressable>
       ) : null}
 
@@ -165,9 +195,12 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
           accessibilityLabel="Continue with Google"
           className={`items-center rounded-2xl border border-neutral-300 px-6 py-4 ${busy ? 'opacity-50' : 'active:bg-neutral-50'}`}
         >
-          <Text className="text-[15px] font-semibold text-neutral-900">
-            Continue with Google
-          </Text>
+          <ProviderLabel
+            icon={faGoogle}
+            color="#EA4335"
+            label="Continue with Google"
+            className="text-[15px] font-semibold text-neutral-900"
+          />
         </Pressable>
       ) : null}
 
@@ -179,9 +212,12 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
           accessibilityLabel="Continue with Facebook"
           className={`items-center rounded-2xl border border-neutral-300 px-6 py-4 ${busy ? 'opacity-50' : 'active:bg-neutral-50'}`}
         >
-          <Text className="text-[15px] font-semibold text-neutral-900">
-            Continue with Facebook
-          </Text>
+          <ProviderLabel
+            icon={faFacebookF}
+            color="#1877F2"
+            label="Continue with Facebook"
+            className="text-[15px] font-semibold text-neutral-900"
+          />
         </Pressable>
       ) : null}
 
@@ -208,9 +244,12 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
         accessibilityLabel="Email me a sign-in link"
         className={`items-center rounded-2xl px-6 py-4 ${busy === 'magic' ? 'bg-neutral-400' : 'bg-neutral-900 active:opacity-90'}`}
       >
-        <Text className="text-[15px] font-semibold text-white">
-          {busy === 'magic' ? 'Sending…' : 'Email me a link'}
-        </Text>
+        <ProviderLabel
+          icon={faEnvelope}
+          color="#ffffff"
+          label={busy === 'magic' ? 'Sending…' : 'Email me a link'}
+          className="text-[15px] font-semibold text-white"
+        />
       </Pressable>
     </View>
   );
