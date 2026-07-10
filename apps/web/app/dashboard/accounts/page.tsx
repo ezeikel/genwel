@@ -2,6 +2,7 @@ import { db } from '@genwel/db';
 import { auth } from '@/auth';
 import AccountCard from '@/components/dashboard/AccountCard';
 import ConnectBankButton from '@/components/dashboard/ConnectBankButton';
+import DisconnectBankButton from '@/components/dashboard/DisconnectBankButton';
 import EmptyState from '@/components/dashboard/EmptyState';
 
 export const metadata = {
@@ -57,6 +58,10 @@ export default async function AccountsPage() {
                   }).format(connection.connectedAt)}
                 </p>
               </div>
+              <DisconnectBankButton
+                connectionId={connection.id}
+                providerName={connection.providerName}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -72,7 +77,6 @@ export default async function AccountsPage() {
                       currency: account.currency,
                       balanceUpdatedAt: account.balanceUpdatedAt,
                     }}
-                    connectionId={connection.id}
                   />
                 ),
               )}

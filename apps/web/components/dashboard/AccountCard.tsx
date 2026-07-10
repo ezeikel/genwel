@@ -1,11 +1,3 @@
-'use client';
-
-import { faTrash } from '@fortawesome/pro-light-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { disconnectBank } from '@/actions/banking';
-
 interface AccountCardProps {
   account: {
     id: string;
@@ -15,56 +7,15 @@ interface AccountCardProps {
     currency: string;
     balanceUpdatedAt: Date | null;
   };
-  connectionId: string;
 }
 
-export default function AccountCard({
-  account,
-  connectionId,
-}: AccountCardProps) {
-  const router = useRouter();
-  const [isDisconnecting, setIsDisconnecting] = useState(false);
-
-  const handleDisconnect = async () => {
-    if (
-      !confirm(
-        'Are you sure you want to disconnect this bank? All account data will be removed.',
-      )
-    ) {
-      return;
-    }
-
-    setIsDisconnecting(true);
-
-    try {
-      const result = await disconnectBank(connectionId);
-
-      if (result.error) {
-        throw new Error(result.error);
-      }
-
-      router.refresh();
-    } catch {
-      alert('Failed to disconnect bank. Please try again.');
-    } finally {
-      setIsDisconnecting(false);
-    }
-  };
-
+export default function AccountCard({ account }: AccountCardProps) {
   return (
     <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <span className="text-xs bg-gray-100 px-2 py-1 rounded-full capitalize text-gray-600">
-          {account.accountType.replace('_', ' ')}
+          {account.accountType.replace(/_/g, ' ')}
         </span>
-        <button
-          onClick={handleDisconnect}
-          disabled={isDisconnecting}
-          className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-          title="Disconnect bank"
-        >
-          <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-        </button>
       </div>
 
       <p className="font-medium text-gray-900 mb-1">{account.displayName}</p>
