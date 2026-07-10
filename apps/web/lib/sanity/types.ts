@@ -52,7 +52,7 @@ export type SanitySeo = {
 export type SanityGenerationMeta = {
   isGenerated?: boolean;
   generatedAt?: string;
-  imageSource?: 'manual' | 'pexels' | 'gemini' | 'dalle';
+  imageSource?: 'manual' | 'pexels' | 'gpt-image' | 'gemini' | 'dalle';
   prompt?: string;
   pexelsPhotoId?: string;
 };

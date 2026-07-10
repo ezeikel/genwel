@@ -209,7 +209,9 @@ export default defineType({
           title: 'Image Source',
           type: 'string',
           options: {
-            list: ['manual', 'pexels', 'gemini', 'dalle'],
+            // 'gpt-image' = gpt-image-2 (current). 'gemini'/'dalle' retained
+            // for posts generated before the image model was switched.
+            list: ['manual', 'pexels', 'gpt-image', 'gemini', 'dalle'],
           },
         }),
         defineField({

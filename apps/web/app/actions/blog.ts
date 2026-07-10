@@ -1,6 +1,10 @@
 'use server';
 
-import { generateObject, generateText } from 'ai';
+import {
+  experimental_generateImage as generateImage,
+  generateObject,
+  generateText,
+} from 'ai';
 import { z } from 'zod/v3';
 import { findBestImage, type ImageEvaluation } from '@/lib/ai/image-evaluation';
 import { models } from '@/lib/ai/models';
@@ -28,7 +32,7 @@ import { coveredTopicsQuery } from '@/lib/sanity/queries';
 const log = createServerLogger({ action: 'blog_generation' });
 
 // Types
-type ImageSource = 'pexels' | 'gemini' | 'manual';
+type ImageSource = 'pexels' | 'gpt-image' | 'manual';
 
 interface FeaturedImage {
   asset: { _type: 'reference'; _ref: string };
@@ -132,53 +136,43 @@ function getImageSearchTerms(
 }
 
 /**
- * Generate image with Gemini 3 Pro Image when Pexels doesn't have suitable options
- * Uses Google's Gemini 3 Pro Image model via Vercel AI SDK
+ * Generate a blog featured image with gpt-image-2 when Pexels doesn't have a
+ * suitable photo. Uses OpenAI's gpt-image-2 (quality 'high', landscape) via the
+ * Vercel AI SDK's experimental_generateImage. Returns null on failure so the
+ * caller can degrade gracefully (post ships without a featured image).
  */
-async function generateImageWithGemini(
+async function generateImageWithOpenAI(
   title: string,
 ): Promise<{ buffer: Buffer; mimeType: string } | null> {
   const prompt = BLOG_IMAGE_GENERATION_PROMPT.replace('{{TITLE}}', title);
 
   try {
-    log.info('Generating image with Gemini', { title });
+    log.info('Generating image with gpt-image-2', { title });
 
-    // Use Gemini 3 Pro Image via Vercel AI SDK
-    // Must include providerOptions with responseModalities for image generation
-    const result = await generateText({
-      model: models.geminiImage,
+    const { image } = await generateImage({
+      model: models.blogImage,
       prompt: `Generate a high-quality professional photograph for this blog post. Do not include any text in the image. ${prompt}`,
+      // Landscape hero (3:2). gpt-image-2 supports 1024x1024 / 1024x1536 / 1536x1024.
+      size: '1536x1024',
       providerOptions: {
-        google: {
-          responseModalities: ['TEXT', 'IMAGE'],
+        openai: {
+          quality: 'high',
+          // Blog imagery is benign; keep default 'auto' moderation but pin it
+          // explicitly so behaviour is stable across model updates.
+          moderation: 'auto',
         },
       },
     });
 
-    // Images come back in result.files for image generation models
-    const imageFile = result.files?.find((f) =>
-      f.mediaType?.startsWith('image/'),
-    );
+    log.info('gpt-image-2 image generated successfully', { title });
 
-    if (imageFile) {
-      log.info('Gemini image generated successfully', { title });
-      const buffer = Buffer.from(imageFile.uint8Array);
-
-      return {
-        buffer,
-        mimeType: imageFile.mediaType,
-      };
-    }
-
-    log.warn('Gemini response did not contain image data', {
-      title,
-      hasFiles: !!result.files,
-      filesCount: result.files?.length,
-    });
-    return null;
+    return {
+      buffer: Buffer.from(image.uint8Array),
+      mimeType: image.mediaType || 'image/png',
+    };
   } catch (error) {
     log.error(
-      'Gemini image generation failed',
+      'gpt-image-2 image generation failed',
       { title },
       error instanceof Error ? error : undefined,
     );
@@ -204,14 +198,14 @@ async function uploadImageToSanity(
 }
 
 /**
- * Get featured image from Pexels (with AI evaluation) or Gemini
+ * Get featured image from Pexels (with AI evaluation) or gpt-image-2.
  *
  * Flow:
  * 1. Get search terms using pre-defined mappings (efficient, no AI call)
  * 2. Fetch multiple candidate photos from Pexels (excluding already-used photos)
  * 3. Use AI vision model to evaluate each photo's relevance
  * 4. Select the best photo that meets the confidence threshold
- * 5. Fall back to Gemini image generation if no Pexels photo qualifies
+ * 5. Fall back to gpt-image-2 generation if no Pexels photo qualifies
  */
 async function getFeaturedImage(
   title: string,
@@ -314,13 +308,15 @@ async function getFeaturedImage(
       };
     }
 
-    // 5. Fallback to Gemini image generation
-    log.info('No suitable Pexels image, falling back to Gemini', { title });
-    const geminiResult = await generateImageWithGemini(title);
+    // 5. Fallback to gpt-image-2 generation
+    log.info('No suitable Pexels image, falling back to gpt-image-2', {
+      title,
+    });
+    const generatedResult = await generateImageWithOpenAI(title);
 
-    if (geminiResult) {
+    if (generatedResult) {
       const assetRef = await uploadImageToSanity(
-        geminiResult.buffer,
+        generatedResult.buffer,
         `${slug}-featured-generated.png`,
       );
 
@@ -331,7 +327,7 @@ async function getFeaturedImage(
       };
     }
 
-    log.warn('Gemini image generation returned no image', { title });
+    log.warn('gpt-image-2 image generation returned no image', { title });
     return null;
   } catch (error) {
     log.error(
@@ -571,7 +567,7 @@ async function createSanityPost(
   const imageSource: ImageSource = featuredImage?.pexelsPhotoId
     ? 'pexels'
     : featuredImage
-      ? 'gemini'
+      ? 'gpt-image'
       : 'manual';
 
   // Create post
@@ -690,7 +686,7 @@ export async function generateRandomBlogPost(): Promise<{
  */
 export async function regeneratePostImage(postId: string): Promise<{
   success: boolean;
-  imageSource?: 'pexels' | 'gemini';
+  imageSource?: 'pexels' | 'gpt-image';
   error?: string;
 }> {
   try {
@@ -731,7 +727,7 @@ export async function regeneratePostImage(postId: string): Promise<{
     }
 
     // 4. Determine image source
-    const imageSource = featuredImage.pexelsPhotoId ? 'pexels' : 'gemini';
+    const imageSource = featuredImage.pexelsPhotoId ? 'pexels' : 'gpt-image';
 
     // 5. Update post with new image
     const patchData: Record<string, unknown> = {
@@ -784,7 +780,7 @@ export async function regenerateAllPostImages(): Promise<{
     postId: string;
     title: string;
     success: boolean;
-    imageSource?: 'pexels' | 'gemini';
+    imageSource?: 'pexels' | 'gpt-image';
     error?: string;
   }>;
 }> {
@@ -799,7 +795,7 @@ export async function regenerateAllPostImages(): Promise<{
     postId: string;
     title: string;
     success: boolean;
-    imageSource?: 'pexels' | 'gemini';
+    imageSource?: 'pexels' | 'gpt-image';
     error?: string;
   }> = [];
 

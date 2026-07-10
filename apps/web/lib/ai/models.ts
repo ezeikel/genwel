@@ -13,8 +13,11 @@ import { openai } from '@ai-sdk/openai';
  *   enough for structured labelling; replaces Gemini, which throttled hard).
  * - Insights / budget suggestions are high-value/low-frequency → Claude Sonnet 5
  *   (strongest reasoning per £ for money advice).
- * - Gemini is kept ONLY for vision/image work (image evaluation + generation),
- *   where it remains a good fit and volume is low.
+ * - Blog featured images → gpt-image-2 (quality 'high'). Pexels stock photos
+ *   are still tried first; gpt-image-2 only runs as the fallback. Replaced
+ *   Gemini 3 Pro Image, which was too expensive.
+ * - Gemini is kept ONLY for image RELEVANCE evaluation (vision), where it
+ *   remains a good fit and volume is low.
  */
 
 // Model identifiers
@@ -31,11 +34,14 @@ export const MODEL_IDS = {
   // and budget suggestions (high-value, low-frequency).
   CLAUDE_SONNET_5: 'claude-sonnet-5',
 
-  // Google Gemini models — VISION ONLY now (categorization moved to GPT-5.6).
-  // Most intelligent multimodal model - best for vision/evaluation
+  // OpenAI image model — blog featured-image generation (Pexels fallback).
+  // Photorealistic; called via experimental_generateImage with quality:'high'.
+  // Replaced Gemini 3 Pro Image (too expensive).
+  GPT_IMAGE_2: 'gpt-image-2',
+
+  // Google Gemini — VISION ONLY now (categorization → GPT-5.6, image gen →
+  // gpt-image-2). Most intelligent multimodal model — best for image evaluation.
   GEMINI_3_PRO: 'gemini-3-pro-preview',
-  // Image generation model (use with generateText, not generateImage)
-  GEMINI_3_PRO_IMAGE: 'gemini-3-pro-image-preview',
 } as const;
 
 // Pre-configured model instances
@@ -54,9 +60,11 @@ export const models = {
   // Best for: evaluating image relevance, quality assessment.
   vision: google(MODEL_IDS.GEMINI_3_PRO),
 
-  // Gemini image generation model (uses generateText, not generateImage).
-  // Best for: blog featured images when Pexels doesn't have suitable photos.
-  geminiImage: google(MODEL_IDS.GEMINI_3_PRO_IMAGE),
+  // Blog image generation — gpt-image-2 (image model, use with
+  // experimental_generateImage, NOT generateText). Best for: blog featured
+  // images when Pexels doesn't have a suitable photo. quality:'high' is set
+  // via providerOptions at the call site.
+  blogImage: openai.imageModel(MODEL_IDS.GPT_IMAGE_2),
 
   // Most capable reasoning model for high-value, low-frequency tasks — Sonnet 5.
   // Best for: financial insights, personalised advice, budget suggestions.
