@@ -56,8 +56,30 @@ function stripDiacritics(s: string): string {
 function canonicalize(description: string): string {
   let s = stripDiacritics(description).toUpperCase();
 
-  // Strip a leading hex/numeric reference token (e.g. "18DB38 Betropolis").
+  // Strip a leading hex/numeric reference token (e.g. "18DB38 Betropolis",
+  // or a card BIN like "4752" on NatWest card feeds).
   s = s.replace(/^[0-9A-F]{4,}\s+/i, '');
+
+  // Strip an embedded transaction date like "08JUL26" (day-month-year), which
+  // NatWest card descriptions prepend to the merchant.
+  s = s.replace(
+    /\b\d{1,2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\d{2,4}\b/gi,
+    ' ',
+  );
+
+  // Strip a leading payment-gateway marker so the real merchant surfaces:
+  // "PAYPAL *CLOUDFLARE...", "SQ *COFFEE", "SUMUP *BAR", "ZETTLE *SHOP",
+  // "IZ *STORE". The "*" binds the gateway to the merchant token.
+  s = s.replace(/\b(PAYPAL|SQ|SUMUP|SUM UP|ZETTLE|IZ|WWW|WPY)\s*\*+\s*/gi, ' ');
+
+  // Strip a trailing NatWest card-scheme suffix ("... 8590") and everything
+  // after a payment-reference tail ("VIA MOBILE - PYMT FP ...",
+  // "EXPENSES PAYMENT FP ...", "... FP 30/04/26 0107 <ref>"). These carry no
+  // merchant identity and otherwise dominate the key.
+  s = s.replace(/\s+\d{4}$/i, ''); // trailing card suffix e.g. 8590
+  s = s.replace(/\s+VIA MOBILE\b.*$/i, '');
+  s = s.replace(/\s+(EXPENSES\s+)?PAYMENT\s+FP\b.*$/i, '');
+  s = s.replace(/\s+FP\s+\d{2}\/\d{2}\/\d{2,4}\b.*$/i, '');
 
   // Strip trailing card markers: "CD 0315", "*1234", "XXXX1234".
   s = s.replace(/\s+CD\s*\d{2,}$/i, '');
@@ -67,6 +89,21 @@ function canonicalize(description: string): string {
   // Strip trailing standalone reference numbers/dates.
   s = s.replace(/\s+\d{2}[/-]\d{2}([/-]\d{2,4})?$/i, ''); // dates
   s = s.replace(/\s+(REF|REFERENCE|MANDATE)\b.*$/i, '');
+
+  // Strip a trailing 2-letter ISO country code (US, GB, IE, FI) that card
+  // feeds append after the payment reference.
+  s = s.replace(/\s+[A-Z]{2}$/, '');
+
+  // Strip a long standalone numeric payment reference (e.g. "35314369001").
+  s = s.replace(/\s+\d{6,}\b/g, ' ');
+
+  // Split a numeric reference fused onto the merchant token
+  // ("CLOUDFLARE4029357733" -> "CLOUDFLARE", "ANCESTRYUK35314369001" ->
+  // "ANCESTRYUK"). Only when a letter run is directly followed by 4+ digits.
+  s = s.replace(/([A-Z]{3,})\d{4,}\b/g, '$1');
+
+  // Collapse gateway billing suffixes: "APPLE.COM/BILL" -> "APPLE".
+  s = s.replace(/\.(COM|CO)\/\w+/gi, '');
 
   // Strip common web/TLD suffixes so "NETFLIX.COM" groups with "NETFLIX".
   s = s.replace(/\.(COM|CO\.UK|CO|NET|ORG|IO|UK)\b/gi, '');
@@ -87,6 +124,10 @@ function canonicalize(description: string): string {
     .replace(/[^A-Z0-9'&.\s-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // Collapse a consecutive duplicated word ("GOOGLE GOOGLE" -> "GOOGLE"), which
+  // some gateway feeds emit.
+  s = s.replace(/\b(\w+)(\s+\1\b)+/gi, '$1');
 
   return s;
 }

@@ -9,7 +9,9 @@ import ConnectBankButton from '@/components/dashboard/ConnectBankButton';
 import EmptyState from '@/components/dashboard/EmptyState';
 import FixableProblems from '@/components/dashboard/FixableProblems';
 import TransactionList from '@/components/dashboard/TransactionList';
+import { signedBalance } from '@/lib/banking/balance';
 import {
+  effectiveCategory,
   formatCategoryName,
   formatCurrency,
   getBudgetStatus,
@@ -66,10 +68,10 @@ export default async function DashboardPage() {
     take: 10,
   });
 
-  // Calculate total balance
+  // Calculate net worth: assets add, liabilities (credit cards) subtract.
   const totalBalance = bankAccounts.reduce(
     (sum: number, account: (typeof bankAccounts)[number]) =>
-      sum + (Number(account.balance) || 0),
+      sum + signedBalance(account.accountType, Number(account.balance) || 0),
     0,
   );
 
@@ -142,7 +144,13 @@ export default async function DashboardPage() {
                 {new Intl.NumberFormat('en-GB', {
                   style: 'currency',
                   currency: account.currency,
-                }).format(Number(account.balance) || 0)}
+                }).format(Math.abs(Number(account.balance) || 0))}
+                {account.accountType === 'credit_card' && (
+                  <span className="text-sm font-normal text-gray-500">
+                    {' '}
+                    owed
+                  </span>
+                )}
               </p>
             </div>
           ))}
@@ -172,7 +180,7 @@ export default async function DashboardPage() {
               description: tx.description,
               amount: Number(tx.amount),
               currency: tx.currency,
-              category: tx.category,
+              category: effectiveCategory(tx),
               merchantName: tx.merchantName,
               timestamp: tx.timestamp,
               accountName: tx.account.displayName,

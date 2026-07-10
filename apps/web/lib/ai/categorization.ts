@@ -85,6 +85,15 @@ REMITTANCES - International money transfers (Western Union, Wise, Remitly)
 SUBSCRIPTIONS - Recurring memberships not covered above (gym separate — put under HEALTH)
 OTHER - Anything that doesn't fit above
 
+Descriptions may include payment-gateway prefixes (PAYPAL *, SQ *, SUMUP *, ZETTLE *), embedded dates (e.g. 08JUL26), card suffixes, location/country codes and long reference numbers. IGNORE all of these and categorize by the actual MERCHANT.
+
+Examples:
+"4752 05JUL26 PAYPAL *UBER EATS 35314369001 GB" -> EATING_OUT
+"4752 25JUN26 PAYPAL *ADOBESYSTEM 35314369001 GB" -> SUBSCRIPTIONS
+"MONEYBOX" -> SAVINGS
+"ANTHROPIC SAN FRANCISCO CA USA 8590" -> SUBSCRIPTIONS
+"SAINSBURYS S/MKTS SYDENHAM 693 GBR 8590" -> GROCERIES
+
 For each transaction, return the ID, best-fit category, and confidence (0-1).
 
 Transactions to categorize:
@@ -95,7 +104,10 @@ ${JSON.stringify(txList, null, 2)}`,
 
   const resultMap = new Map<string, (typeof SPENDING_CATEGORIES)[number]>();
   for (const r of object.results) {
-    resultMap.set(r.id, r.category);
+    // Skip low-confidence guesses so the transaction stays uncategorized and is retried later
+    if (r.confidence >= 0.5) {
+      resultMap.set(r.id, r.category);
+    }
   }
   return resultMap;
 }

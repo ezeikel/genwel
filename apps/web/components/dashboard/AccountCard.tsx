@@ -24,7 +24,10 @@ export default function AccountCard({ account }: AccountCardProps) {
         {new Intl.NumberFormat('en-GB', {
           style: 'currency',
           currency: account.currency,
-        }).format(account.balance)}
+        }).format(Math.abs(account.balance))}
+        {account.accountType === 'credit_card' && (
+          <span className="text-sm font-normal text-gray-500"> owed</span>
+        )}
       </p>
 
       {account.balanceUpdatedAt && (

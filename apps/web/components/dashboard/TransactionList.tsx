@@ -1,21 +1,17 @@
-import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import {
-  faArrowRightArrowLeft,
-  faCircleDollar,
-  faEllipsis,
-  faMoneyBill,
-  faPiggyBank,
-  faReceipt,
-  faShoppingBag,
-} from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { SpendingCategory } from '@genwel/db';
+import {
+  formatCategoryName,
+  getCategoryColor,
+  getCategoryIcon,
+} from '@/lib/budget-utils';
 
 interface Transaction {
   id: string;
   description: string;
   amount: number;
   currency: string;
-  category: string | null;
+  category: SpendingCategory;
   merchantName: string | null;
   timestamp: Date;
   accountName: string;
@@ -26,26 +22,6 @@ interface TransactionListProps {
   transactions: Transaction[];
 }
 
-const categoryIcons: Record<string, IconDefinition> = {
-  Shopping: faShoppingBag,
-  Bills: faReceipt,
-  Transfer: faArrowRightArrowLeft,
-  Cash: faMoneyBill,
-  Income: faPiggyBank,
-  Fees: faCircleDollar,
-  Other: faEllipsis,
-};
-
-const categoryColors: Record<string, string> = {
-  Shopping: 'bg-purple-100 text-purple-600',
-  Bills: 'bg-blue-100 text-blue-600',
-  Transfer: 'bg-gray-100 text-gray-600',
-  Cash: 'bg-green-100 text-green-600',
-  Income: 'bg-emerald-100 text-emerald-600',
-  Fees: 'bg-red-100 text-red-600',
-  Other: 'bg-gray-100 text-gray-600',
-};
-
 export default function TransactionList({
   transactions,
 }: TransactionListProps) {
@@ -53,9 +29,9 @@ export default function TransactionList({
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="divide-y divide-gray-100">
         {transactions.map((tx) => {
-          const category = tx.category || 'Other';
-          const icon = categoryIcons[category] || faEllipsis;
-          const colorClass = categoryColors[category] || categoryColors.Other;
+          const category = tx.category;
+          const icon = getCategoryIcon(category);
+          const colorClass = getCategoryColor(category);
           const isCredit = tx.amount > 0;
 
           return (
@@ -93,7 +69,9 @@ export default function TransactionList({
                     currency: tx.currency,
                   }).format(Math.abs(tx.amount))}
                 </p>
-                <p className="text-xs text-gray-400">{category}</p>
+                <p className="text-xs text-gray-400">
+                  {formatCategoryName(category)}
+                </p>
               </div>
             </div>
           );

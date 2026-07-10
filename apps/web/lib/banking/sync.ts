@@ -1,4 +1,5 @@
 import { db } from '@genwel/db';
+import { resolveMerchant } from '@/lib/banking/merchant';
 import {
   getAccountBalance,
   getCardBalance,
@@ -110,13 +111,15 @@ export async function syncUserTransactions(
             currency: tx.currency,
             description: tx.description,
             category: mapTransactionCategory(tx.transaction_category),
-            merchantName: tx.merchant_name,
+            merchantName: resolveMerchant(tx.merchant_name, tx.description)
+              .display,
             timestamp: new Date(tx.timestamp),
           },
           update: {
             description: tx.description,
             category: mapTransactionCategory(tx.transaction_category),
-            merchantName: tx.merchant_name,
+            merchantName: resolveMerchant(tx.merchant_name, tx.description)
+              .display,
           },
         });
         synced += 1;

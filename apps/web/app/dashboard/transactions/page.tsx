@@ -1,8 +1,9 @@
-import { db } from '@genwel/db';
+import { db, type SpendingCategory } from '@genwel/db';
 import { auth } from '@/auth';
 import EmptyState from '@/components/dashboard/EmptyState';
 import SpendingChart from '@/components/dashboard/SpendingChart';
 import TransactionList from '@/components/dashboard/TransactionList';
+import { effectiveCategory } from '@/lib/budget-utils';
 
 export const metadata = {
   title: 'Transactions - Genwel',
@@ -64,11 +65,12 @@ export default async function TransactionsPage() {
     );
   }
 
-  // Calculate spending by category
+  // Calculate spending by category, keyed on the effective (AI) category enum
+  // so the chart can colour/label it via the shared helpers.
   const spendingByCategory = transactions.reduce(
     (acc: Record<string, number>, tx: (typeof transactions)[number]) => {
       if (Number(tx.amount) < 0) {
-        const category = tx.category || 'Other';
+        const category = effectiveCategory(tx);
         acc[category] = (acc[category] || 0) + Math.abs(Number(tx.amount));
       }
       return acc;
@@ -78,7 +80,7 @@ export default async function TransactionsPage() {
 
   const chartData = Object.entries(spendingByCategory)
     .map(([category, amount]) => ({
-      category,
+      category: category as SpendingCategory,
       amount: amount as number,
     }))
     .sort((a, b) => b.amount - a.amount);
@@ -117,7 +119,7 @@ export default async function TransactionsPage() {
                 description: tx.description,
                 amount: Number(tx.amount),
                 currency: tx.currency,
-                category: tx.category,
+                category: effectiveCategory(tx),
                 merchantName: tx.merchantName,
                 timestamp: tx.timestamp,
                 accountName: tx.account.displayName,

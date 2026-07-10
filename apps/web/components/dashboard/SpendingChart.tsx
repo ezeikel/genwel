@@ -1,21 +1,14 @@
 'use client';
 
+import type { SpendingCategory } from '@genwel/db';
+import { formatCategoryName, getCategoryChartColor } from '@/lib/budget-utils';
+
 interface SpendingChartProps {
   data: {
-    category: string;
+    category: SpendingCategory;
     amount: number;
   }[];
 }
-
-const categoryColors: Record<string, string> = {
-  Shopping: '#9333ea',
-  Bills: '#2563eb',
-  Transfer: '#6b7280',
-  Cash: '#22c55e',
-  Income: '#10b981',
-  Fees: '#ef4444',
-  Other: '#9ca3af',
-};
 
 export default function SpendingChart({ data }: SpendingChartProps) {
   const total = data.reduce((sum, item) => sum + item.amount, 0);
@@ -28,12 +21,14 @@ export default function SpendingChart({ data }: SpendingChartProps) {
           <div className="space-y-3">
             {data.slice(0, 6).map((item) => {
               const percentage = (item.amount / total) * 100;
-              const color = categoryColors[item.category] || '#9ca3af';
+              const color = getCategoryChartColor(item.category);
 
               return (
                 <div key={item.category}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">{item.category}</span>
+                    <span className="text-gray-600">
+                      {formatCategoryName(item.category)}
+                    </span>
                     <span className="font-medium text-gray-900">
                       {new Intl.NumberFormat('en-GB', {
                         style: 'currency',
