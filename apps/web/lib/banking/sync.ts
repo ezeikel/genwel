@@ -1,6 +1,8 @@
 import { db } from '@genwel/db';
 import {
   getAccountBalance,
+  getCardBalance,
+  getCardTransactions,
   getTransactions as getTrueLayerTransactions,
   mapTransactionCategory,
   refreshToken,
@@ -56,12 +58,14 @@ export async function syncUserTransactions(
       }
     }
 
-    // Refresh the account balance (best-effort; don't fail the whole sync).
+    const isCard = account.accountType === 'credit_card';
+
+    // Refresh the balance (best-effort; don't fail the whole sync). Cards use a
+    // separate endpoint — calling the accounts endpoint with a card id 404s.
     try {
-      const balance = await getAccountBalance(
-        connection.accessToken,
-        account.externalId,
-      );
+      const balance = isCard
+        ? await getCardBalance(connection.accessToken, account.externalId)
+        : await getAccountBalance(connection.accessToken, account.externalId);
       await db.bankAccount.update({
         where: { id: account.id },
         data: {
@@ -77,12 +81,19 @@ export async function syncUserTransactions(
     }
 
     try {
-      const trueLayerTransactions = await getTrueLayerTransactions(
-        connection.accessToken,
-        account.externalId,
-        fromDate,
-        toDate,
-      );
+      const trueLayerTransactions = isCard
+        ? await getCardTransactions(
+            connection.accessToken,
+            account.externalId,
+            fromDate,
+            toDate,
+          )
+        : await getTrueLayerTransactions(
+            connection.accessToken,
+            account.externalId,
+            fromDate,
+            toDate,
+          );
 
       for (const tx of trueLayerTransactions) {
         await db.transaction.upsert({

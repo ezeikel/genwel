@@ -6,6 +6,8 @@ import {
   exchangeCode,
   getAccountBalance,
   getAccounts,
+  getCardBalance,
+  getCards,
   mapAccountType,
 } from '@/lib/truelayer/client';
 
@@ -42,17 +44,20 @@ export async function GET(request: NextRequest) {
     // Exchange code for tokens
     const tokens = await exchangeCode(code);
 
-    // Get accounts from TrueLayer
+    // Get accounts AND credit cards from TrueLayer (cards are a separate
+    // endpoint — a user may have only a credit card, only accounts, or both).
     const accounts = await getAccounts(tokens.access_token);
+    const cards = await getCards(tokens.access_token);
 
-    if (accounts.length === 0) {
+    if (accounts.length === 0 && cards.length === 0) {
       return NextResponse.redirect(
         new URL('/dashboard?error=no_accounts', request.url),
       );
     }
 
-    // Get provider info from first account
-    const provider = accounts[0].provider;
+    // Get provider info from the first account, falling back to the first card
+    // (card-only connections have no accounts to read the provider from).
+    const provider = (accounts[0] ?? cards[0]).provider;
 
     // Calculate token expiry
     const tokenExpiresAt = new Date(Date.now() + tokens.expires_in * 1000);
@@ -92,6 +97,32 @@ export async function GET(request: NextRequest) {
       } catch (err) {
         console.error(`Failed to sync account ${account.account_id}:`, err);
         // Continue with other accounts
+      }
+    }
+
+    // Sync credit cards and balances (cards are always credit_card type)
+    for (const card of cards) {
+      try {
+        const balance = await getCardBalance(
+          tokens.access_token,
+          card.account_id,
+        );
+
+        await db.bankAccount.create({
+          data: {
+            connectionId: bankConnection.id,
+            externalId: card.account_id,
+            accountType: 'credit_card',
+            displayName: card.display_name,
+            currency: card.currency,
+            // `current` on a card is the amount OWED (positive = debt).
+            balance: balance.current,
+            balanceUpdatedAt: new Date(balance.update_timestamp),
+          },
+        });
+      } catch (err) {
+        console.error(`Failed to sync card ${card.account_id}:`, err);
+        // Continue with other cards
       }
     }
 

@@ -1,6 +1,8 @@
 import type {
   TrueLayerAccount,
   TrueLayerBalance,
+  TrueLayerCard,
+  TrueLayerCardBalance,
   TrueLayerResponse,
   TrueLayerTokenResponse,
   TrueLayerTransaction,
@@ -22,10 +24,13 @@ const CLIENT_ID = process.env.TRUELAYER_CLIENT_ID!;
 const CLIENT_SECRET = process.env.TRUELAYER_CLIENT_SECRET!;
 const REDIRECT_URI = process.env.TRUELAYER_REDIRECT_URI!;
 
-// Scopes for Data API
+// Scopes for Data API. `cards` is required to read /data/v1/cards* — without it
+// credit cards return 403. (Users connected before this scope was added must
+// reconnect their bank for the card scope to apply to their token.)
 const SCOPES = [
   'info',
   'accounts',
+  'cards',
   'balance',
   'transactions',
   'offline_access',
@@ -216,6 +221,115 @@ export async function getPendingTransactions(
     const error = await response.json();
     throw new Error(
       error.error_description || 'Failed to get pending transactions',
+    );
+  }
+
+  const data: TrueLayerResponse<TrueLayerTransaction> = await response.json();
+  return data.results;
+}
+
+/**
+ * Get all credit cards for a user (separate endpoint from accounts)
+ */
+export async function getCards(accessToken: string): Promise<TrueLayerCard[]> {
+  const response = await fetch(`${API_BASE_URL}/data/v1/cards`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error_description || 'Failed to get cards');
+  }
+
+  const data: TrueLayerResponse<TrueLayerCard> = await response.json();
+  return data.results;
+}
+
+/**
+ * Get balance for a specific credit card
+ */
+export async function getCardBalance(
+  accessToken: string,
+  cardId: string,
+): Promise<TrueLayerCardBalance> {
+  const response = await fetch(
+    `${API_BASE_URL}/data/v1/cards/${cardId}/balance`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error_description || 'Failed to get card balance');
+  }
+
+  const data: TrueLayerResponse<TrueLayerCardBalance> = await response.json();
+  return data.results[0];
+}
+
+/**
+ * Get transactions for a specific credit card
+ */
+export async function getCardTransactions(
+  accessToken: string,
+  cardId: string,
+  from?: Date,
+  to?: Date,
+): Promise<TrueLayerTransaction[]> {
+  const params = new URLSearchParams();
+  if (from) params.set('from', from.toISOString());
+  if (to) params.set('to', to.toISOString());
+
+  const url = `${API_BASE_URL}/data/v1/cards/${cardId}/transactions${
+    params.toString() ? `?${params.toString()}` : ''
+  }`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(
+      error.error_description || 'Failed to get card transactions',
+    );
+  }
+
+  const data: TrueLayerResponse<TrueLayerTransaction> = await response.json();
+  return data.results;
+}
+
+/**
+ * Get pending transactions for a specific credit card
+ */
+export async function getPendingCardTransactions(
+  accessToken: string,
+  cardId: string,
+): Promise<TrueLayerTransaction[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/data/v1/cards/${cardId}/transactions/pending`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    // Pending transactions may not be supported by all banks
+    if (response.status === 501) {
+      return [];
+    }
+    const error = await response.json();
+    throw new Error(
+      error.error_description || 'Failed to get pending card transactions',
     );
   }
 

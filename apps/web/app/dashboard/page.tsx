@@ -134,7 +134,7 @@ export default async function DashboardPage() {
                   {account.connection.providerName}
                 </span>
                 <span className="text-xs bg-gray-100 px-2 py-1 rounded-full capitalize">
-                  {account.accountType}
+                  {account.accountType.replace(/_/g, ' ')}
                 </span>
               </div>
               <p className="font-medium text-gray-900">{account.displayName}</p>

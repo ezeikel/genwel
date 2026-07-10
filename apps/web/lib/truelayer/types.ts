@@ -37,6 +37,40 @@ export interface TrueLayerBalance {
   update_timestamp: string;
 }
 
+// Credit cards are served from a SEPARATE endpoint set (/data/v1/cards*) and
+// have no `account_type` field — they are always credit cards. The card id is
+// carried in `account_id` (same slot as TrueLayerAccount), so it maps onto the
+// same DB `externalId` column.
+export interface TrueLayerCard {
+  account_id: string;
+  card_network: string; // e.g. "VISA", "MASTERCARD"
+  card_type: string; // e.g. "CREDIT", "CHARGE"
+  currency: string;
+  display_name: string;
+  partial_card_number: string; // last 4 digits
+  name_on_card?: string;
+  valid_from?: string;
+  valid_to?: string;
+  update_timestamp: string;
+  provider: TrueLayerProvider;
+}
+
+// Card balance shares available/current/update_timestamp with TrueLayerBalance
+// (so it drops into the same persistence), plus credit-specific extras. Note the
+// semantics differ: `current` is the amount OWED (positive = debt), `available`
+// is the remaining credit.
+export interface TrueLayerCardBalance {
+  currency: string;
+  available: number;
+  current: number;
+  credit_limit?: number;
+  last_statement_balance?: number;
+  last_statement_date?: string;
+  payment_due?: number;
+  payment_due_date?: string;
+  update_timestamp: string;
+}
+
 export interface TrueLayerTransaction {
   transaction_id: string;
   timestamp: string;
