@@ -68,8 +68,20 @@ export async function exchangeCode(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error_description || 'Failed to exchange code');
+    // TrueLayer's token endpoint returns { error, error_description } — surface
+    // BOTH (error code is often present when description isn't) plus the status,
+    // so failures like invalid_grant / invalid_client / redirect mismatch are
+    // diagnosable instead of a generic "Failed to exchange code".
+    const body = await response.text();
+    let detail = body;
+    try {
+      const parsed = JSON.parse(body);
+      detail =
+        parsed.error_description || parsed.error || JSON.stringify(parsed);
+    } catch {
+      // non-JSON body — keep raw text
+    }
+    throw new Error(`Failed to exchange code (${response.status}): ${detail}`);
   }
 
   return response.json();
