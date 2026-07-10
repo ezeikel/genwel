@@ -46,8 +46,15 @@ export async function GET(request: NextRequest) {
 
     // Get accounts AND credit cards from TrueLayer (cards are a separate
     // endpoint — a user may have only a credit card, only accounts, or both).
+    // Cards are best-effort: a card fetch failure (e.g. token without the
+    // `cards` scope) must NEVER abort a connection whose accounts fetched fine.
     const accounts = await getAccounts(tokens.access_token);
-    const cards = await getCards(tokens.access_token);
+    let cards: Awaited<ReturnType<typeof getCards>> = [];
+    try {
+      cards = await getCards(tokens.access_token);
+    } catch (cardErr) {
+      console.error('[callback] Failed to fetch cards (non-fatal):', cardErr);
+    }
 
     if (accounts.length === 0 && cards.length === 0) {
       return NextResponse.redirect(

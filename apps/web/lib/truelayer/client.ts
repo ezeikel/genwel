@@ -37,6 +37,27 @@ const SCOPES = [
 ];
 
 /**
+ * Read an error response body safely. TrueLayer error responses are sometimes
+ * empty (e.g. a 403 with no body), which makes `response.json()` throw
+ * "Unexpected end of JSON input". Return a best-effort detail string instead,
+ * never throwing.
+ */
+async function safeErrorDetail(response: Response): Promise<string> {
+  try {
+    const body = await response.text();
+    if (!body) return response.statusText || 'no response body';
+    try {
+      const parsed = JSON.parse(body);
+      return parsed.error_description || parsed.error || body;
+    } catch {
+      return body;
+    }
+  } catch {
+    return response.statusText || 'unreadable response body';
+  }
+}
+
+/**
  * Generate the TrueLayer authorization URL for bank connection
  */
 export function getAuthUrl(state: string): string {
@@ -229,7 +250,13 @@ export async function getPendingTransactions(
 }
 
 /**
- * Get all credit cards for a user (separate endpoint from accounts)
+ * Get all credit cards for a user (separate endpoint from accounts).
+ *
+ * Resilient by design: if the connection's token lacks the `cards` scope
+ * (403 — e.g. a connection made before card support was added) or the provider
+ * doesn't support the cards endpoint (404/501), return [] rather than throwing.
+ * Callers treat "no cards" and "cards unavailable" the same, and a card failure
+ * must never abort a connection whose accounts fetched fine.
  */
 export async function getCards(accessToken: string): Promise<TrueLayerCard[]> {
   const response = await fetch(`${API_BASE_URL}/data/v1/cards`, {
@@ -239,8 +266,13 @@ export async function getCards(accessToken: string): Promise<TrueLayerCard[]> {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error_description || 'Failed to get cards');
+    // Missing scope / unsupported endpoint → no cards, not a hard error.
+    if ([403, 404, 501].includes(response.status)) {
+      return [];
+    }
+    throw new Error(
+      `Failed to get cards (${response.status}): ${await safeErrorDetail(response)}`,
+    );
   }
 
   const data: TrueLayerResponse<TrueLayerCard> = await response.json();
@@ -264,8 +296,9 @@ export async function getCardBalance(
   );
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error_description || 'Failed to get card balance');
+    throw new Error(
+      `Failed to get card balance (${response.status}): ${await safeErrorDetail(response)}`,
+    );
   }
 
   const data: TrueLayerResponse<TrueLayerCardBalance> = await response.json();
@@ -296,9 +329,8 @@ export async function getCardTransactions(
   });
 
   if (!response.ok) {
-    const error = await response.json();
     throw new Error(
-      error.error_description || 'Failed to get card transactions',
+      `Failed to get card transactions (${response.status}): ${await safeErrorDetail(response)}`,
     );
   }
 
