@@ -6,6 +6,7 @@ import {
 } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Badge } from '@/components/ui/badge';
+import AiGuidanceDisclaimer from '../AiGuidanceDisclaimer';
 
 interface InsightCardProps {
   type: string;
@@ -74,6 +75,9 @@ export default function InsightCard({
               timeStyle: 'short',
             }).format(createdAt)}
           </p>
+          <div className="mt-3 border-t border-gray-100 pt-3">
+            <AiGuidanceDisclaimer />
+          </div>
         </div>
       </div>
     </div>

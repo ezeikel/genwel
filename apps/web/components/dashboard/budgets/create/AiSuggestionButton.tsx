@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { SpendingCategory } from '@genwel/db';
 import { useState } from 'react';
 import { getAiBudgetSuggestions } from '@/actions/ai-budgets';
+import AiGuidanceDisclaimer from '@/components/dashboard/AiGuidanceDisclaimer';
 import { Button } from '@/components/ui/button';
 
 interface AiSuggestionButtonProps {
@@ -59,6 +60,9 @@ export default function AiSuggestionButton({
         {loading ? 'Analysing spending...' : 'Get AI Suggestions'}
       </Button>
       {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+      <div className="mt-2 max-w-xs">
+        <AiGuidanceDisclaimer />
+      </div>
     </div>
   );
 }

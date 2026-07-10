@@ -18,17 +18,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
-      url: `${BASE_URL}/waitlist`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
       url: `${BASE_URL}/blog`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
     },
+    ...['privacy', 'terms', 'cookies'].map((path) => ({
+      url: `${BASE_URL}/${path}`,
+      lastModified: new Date('2026-07-10'),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    })),
   ];
 
   // Dynamic blog posts from Sanity

@@ -3,7 +3,9 @@ import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
 import type React from 'react';
+import CookieConsent from '@/components/CookieConsent';
 import { OrganizationJsonLd, WebApplicationJsonLd } from '@/components/JsonLd';
+import Providers from './providers';
 import './globals.css';
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
     template: '%s | Genwel',
   },
   description:
-    'Free UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth—starting from wherever you are today.',
+    'UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth—starting from wherever you are today.',
   keywords: [
     'UK budgeting app',
     'budget tracker UK',
@@ -59,13 +61,13 @@ export const metadata: Metadata = {
     siteName: 'Genwel',
     title: 'Genwel | UK Budgeting App for Family Supporters & Debt Recovery',
     description:
-      'Free UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth.',
+      'UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Genwel | UK Budgeting App for Family Supporters & Debt Recovery',
     description:
-      'Free UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth.',
+      'UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth.',
     creator: '@genwelapp',
   },
   alternates: {
@@ -101,7 +103,8 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <OrganizationJsonLd />
         <WebApplicationJsonLd />
-        {children}
+        <Providers>{children}</Providers>
+        <CookieConsent />
         <Analytics />
       </body>
     </html>

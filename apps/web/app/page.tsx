@@ -12,8 +12,8 @@ import UniqueFeaturesSection from '@/components/UniqueFeaturesSection';
 const HomePage = () => {
   return (
     <main className="min-h-screen">
-      <Header variant="waitlist" />
-      <HeroSection variant="landing" />
+      <Header />
+      <HeroSection />
       <TrustSection />
       <HowItWorksSection />
       <CoreFeaturesSection />

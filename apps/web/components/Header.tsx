@@ -4,20 +4,17 @@ import { faBars, faXmark } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useState } from 'react';
+import AuthNav from '@/components/AuthNav';
 import { Button } from '@/components/ui/button';
 
-type HeaderProps = {
-  variant?: 'waitlist' | 'launch';
-};
-
-const Header = ({ variant = 'waitlist' }: HeaderProps) => {
+const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '#how-it-works', label: 'How it works' },
-    { href: '#features', label: 'Features' },
-    { href: '#security', label: 'Security' },
-    { href: '#faq', label: 'FAQ' },
+    { href: '/#how-it-works', label: 'How it works' },
+    { href: '/#features', label: 'Features' },
+    { href: '/#security', label: 'Security' },
+    { href: '/#faq', label: 'FAQ' },
     { href: '/blog', label: 'Blog' },
   ];
 
@@ -47,13 +44,9 @@ const Header = ({ variant = 'waitlist' }: HeaderProps) => {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            {variant === 'launch' && (
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/signin">Log in</Link>
-              </Button>
-            )}
-            <Button size="sm">
-              {variant === 'waitlist' ? 'Join Waitlist' : 'Download App'}
+            <AuthNav />
+            <Button size="sm" asChild>
+              <Link href="/dashboard">Get started</Link>
             </Button>
           </div>
 
@@ -84,23 +77,16 @@ const Header = ({ variant = 'waitlist' }: HeaderProps) => {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                {variant === 'launch' && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="justify-start"
-                    asChild
+                <div onClick={() => setMobileMenuOpen(false)}>
+                  <AuthNav />
+                </div>
+                <Button size="sm" asChild>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link
-                      href="/signin"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Log in
-                    </Link>
-                  </Button>
-                )}
-                <Button size="sm">
-                  {variant === 'waitlist' ? 'Join Waitlist' : 'Download App'}
+                    Get started
+                  </Link>
                 </Button>
               </div>
             </nav>

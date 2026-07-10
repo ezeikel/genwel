@@ -7,6 +7,7 @@ import { auth } from '@/auth';
 import BalanceCard from '@/components/dashboard/BalanceCard';
 import ConnectBankButton from '@/components/dashboard/ConnectBankButton';
 import EmptyState from '@/components/dashboard/EmptyState';
+import FixableProblems from '@/components/dashboard/FixableProblems';
 import TransactionList from '@/components/dashboard/TransactionList';
 import {
   formatCategoryName,
@@ -88,6 +89,9 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <ConnectBankButton />
       </div>
+
+      {/* Fixable Problems (the wedge) */}
+      <FixableProblems />
 
       {/* Balance Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

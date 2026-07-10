@@ -93,7 +93,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <>
-      <Header variant="waitlist" />
+      <Header />
       <main className="min-h-screen pt-16">
         <ArticleJsonLd
           title={post.title}

@@ -13,7 +13,7 @@ const TrustSection = () => {
     },
     {
       icon: faCheckCircle,
-      label: 'FCA-Regulated Connections',
+      label: 'Secure Open Banking Connections',
     },
     {
       icon: faLock,

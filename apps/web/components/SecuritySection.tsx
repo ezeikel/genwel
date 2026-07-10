@@ -13,7 +13,7 @@ const SecuritySection = () => {
   const securityPoints = [
     {
       icon: faShieldAlt,
-      title: 'FCA-Regulated Open Banking',
+      title: 'Secure Open Banking',
       description:
         'We use regulated open banking providers to connect to your accounts securely.',
     },

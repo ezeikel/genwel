@@ -29,7 +29,7 @@ export default async function BlogPage() {
 
   return (
     <>
-      <Header variant="waitlist" />
+      <Header />
       <main className="min-h-screen pt-16">
         {/* Hero Section */}
         <section className="bg-primary/5 py-16 md:py-24">

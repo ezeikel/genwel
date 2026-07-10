@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     try {
       await getResend().emails.send({
-        from: process.env.EMAIL_FROM || 'Genwel <no-reply@genwel.com>',
+        from: process.env.DEFAULT_FROM_EMAIL || 'Genwel <no-reply@genwel.com>',
         to: email,
         subject: 'Sign in to Genwel',
         html: `

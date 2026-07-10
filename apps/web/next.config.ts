@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       revalidate: 60 * 60 * 24, // 24 hours
       expire: 60 * 60 * 24 * 30, // 30 days
     },
-    // User-specific data (waitlist, preferences)
+    // User-specific data (preferences, account summaries)
     'user-data': {
       stale: 60 * 5, // 5 minutes
       revalidate: 60 * 60, // 1 hour
@@ -35,6 +35,16 @@ const nextConfig: NextConfig = {
         hostname: 'images.pexels.com',
       },
     ],
+  },
+  async redirects() {
+    return [
+      // Waitlist retired 2026-07 — Genwel is live; old links go to sign-in.
+      {
+        source: '/waitlist',
+        destination: '/signin',
+        permanent: true,
+      },
+    ];
   },
   async rewrites() {
     return [

@@ -15,7 +15,7 @@ const FaqSection = () => {
     {
       question: 'How does Genwel connect to my bank?',
       answer:
-        "Genwel uses Open Banking, a secure, FCA-regulated way to connect to your bank. You authorise access through your bank's own app or website. We never see your login credentials.",
+        "Genwel uses Open Banking to connect to your bank securely. You authorise access through your bank's own app or website. We never see your login credentials.",
     },
     {
       question: 'Is my money safe?',
@@ -25,7 +25,7 @@ const FaqSection = () => {
     {
       question: 'How much will it cost?',
       answer:
-        "We're still finalising pricing, but our goal is to make Genwel accessible. Join the waitlist to get early access and special launch pricing.",
+        "We're finalising Genwel's launch pricing. Our goal is to keep it accessible, and early users will receive special launch pricing.",
     },
     {
       question: 'Do I have to send remittances to use it?',

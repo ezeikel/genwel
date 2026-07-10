@@ -16,11 +16,6 @@ type WebApplicationSchema = {
   url: string;
   applicationCategory: string;
   operatingSystem: string;
-  offers: {
-    '@type': 'Offer';
-    price: string;
-    priceCurrency: string;
-  };
 };
 
 type ArticleSchema = {
@@ -78,11 +73,6 @@ export function WebApplicationJsonLd() {
     url: 'https://genwel.com',
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'iOS, Android',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'GBP',
-    },
   };
 
   return (

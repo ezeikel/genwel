@@ -14,9 +14,11 @@ import { headers } from 'next/headers';
 // build time (which would break `next build`'s page-data collection for any
 // route that imports this module). No insecure fallback.
 const getJwtSecret = (): Uint8Array => {
-  const secret = process.env.NEXT_AUTH_SECRET;
+  const secret = process.env.MOBILE_AUTH_SECRET || process.env.NEXTAUTH_SECRET;
   if (!secret) {
-    throw new Error('NEXT_AUTH_SECRET environment variable must be set');
+    throw new Error(
+      'MOBILE_AUTH_SECRET or NEXTAUTH_SECRET environment variable must be set',
+    );
   }
   return new TextEncoder().encode(secret);
 };

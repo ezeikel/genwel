@@ -1,54 +1,27 @@
-'use client';
-
-import {
-  faInstagram,
-  faLinkedin,
-  faTiktok,
-  faXTwitter,
-} from '@fortawesome/free-brands-svg-icons';
 import { faArrowRight } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
-import type React from 'react';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { CookieSettingsButton } from './CookieConsent';
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO(phase-3): POST to /api/waitlist + emit posthog waitlist_signup
-    console.info('Footer waitlist signup:', email);
-  };
-
   const footerLinks = {
     Product: [
-      { label: 'Features', href: '#features' },
-      { label: 'Security', href: '#security' },
-      { label: 'Roadmap', href: '#roadmap' },
-      { label: 'FAQ', href: '#faq' },
+      { label: 'How it works', href: '/#how-it-works' },
+      { label: 'Features', href: '/#features' },
+      { label: 'Security', href: '/#security' },
+      { label: 'FAQ', href: '/#faq' },
     ],
     Company: [
-      { label: 'About', href: '#' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Careers', href: '#' },
-      { label: 'Contact', href: '#' },
+      { label: 'Contact', href: 'mailto:developer@chewybytes.com' },
     ],
     Legal: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Cookie Policy', href: '#' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Cookie Policy', href: '/cookies' },
     ],
   };
-
-  const socialLinks = [
-    { icon: faXTwitter, href: '#', label: 'X' },
-    { icon: faInstagram, href: '#', label: 'Instagram' },
-    { icon: faTiktok, href: '#', label: 'TikTok' },
-    { icon: faLinkedin, href: '#', label: 'LinkedIn' },
-  ];
 
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -65,30 +38,19 @@ const Footer = () => {
               From minus to generational wealth, together. The UK budgeting app
               built for real-life money pressures.
             </p>
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col sm:flex-row gap-3 max-w-md"
-            >
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
-                required
-              />
-              <Button type="submit" variant="secondary" className="shrink-0">
-                Join Waitlist
+            <Button variant="secondary" asChild>
+              <Link href="/dashboard">
+                Get started
                 <FontAwesomeIcon
                   icon={faArrowRight}
                   size="sm"
                   className="ml-2"
                 />
-              </Button>
-            </form>
+              </Link>
+            </Button>
           </div>
 
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
             {Object.entries(footerLinks).map(([category, links]) => (
               <div key={category}>
                 <h3 className="font-semibold mb-4">{category}</h3>
@@ -109,25 +71,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-primary-foreground/20 pt-8 sm:flex-row">
           <p className="text-sm text-primary-foreground/70">
-            © {new Date().getFullYear()} Genwel. All rights reserved.
+            © {new Date().getFullYear()} Genwel. A trading name of Chewy Bytes
+            Limited (16443347).
           </p>
-          <div className="flex items-center gap-4">
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
-                aria-label={social.label}
-              >
-                <FontAwesomeIcon
-                  icon={social.icon}
-                  className="text-primary-foreground"
-                />
-              </a>
-            ))}
-          </div>
+          <CookieSettingsButton className="text-sm text-primary-foreground/70 underline-offset-4 hover:text-primary-foreground hover:underline" />
         </div>
       </div>
     </footer>
