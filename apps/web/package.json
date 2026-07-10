@@ -12,6 +12,7 @@
     "db:studio": "cd ../../packages/db && pnpm db:studio"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.83",
     "@ai-sdk/google": "^3.0.83",
     "@ai-sdk/openai": "^3.0.74",
     "@auth/prisma-adapter": "^2.11.2",
