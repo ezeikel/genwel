@@ -18,7 +18,9 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  await triggerTransactionSync(session.user.id);
+  // Explicit user-triggered sync ("Sync now") — force past the staleness guard
+  // so the user isn't silently told to wait (e.g. right after connecting a bank).
+  await triggerTransactionSync(session.user.id, { force: true });
 
   return NextResponse.json({ ok: true, queued: true });
 }

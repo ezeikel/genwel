@@ -10,7 +10,10 @@
  * returns without throwing — the caller should never fail because the worker is
  * down (the next trigger will retry, and the dashboard still renders).
  */
-export async function triggerTransactionSync(userId: string): Promise<void> {
+export async function triggerTransactionSync(
+  userId: string,
+  options?: { force?: boolean },
+): Promise<void> {
   const workerUrl = process.env.GENWEL_WORKER_URL;
   const workerSecret = process.env.WORKER_SECRET;
 
@@ -26,7 +29,7 @@ export async function triggerTransactionSync(userId: string): Promise<void> {
         'Content-Type': 'application/json',
         ...(workerSecret ? { Authorization: `Bearer ${workerSecret}` } : {}),
       },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userId, force: options?.force ?? false }),
       // Wait only for the worker's 202 ack, not the work itself.
       signal: AbortSignal.timeout(10_000),
     });

@@ -82,9 +82,9 @@ async function drainCategorization(userId: string): Promise<void> {
 // run sync + full categorization in the background. Results land in the shared
 // Neon DB, which the dashboard re-reads — no completion webhook needed.
 app.post('/sync/transactions', async (c) => {
-  const { userId } = await c.req
-    .json<{ userId?: string }>()
-    .catch(() => ({ userId: undefined }));
+  const { userId, force } = await c.req
+    .json<{ userId?: string; force?: boolean }>()
+    .catch(() => ({ userId: undefined, force: false }));
   if (!userId) return c.json({ error: 'userId is required' }, 400);
 
   void (async () => {
@@ -95,7 +95,10 @@ app.post('/sync/transactions', async (c) => {
       db.$queryRaw`SELECT 1`.catch(() => {});
     }, 60_000);
     try {
-      if (await isSyncStale(userId)) {
+      // `force` bypasses the 15-min staleness guard — used by the dashboard's
+      // explicit "Sync now" button so a user isn't told to wait after
+      // connecting a bank. Automatic triggers (page load) leave it off.
+      if (force || (await isSyncStale(userId))) {
         const result = await syncUserTransactions(userId, { days: 90 });
         console.log(
           `[sync/transactions] synced ${result.synced} txns (${result.errors} errors) for ${userId}`,
