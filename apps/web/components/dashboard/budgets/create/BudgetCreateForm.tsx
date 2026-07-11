@@ -6,6 +6,7 @@ import { useState, useTransition } from 'react';
 import { createOrUpdateBudgetConfig, setBudgets } from '@/actions/budgets';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useAnalytics } from '@/utils/analytics-client';
 import AiSuggestionButton from './AiSuggestionButton';
 import BudgetCategoryRow from './BudgetCategoryRow';
 import BudgetPeriodSelector from './BudgetPeriodSelector';
@@ -40,6 +41,7 @@ export default function BudgetCreateForm({
   initialConfig,
 }: BudgetCreateFormProps) {
   const router = useRouter();
+  const { track } = useAnalytics();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -120,6 +122,14 @@ export default function BudgetCreateForm({
         setError(budgetResult.error);
         return;
       }
+
+      track('budget_created', {
+        periodType,
+        categoryCount: budgetLines.length,
+        totalBudget: budgetLines.reduce((sum, b) => sum + b.amount, 0),
+        usedAiSuggestions: Object.keys(aiSuggestions).length > 0,
+        isUpdate: Boolean(initialConfig),
+      });
 
       router.push('/dashboard/budgets');
     });

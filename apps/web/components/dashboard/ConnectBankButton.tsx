@@ -4,12 +4,15 @@ import { faPlus, faSpinner } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { connectBank } from '@/actions/banking';
+import { useAnalytics } from '@/utils/analytics-client';
 
 export default function ConnectBankButton() {
   const [isLoading, setIsLoading] = useState(false);
+  const { track } = useAnalytics();
 
   const handleConnect = async () => {
     setIsLoading(true);
+    track('bank_connect_started');
 
     try {
       const result = await connectBank();

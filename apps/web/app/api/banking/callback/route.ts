@@ -9,6 +9,7 @@ import {
 import { db } from '@genwel/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { triggerTransactionSync } from '@/lib/worker';
+import { track, trackWithUser } from '@/utils/analytics-server';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -20,6 +21,11 @@ export async function GET(request: NextRequest) {
   if (error) {
     const errorDescription = searchParams.get('error_description');
     console.error('TrueLayer error:', error, errorDescription);
+    await track('bank_connect_failed', {
+      reason: 'truelayer_error',
+      error,
+      errorDescription,
+    });
     return NextResponse.redirect(
       new URL('/dashboard?error=connection_failed', request.url),
     );
@@ -56,6 +62,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (accounts.length === 0 && cards.length === 0) {
+      await trackWithUser(userId, 'bank_connect_failed', {
+        reason: 'no_accounts',
+      });
       return NextResponse.redirect(
         new URL('/dashboard?error=no_accounts', request.url),
       );
@@ -138,11 +147,22 @@ export async function GET(request: NextRequest) {
     // dashboard while the data fills in.
     await triggerTransactionSync(userId);
 
+    await trackWithUser(userId, 'bank_connected', {
+      provider: provider.display_name,
+      providerId: provider.provider_id,
+      accountCount: accounts.length,
+      cardCount: cards.length,
+    });
+
     return NextResponse.redirect(
       new URL('/dashboard?success=bank_connected', request.url),
     );
   } catch (err) {
     console.error('Failed to connect bank:', err);
+    await trackWithUser(userId, 'bank_connect_failed', {
+      reason: 'exception',
+      message: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.redirect(
       new URL('/dashboard?error=connection_failed', request.url),
     );

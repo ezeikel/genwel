@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { useAnalytics } from '@/utils/analytics-client';
 
 type SignInFormProps = {
   providers: {
@@ -25,6 +26,7 @@ export default function SignInForm({ providers }: SignInFormProps) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { track } = useAnalytics();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +38,7 @@ export default function SignInForm({ providers }: SignInFormProps) {
     }
 
     setIsLoading(true);
+    track('sign_in_started', { method: 'email' });
 
     try {
       await signIn('resend', {
@@ -46,6 +49,11 @@ export default function SignInForm({ providers }: SignInFormProps) {
       setError('Something went wrong. Please try again.');
       setIsLoading(false);
     }
+  };
+
+  const handleOAuth = (provider: 'google' | 'apple' | 'facebook') => {
+    track('sign_in_started', { method: provider });
+    signIn(provider, { callbackUrl: '/dashboard' });
   };
 
   return (
@@ -70,7 +78,7 @@ export default function SignInForm({ providers }: SignInFormProps) {
             {providers.google && (
               <button
                 type="button"
-                onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                onClick={() => handleOAuth('google')}
                 className="w-full flex items-center justify-center gap-3 border border-gray-300 py-3 px-4 rounded-lg font-medium text-gray-800 hover:bg-gray-50 transition-colors"
               >
                 <FontAwesomeIcon icon={faGoogle} className="text-[#EA4335]" />
@@ -81,7 +89,7 @@ export default function SignInForm({ providers }: SignInFormProps) {
             {providers.apple && (
               <button
                 type="button"
-                onClick={() => signIn('apple', { callbackUrl: '/dashboard' })}
+                onClick={() => handleOAuth('apple')}
                 className="w-full flex items-center justify-center gap-3 bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
               >
                 <FontAwesomeIcon icon={faApple} />
@@ -92,9 +100,7 @@ export default function SignInForm({ providers }: SignInFormProps) {
             {providers.facebook && (
               <button
                 type="button"
-                onClick={() =>
-                  signIn('facebook', { callbackUrl: '/dashboard' })
-                }
+                onClick={() => handleOAuth('facebook')}
                 className="w-full flex items-center justify-center gap-3 bg-[#1877F2] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#1877F2]/90 transition-colors"
               >
                 <FontAwesomeIcon icon={faFacebookF} />
