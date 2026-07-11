@@ -5,10 +5,10 @@
  * are relevant and appropriate for blog post content.
  */
 
+import { models } from '@genwel/banking/models';
+import { mapWithConcurrency, withRetry } from '@genwel/banking/retry-utils';
 import { generateObject } from 'ai';
 import { z } from 'zod/v3';
-import { models } from './models';
-import { mapWithConcurrency, withRetry } from './retry-utils';
 
 // Schema for image evaluation response
 const ImageEvaluationSchema = z.object({

@@ -1,5 +1,5 @@
 import { db } from '@genwel/db';
-import { resolveMerchant } from '@/lib/banking/merchant';
+import { resolveMerchant } from './merchant';
 import {
   getAccountBalance,
   getCardBalance,
@@ -7,7 +7,7 @@ import {
   getTransactions as getTrueLayerTransactions,
   mapTransactionCategory,
   refreshToken,
-} from '@/lib/truelayer/client';
+} from './truelayer/client';
 
 /**
  * Sync transactions from TrueLayer for a given user.

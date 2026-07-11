@@ -1,0 +1,33 @@
+{
+  "name": "@genwel/banking",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./sync": "./src/sync.ts",
+    "./categorize": "./src/categorize.ts",
+    "./categorization": "./src/categorization.ts",
+    "./merchant": "./src/merchant.ts",
+    "./balance": "./src/balance.ts",
+    "./models": "./src/models.ts",
+    "./retry-utils": "./src/retry-utils.ts",
+    "./truelayer": "./src/truelayer/client.ts",
+    "./truelayer/types": "./src/truelayer/types.ts"
+  },
+  "scripts": {
+    "build": "echo \"banking: no build step (raw TS exports)\" && exit 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.83",
+    "@ai-sdk/google": "^3.0.83",
+    "@ai-sdk/openai": "^3.0.74",
+    "@genwel/db": "workspace:*",
+    "ai": "^6.0.208",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3"
+  }
+}

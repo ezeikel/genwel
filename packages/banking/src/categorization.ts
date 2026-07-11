@@ -1,7 +1,7 @@
 import { generateObject } from 'ai';
 import { z } from 'zod/v3';
-import { models } from '@/lib/ai/models';
-import { withRetry } from '@/lib/ai/retry-utils';
+import { models } from './models';
+import { withRetry } from './retry-utils';
 
 const SPENDING_CATEGORIES = [
   'SHOPPING',

@@ -1,4 +1,4 @@
-import { getDisplayMerchant, getMerchantKey } from '@/lib/banking/merchant';
+import { getDisplayMerchant, getMerchantKey } from '@genwel/banking/merchant';
 
 /**
  * Fixable-problems detection — the Genwel "wedge".

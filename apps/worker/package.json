@@ -1,0 +1,24 @@
+{
+  "name": "@genwel/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx --env-file=.env src/index.ts",
+    "start": "npx tsx --env-file=.env src/index.ts",
+    "build": "echo \"worker: no build step\" && exit 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@genwel/banking": "workspace:*",
+    "@genwel/db": "workspace:*",
+    "@hono/node-server": "^1.19.11",
+    "@sentry/node": "^10.57.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "tsx": "^4.0.0",
+    "typescript": "^5.8.3"
+  }
+}

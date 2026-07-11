@@ -1,10 +1,10 @@
 'use server';
 
+import { getAuthUrl } from '@genwel/banking/truelayer';
 import { db } from '@genwel/db';
 import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
-import { getAuthUrl } from '@/lib/truelayer/client';
 
 /**
  * Initiate bank connection - returns TrueLayer auth URL.

@@ -1,5 +1,6 @@
 import { faArrowRight } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { signedBalance } from '@genwel/banking/balance';
 import { db } from '@genwel/db';
 import Link from 'next/link';
 import { getBudgetProgress } from '@/actions/budgets';
@@ -9,7 +10,6 @@ import ConnectBankButton from '@/components/dashboard/ConnectBankButton';
 import EmptyState from '@/components/dashboard/EmptyState';
 import FixableProblems from '@/components/dashboard/FixableProblems';
 import TransactionList from '@/components/dashboard/TransactionList';
-import { signedBalance } from '@/lib/banking/balance';
 import {
   effectiveCategory,
   formatCategoryName,

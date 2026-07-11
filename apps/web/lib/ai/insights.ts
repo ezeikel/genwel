@@ -1,8 +1,8 @@
+import { models } from '@genwel/banking/models';
+import { withRetry } from '@genwel/banking/retry-utils';
 import type { SpendingCategory } from '@genwel/db';
 import { generateObject } from 'ai';
 import { z } from 'zod/v3';
-import { models } from '@/lib/ai/models';
-import { withRetry } from '@/lib/ai/retry-utils';
 import { formatCategoryName } from '@/lib/budget-utils';
 
 const insightSchema = z.object({

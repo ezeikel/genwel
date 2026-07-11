@@ -2,8 +2,8 @@ import { db, type SpendingCategory } from '@genwel/db';
 import {
   categorizeTransactionBatch,
   type TransactionForCategorization,
-} from '@/lib/ai/categorization';
-import { getMerchantKey } from '@/lib/banking/merchant';
+} from './categorization';
+import { getMerchantKey } from './merchant';
 
 const BATCH_SIZE = 20;
 /** Cap AI batches per invocation so a single run stays bounded. */

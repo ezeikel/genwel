@@ -1,15 +1,16 @@
-import { after, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { categorizeUserTransactions } from '@/lib/banking/categorize';
-import { isSyncStale, syncUserTransactions } from '@/lib/banking/sync';
+import { triggerTransactionSync } from '@/lib/worker';
 
 /**
- * Non-blocking sync + categorize endpoint.
+ * Transaction sync trigger.
  *
- * Triggered from the dashboard (button or on-load effect). Returns immediately
- * and does the I/O-heavy + rate-limited work in `after()`, so it never blocks a
- * page render. Categorization is bounded per call and incremental, so repeated
- * calls steadily chip away at the backlog.
+ * Triggered from the dashboard (button or on-load effect). Hands the
+ * I/O-heavy + rate-limited work (TrueLayer sync + AI categorization) to the
+ * background worker on Hetzner, which runs the WHOLE backlog to completion —
+ * unlike the old Vercel `after()`, which was bounded by the serverless
+ * execution ceiling and only chipped ~100 transactions per call. Returns
+ * immediately; results land in the shared DB and the dashboard re-reads them.
  */
 export async function POST() {
   const session = await auth();
@@ -17,18 +18,7 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const userId = session.user.id;
-
-  after(async () => {
-    try {
-      if (await isSyncStale(userId)) {
-        await syncUserTransactions(userId, { days: 90 });
-      }
-      await categorizeUserTransactions(userId, { maxAiBatches: 5 });
-    } catch (err) {
-      console.error('[api/banking/sync] background work failed:', err);
-    }
-  });
+  await triggerTransactionSync(session.user.id);
 
   return NextResponse.json({ ok: true, queued: true });
 }

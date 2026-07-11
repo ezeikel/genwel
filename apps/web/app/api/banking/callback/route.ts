@@ -1,7 +1,3 @@
-import { db } from '@genwel/db';
-import { after, NextRequest, NextResponse } from 'next/server';
-import { categorizeUserTransactions } from '@/lib/banking/categorize';
-import { syncUserTransactions } from '@/lib/banking/sync';
 import {
   exchangeCode,
   getAccountBalance,
@@ -9,7 +5,10 @@ import {
   getCardBalance,
   getCards,
   mapAccountType,
-} from '@/lib/truelayer/client';
+} from '@genwel/banking/truelayer';
+import { db } from '@genwel/db';
+import { NextRequest, NextResponse } from 'next/server';
+import { triggerTransactionSync } from '@/lib/worker';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -133,16 +132,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Seed transactions + a first categorization pass after the redirect is
-    // sent, so the user lands on the dashboard immediately while data fills in.
-    after(async () => {
-      try {
-        await syncUserTransactions(userId, { days: 90 });
-        await categorizeUserTransactions(userId, { maxAiBatches: 5 });
-      } catch (err) {
-        console.error('[callback] Post-connect sync/categorize failed:', err);
-      }
-    });
+    // Hand the transaction sync + categorization to the background worker,
+    // which drains the whole backlog (no serverless timeout). Fire-and-forget:
+    // we only wait for the worker's fast ack, then redirect the user to the
+    // dashboard while the data fills in.
+    await triggerTransactionSync(userId);
 
     return NextResponse.redirect(
       new URL('/dashboard?success=bank_connected', request.url),

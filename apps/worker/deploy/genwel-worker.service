@@ -1,0 +1,17 @@
+[Unit]
+Description=Genwel Worker
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/genwel/apps/worker
+EnvironmentFile=/opt/genwel/apps/worker/.env
+# No xvfb wrapper — this worker has no Playwright/Remotion, just HTTP + AI + DB.
+ExecStart=/root/.bun/bin/bun run src/index.ts
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

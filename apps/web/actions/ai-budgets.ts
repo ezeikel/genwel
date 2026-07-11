@@ -1,11 +1,11 @@
 'use server';
 
+import { categorizeUserTransactions } from '@genwel/banking/categorize';
 import { db, SpendingCategory } from '@genwel/db';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { generateBudgetSuggestions } from '@/lib/ai/budget-suggestions';
 import { generateSpendingInsights } from '@/lib/ai/insights';
-import { categorizeUserTransactions } from '@/lib/banking/categorize';
 import { effectiveCategory } from '@/lib/budget-utils';
 
 /**

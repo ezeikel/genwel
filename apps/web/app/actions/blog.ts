@@ -1,5 +1,6 @@
 'use server';
 
+import { models } from '@genwel/banking/models';
 import {
   experimental_generateImage as generateImage,
   generateObject,
@@ -7,7 +8,6 @@ import {
 } from 'ai';
 import { z } from 'zod/v3';
 import { findBestImage, type ImageEvaluation } from '@/lib/ai/image-evaluation';
-import { models } from '@/lib/ai/models';
 import {
   BLOG_CONTENT_PROMPT,
   BLOG_IMAGE_GENERATION_PROMPT,
