@@ -17,6 +17,13 @@ export default function ConnectBankButton() {
     try {
       const result = await connectBank();
 
+      // Free-tier connection cap hit — send them to upgrade, not an error.
+      if ('upgradeRequired' in result && result.upgradeRequired) {
+        track('bank_connect_upgrade_prompt');
+        window.location.href = '/pricing';
+        return;
+      }
+
       if (result.error) {
         throw new Error(result.error);
       }
@@ -24,8 +31,12 @@ export default function ConnectBankButton() {
       if (result.url) {
         window.location.href = result.url;
       }
-    } catch {
-      alert('Failed to connect bank. Please try again.');
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Failed to connect bank. Please try again.',
+      );
       setIsLoading(false);
     }
   };

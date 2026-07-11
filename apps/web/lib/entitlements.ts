@@ -1,0 +1,124 @@
+import type {
+  PlanName,
+  SubscriptionPlatform,
+  SubscriptionStatus,
+} from '@genwel/db';
+import { db } from '@genwel/db';
+
+/**
+ * Entitlements — the ONE place feature access is resolved. Reads only the DB
+ * `subscriptions` table (never Stripe/RevenueCat live), so it answers correctly
+ * whether the subscription came from web (Stripe) or mobile (RevenueCat).
+ *
+ * FREE is the absence of an active subscription — not a stored plan.
+ */
+
+export type Plan = PlanName | 'FREE';
+
+export type Features = {
+  /** Max bank/card connections (Infinity = unlimited). Free tier = 2. */
+  maxBankConnections: number;
+  /** Full Fixable-Problems wedge (vs 1/month teaser on free). */
+  fullFixableProblems: boolean;
+  /** AI insights beyond the free current-month category view. */
+  aiInsights: boolean;
+  /** Ask Genwel conversational agent (ships later; gated now). */
+  askGenwel: boolean;
+  /** Monthly budgets with AI-suggested limits. */
+  budgets: boolean;
+  /** Custom categories + rules. */
+  customCategories: boolean;
+  /** Full history/trends beyond current month. */
+  fullHistory: boolean;
+  /** CSV/data export. */
+  dataExport: boolean;
+};
+
+export const PLAN_FEATURES: Record<Plan, Features> = {
+  FREE: {
+    maxBankConnections: 2,
+    fullFixableProblems: false,
+    aiInsights: false,
+    askGenwel: false,
+    budgets: false,
+    customCategories: false,
+    fullHistory: false,
+    dataExport: false,
+  },
+  PRO: {
+    maxBankConnections: Number.POSITIVE_INFINITY,
+    fullFixableProblems: true,
+    aiInsights: true,
+    askGenwel: true,
+    budgets: true,
+    customCategories: true,
+    fullHistory: true,
+    dataExport: true,
+  },
+};
+
+export type Entitlements = {
+  hasAccess: boolean;
+  plan: Plan;
+  status: SubscriptionStatus | 'NONE';
+  platform: SubscriptionPlatform | null;
+  expiresAt: string | null;
+  isTrialing: boolean;
+  isCancelled: boolean;
+  features: Features;
+};
+
+const FREE_ENTITLEMENTS: Entitlements = {
+  hasAccess: false,
+  plan: 'FREE',
+  status: 'NONE',
+  platform: null,
+  expiresAt: null,
+  isTrialing: false,
+  isCancelled: false,
+  features: PLAN_FEATURES.FREE,
+};
+
+/**
+ * Resolve a user's entitlements from the DB. A subscription grants access when
+ * it is ACTIVE or TRIALING, is PAST_DUE but still within its grace period, or
+ * is CANCELLED but not yet past the paid period end (cancel-at-period-end).
+ */
+export async function getEntitlementsForUser(
+  userId: string,
+): Promise<Entitlements> {
+  const subscriptions = await db.subscription.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const now = new Date();
+  const active = subscriptions.find(
+    (sub) =>
+      sub.status === 'ACTIVE' ||
+      sub.status === 'TRIALING' ||
+      (sub.status === 'PAST_DUE' &&
+        sub.gracePeriodEnd !== null &&
+        sub.gracePeriodEnd > now) ||
+      (sub.status === 'CANCELLED' && sub.currentPeriodEnd > now),
+  );
+
+  if (!active) return FREE_ENTITLEMENTS;
+
+  return {
+    hasAccess: true,
+    plan: active.planName,
+    status: active.status,
+    platform: active.platform,
+    expiresAt: active.currentPeriodEnd.toISOString(),
+    isTrialing: active.status === 'TRIALING',
+    isCancelled: active.cancelledAt !== null,
+    features: PLAN_FEATURES[active.planName],
+  };
+}
+
+/** Convenience: is the user on any paid (Pro) access right now? */
+export async function isPro(userId: string): Promise<boolean> {
+  const ent = await getEntitlementsForUser(userId);
+  return ent.hasAccess;
+}

@@ -35,18 +35,27 @@ enum SpendingCategory {
 
 // NextAuth.js models
 model User {
-  id              String           @id @default(cuid())
-  email           String           @unique
-  name            String?
-  emailVerified   DateTime?
-  image           String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Billing identity (source-of-truth contract). stripeCustomerId is set once a
+  // Stripe customer exists; revenuecatUserId is the RevenueCat app_user_id (=
+  // our userId) so a mobile purchase links to the same User. Both Stripe (web)
+  // and RevenueCat (mobile) write into the shared Subscription table below.
+  stripeCustomerId String? @unique
+  revenuecatUserId String? @unique
+
   accounts        Account[]
   sessions        Session[]
   bankConnections BankConnection[]
   budgetConfig    BudgetConfig?
   aiInsights      AiInsight[]
+  subscriptions   Subscription[]
 
   @@map("users")
 }
@@ -190,4 +199,120 @@ model AiInsight {
 
   @@index([userId, createdAt])
   @@map("ai_insights")
+}
+
+// --- Subscriptions (DB = source of truth, shared by Stripe web + RevenueCat mobile) ---
+//
+// A `subscriptions` row is a normalized local read-cache of the provider's
+// truth, keyed by (platform, externalId), kept in sync ONLY by webhooks.
+// Entitlement checks read this table (never Stripe/RevenueCat live). Both
+// providers map their events into the same SubscriptionStatus/PlanName enums,
+// so one helper (getEntitlements) answers correctly for web and mobile.
+
+model Subscription {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  platform   SubscriptionPlatform @default(STRIPE)
+  externalId String               @unique // Stripe subscription ID OR RevenueCat txn ID
+
+  planName      PlanName
+  billingPeriod BillingPeriod
+  status        SubscriptionStatus
+
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime
+  trialStart         DateTime?
+  trialEnd           DateTime?
+  cancelledAt        DateTime?
+  gracePeriodEnd     DateTime?
+
+  storeProductId String? // e.g. RevenueCat product id "genwel_pro_monthly"
+  metadata       Json?
+
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  events    SubscriptionEvent[]
+
+  @@index([userId])
+  @@index([platform, externalId])
+  @@map("subscriptions")
+}
+
+// Append-only audit log of every subscription lifecycle change (both providers).
+model SubscriptionEvent {
+  id             String       @id @default(cuid())
+  subscriptionId String
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  eventType       SubscriptionEventType
+  platform        SubscriptionPlatform
+  externalEventId String?               @unique // Stripe/RevenueCat event id
+
+  previousStatus SubscriptionStatus?
+  newStatus      SubscriptionStatus?
+  previousPlan   PlanName?
+  newPlan        PlanName?
+
+  rawPayload  Json?
+  processedAt DateTime @default(now())
+
+  @@index([subscriptionId])
+  @@map("subscription_events")
+}
+
+// Idempotency: every processed webhook event id is recorded so re-delivered
+// events (Stripe or RevenueCat) are skipped.
+model WebhookEvent {
+  id          String               @id // Stripe event id OR RevenueCat event id
+  platform    SubscriptionPlatform
+  eventType   String
+  processedAt DateTime             @default(now())
+
+  @@map("webhook_events")
+}
+
+// Genwel has one paid tier (PRO). FREE is the absence of an active subscription,
+// not a stored plan. Reserve room for a future tier here if needed.
+enum PlanName {
+  PRO
+}
+
+enum BillingPeriod {
+  MONTHLY
+  ANNUAL
+}
+
+// Normalized status both Stripe and RevenueCat map into.
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  PAUSED
+}
+
+enum SubscriptionPlatform {
+  STRIPE // web
+  REVENUECAT // mobile (App Store / Play Store)
+}
+
+enum SubscriptionEventType {
+  TRIAL_STARTED
+  SUBSCRIPTION_STARTED
+  RENEWAL_SUCCESS
+  RENEWAL_FAILED
+  PLAN_UPGRADED
+  PLAN_DOWNGRADED
+  CANCELLATION_SCHEDULED
+  CANCELLED
+  REACTIVATED
+  BILLING_ISSUE_DETECTED
+  BILLING_ISSUE_RESOLVED
+  GRACE_PERIOD_STARTED
+  GRACE_PERIOD_EXPIRED
+  EXPIRED
+  TRANSFERRED
 }

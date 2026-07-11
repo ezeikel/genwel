@@ -5,9 +5,14 @@ import { db } from '@genwel/db';
 import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
+import { getEntitlementsForUser } from '@/lib/entitlements';
 
 /**
  * Initiate bank connection - returns TrueLayer auth URL.
+ *
+ * Free tier is capped at 2 bank connections (the primary upgrade trigger);
+ * Pro is unlimited. Returns `upgradeRequired` when a free user hits the cap so
+ * the UI can prompt the upgrade instead of a generic error.
  */
 export async function connectBank() {
   const session = await auth();
@@ -15,9 +20,23 @@ export async function connectBank() {
   if (!session?.user?.id) {
     return { error: 'Unauthorized' };
   }
+  const userId = session.user.id;
+
+  // Enforce the free-tier connection cap.
+  const entitlements = await getEntitlementsForUser(userId);
+  const { maxBankConnections } = entitlements.features;
+  if (Number.isFinite(maxBankConnections)) {
+    const existing = await db.bankConnection.count({ where: { userId } });
+    if (existing >= maxBankConnections) {
+      return {
+        upgradeRequired: true as const,
+        error: `Free accounts can connect up to ${maxBankConnections} banks. Upgrade to Pro for unlimited connections.`,
+      };
+    }
+  }
 
   // State carries the userId plus random entropy. Verified on callback.
-  const state = `${session.user.id}:${randomBytes(16).toString('hex')}`;
+  const state = `${userId}:${randomBytes(16).toString('hex')}`;
 
   const url = getAuthUrl(state);
 

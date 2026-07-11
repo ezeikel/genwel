@@ -127,7 +127,9 @@ exports.Prisma.UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   image: 'image',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  stripeCustomerId: 'stripeCustomerId',
+  revenuecatUserId: 'revenuecatUserId'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -224,6 +226,47 @@ exports.Prisma.AiInsightScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  platform: 'platform',
+  externalId: 'externalId',
+  planName: 'planName',
+  billingPeriod: 'billingPeriod',
+  status: 'status',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  trialStart: 'trialStart',
+  trialEnd: 'trialEnd',
+  cancelledAt: 'cancelledAt',
+  gracePeriodEnd: 'gracePeriodEnd',
+  storeProductId: 'storeProductId',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubscriptionEventScalarFieldEnum = {
+  id: 'id',
+  subscriptionId: 'subscriptionId',
+  eventType: 'eventType',
+  platform: 'platform',
+  externalEventId: 'externalEventId',
+  previousStatus: 'previousStatus',
+  newStatus: 'newStatus',
+  previousPlan: 'previousPlan',
+  newPlan: 'newPlan',
+  rawPayload: 'rawPayload',
+  processedAt: 'processedAt'
+};
+
+exports.Prisma.WebhookEventScalarFieldEnum = {
+  id: 'id',
+  platform: 'platform',
+  eventType: 'eventType',
+  processedAt: 'processedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -274,6 +317,47 @@ exports.BudgetPeriodType = exports.$Enums.BudgetPeriodType = {
   PAYDAY: 'PAYDAY'
 };
 
+exports.SubscriptionPlatform = exports.$Enums.SubscriptionPlatform = {
+  STRIPE: 'STRIPE',
+  REVENUECAT: 'REVENUECAT'
+};
+
+exports.PlanName = exports.$Enums.PlanName = {
+  PRO: 'PRO'
+};
+
+exports.BillingPeriod = exports.$Enums.BillingPeriod = {
+  MONTHLY: 'MONTHLY',
+  ANNUAL: 'ANNUAL'
+};
+
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  TRIALING: 'TRIALING',
+  ACTIVE: 'ACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+  PAUSED: 'PAUSED'
+};
+
+exports.SubscriptionEventType = exports.$Enums.SubscriptionEventType = {
+  TRIAL_STARTED: 'TRIAL_STARTED',
+  SUBSCRIPTION_STARTED: 'SUBSCRIPTION_STARTED',
+  RENEWAL_SUCCESS: 'RENEWAL_SUCCESS',
+  RENEWAL_FAILED: 'RENEWAL_FAILED',
+  PLAN_UPGRADED: 'PLAN_UPGRADED',
+  PLAN_DOWNGRADED: 'PLAN_DOWNGRADED',
+  CANCELLATION_SCHEDULED: 'CANCELLATION_SCHEDULED',
+  CANCELLED: 'CANCELLED',
+  REACTIVATED: 'REACTIVATED',
+  BILLING_ISSUE_DETECTED: 'BILLING_ISSUE_DETECTED',
+  BILLING_ISSUE_RESOLVED: 'BILLING_ISSUE_RESOLVED',
+  GRACE_PERIOD_STARTED: 'GRACE_PERIOD_STARTED',
+  GRACE_PERIOD_EXPIRED: 'GRACE_PERIOD_EXPIRED',
+  EXPIRED: 'EXPIRED',
+  TRANSFERRED: 'TRANSFERRED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Account: 'Account',
@@ -284,7 +368,10 @@ exports.Prisma.ModelName = {
   Transaction: 'Transaction',
   BudgetConfig: 'BudgetConfig',
   Budget: 'Budget',
-  AiInsight: 'AiInsight'
+  AiInsight: 'AiInsight',
+  Subscription: 'Subscription',
+  SubscriptionEvent: 'SubscriptionEvent',
+  WebhookEvent: 'WebhookEvent'
 };
 
 /**
