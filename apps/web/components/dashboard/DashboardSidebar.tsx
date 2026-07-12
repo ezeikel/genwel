@@ -2,6 +2,7 @@
 
 import {
   faBars,
+  faBoltLightning,
   faChartPie,
   faCreditCard,
   faHome,
@@ -22,6 +23,7 @@ interface DashboardSidebarProps {
     email?: string | null;
     image?: string | null;
   };
+  isPro: boolean;
 }
 
 const navigation = [
@@ -32,7 +34,10 @@ const navigation = [
   { name: 'Insights', href: '/dashboard/insights', icon: faLightbulb },
 ];
 
-export default function DashboardSidebar({ user }: DashboardSidebarProps) {
+export default function DashboardSidebar({
+  user,
+  isPro,
+}: DashboardSidebarProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -100,6 +105,30 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
               );
             })}
           </nav>
+
+          {/* Upgrade CTA (free users) / Pro badge */}
+          <div className="px-3 pb-2">
+            {isPro ? (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium">
+                <FontAwesomeIcon icon={faBoltLightning} className="w-4 h-4" />
+                Genwel Pro
+              </div>
+            ) : (
+              <Link
+                href="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block rounded-xl bg-gradient-to-br from-gray-900 to-gray-700 p-4 text-white transition-transform hover:scale-[1.02]"
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <FontAwesomeIcon icon={faBoltLightning} className="w-4 h-4" />
+                  Upgrade to Pro
+                </div>
+                <p className="mt-1 text-xs text-gray-300">
+                  Unlimited banks, AI insights & Ask Genwel — 7 days free.
+                </p>
+              </Link>
+            )}
+          </div>
 
           {/* User section */}
           <div className="border-t border-gray-200 p-4">

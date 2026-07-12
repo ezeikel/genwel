@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import SyncTrigger from '@/components/dashboard/SyncTrigger';
+import { getEntitlementsForUser } from '@/lib/entitlements';
 
 export const metadata = {
   title: 'Dashboard - Genwel',
@@ -15,14 +16,16 @@ export default async function DashboardLayout({
 }) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect('/signin?redirect=/dashboard');
   }
+
+  const entitlements = await getEntitlementsForUser(session.user.id);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <SyncTrigger />
-      <DashboardSidebar user={session.user} />
+      <DashboardSidebar user={session.user} isPro={entitlements.hasAccess} />
       <main className="lg:pl-64">
         <div className="px-4 py-8 sm:px-6 lg:px-8">{children}</div>
       </main>
