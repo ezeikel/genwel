@@ -7,7 +7,6 @@ import {
   faUserShield,
 } from '@fortawesome/pro-duotone-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { motion } from 'framer-motion';
 
 const SecuritySection = () => {
   const securityPoints = [
@@ -41,12 +40,7 @@ const SecuritySection = () => {
     <section id="security" className="py-20 md:py-28 bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-          >
+          <div>
             <span className="text-sm font-semibold text-accent uppercase tracking-wider mb-2 block">
               Security & Privacy
             </span>
@@ -60,24 +54,13 @@ const SecuritySection = () => {
 
             <div className="grid sm:grid-cols-2 gap-6">
               {securityPoints.map((point, index) => (
-                <motion.div
-                  key={index}
-                  className="flex gap-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-50px' }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <motion.div
-                    className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: 'spring', stiffness: 400 }}
-                  >
+                <div key={index} className="flex gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 transition-transform hover:scale-110">
                     <FontAwesomeIcon
                       icon={point.icon}
                       className="text-primary"
                     />
-                  </motion.div>
+                  </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">
                       {point.title}
@@ -86,36 +69,22 @@ const SecuritySection = () => {
                       {point.description}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, x: 30, scale: 0.95 }}
-            whileInView={{ opacity: 1, x: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div className="relative">
             <div className="absolute -inset-4 bg-accent/10 rounded-3xl blur-2xl" />
             <div className="relative bg-card rounded-2xl border border-border p-8 shadow-lg">
               <div className="flex items-center gap-4 mb-6">
-                <motion.div
-                  className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center"
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{
-                    duration: 4,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: 'easeInOut',
-                  }}
-                >
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <FontAwesomeIcon
                     icon={faShieldAlt}
                     size="2x"
                     className="text-primary"
                   />
-                </motion.div>
+                </div>
                 <div>
                   <h3 className="font-bold text-foreground text-lg">
                     Protected by
@@ -130,21 +99,17 @@ const SecuritySection = () => {
                   'Real-time fraud monitoring',
                   'GDPR compliant',
                 ].map((item, i) => (
-                  <motion.li
+                  <li
                     key={i}
                     className="flex items-center gap-2 text-sm text-muted-foreground"
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: 0.4 + i * 0.1 }}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                     {item}
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

@@ -7,7 +7,6 @@ import {
   faHeart,
 } from '@fortawesome/pro-duotone-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 
 const UniqueFeaturesSection = () => {
@@ -45,13 +44,7 @@ const UniqueFeaturesSection = () => {
   return (
     <section className="py-20 md:py-28 bg-primary text-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center max-w-2xl mx-auto mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-sm font-semibold text-accent uppercase tracking-wider mb-2 block">
             What makes us different
           </span>
@@ -62,32 +55,21 @@ const UniqueFeaturesSection = () => {
             Features designed for the way you actually live, send, and save
             money.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -4 }}
-            >
+            <div key={index}>
               <Card className="border-primary-foreground/20 bg-primary-foreground/10 backdrop-blur h-full">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <motion.div
-                      className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center shrink-0"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ type: 'spring', stiffness: 400 }}
-                    >
+                    <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center shrink-0 transition-transform hover:scale-110">
                       <FontAwesomeIcon
                         icon={feature.icon}
                         size="lg"
                         className="text-accent"
                       />
-                    </motion.div>
+                    </div>
                     <div>
                       <span className="text-xs font-semibold text-accent uppercase tracking-wider mb-1 block">
                         {feature.highlight}
@@ -102,7 +84,7 @@ const UniqueFeaturesSection = () => {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
