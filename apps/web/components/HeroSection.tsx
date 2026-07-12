@@ -23,19 +23,6 @@ const HeroSection = () => {
               },
             }}
           >
-            <motion.div
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-              }}
-              className="flex flex-wrap items-center gap-3 mb-6"
-            >
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                Connects to every UK bank
-              </span>
-            </motion.div>
-
             <motion.h1
               variants={{
                 hidden: { opacity: 0, y: 20 },
