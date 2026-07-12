@@ -31,8 +31,8 @@ const HeroSection = () => {
               className="flex flex-wrap items-center gap-3 mb-6"
             >
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Now live in the UK
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                Connects to every UK bank
               </span>
             </motion.div>
 
@@ -43,9 +43,8 @@ const HeroSection = () => {
               }}
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight text-balance mb-6"
             >
-              Take control of your{' '}
-              <span className="text-primary">financial future</span>, starting
-              today.
+              See where your money{' '}
+              <span className="text-primary">actually goes</span>.
             </motion.h1>
 
             <motion.p
@@ -55,9 +54,10 @@ const HeroSection = () => {
               }}
               className="text-lg text-muted-foreground leading-relaxed mb-8"
             >
-              The UK budgeting app that connects to your bank and is built for
-              real-life money pressures—supporting family, managing debt, and
-              building wealth without guilt.
+              Genwel connects to your bank and every card, sorts your spending
+              on its own, and shows you what to cut — the duplicate
+              subscriptions, the quiet price rises, the money slipping away each
+              month.
             </motion.p>
 
             <motion.div
@@ -69,7 +69,7 @@ const HeroSection = () => {
             >
               <Button asChild size="lg" className="h-12 px-8">
                 <Link href="/dashboard">
-                  Get started
+                  Connect your bank — free
                   <FontAwesomeIcon
                     icon={faArrowRight}
                     size="sm"
