@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import PricingCards from '@/components/billing/PricingCards';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 
 export const metadata: Metadata = {
   title: 'Pricing — Genwel',
@@ -10,27 +12,43 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <div className="mx-auto max-w-5xl px-6 py-16 md:py-24">
-      <div className="mb-12 text-center">
-        <h1 className="text-balance text-4xl font-bold text-gray-900 md:text-5xl">
-          Simple pricing. Smarter than Emma.
-        </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-balance text-lg text-gray-600">
-          Start free with your bank connected in minutes. Upgrade when you want
-          the full AI — unlimited connections, insights, and a money assistant
-          that actually knows your spending.
-        </p>
-      </div>
+    <main className="min-h-screen bg-background">
+      <Header />
 
-      <PricingCards />
+      {/* Hero — soft accent wash behind the headline, matching the marketing site */}
+      <section className="relative overflow-hidden pt-32 pb-12 md:pt-40 md:pb-16">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(60%_100%_at_50%_0%,var(--accent)/18%,transparent_70%)]"
+        />
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.14em] text-accent-foreground/70">
+            Pricing
+          </p>
+          <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+            One plan. <span className="text-primary">Everything unlocked.</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-balance text-lg text-muted-foreground">
+            Free to start — connect your bank in minutes. Go Pro for unlimited
+            accounts, AI insights, and a money assistant that actually knows
+            where your money goes.
+          </p>
+        </div>
+      </section>
 
-      <div className="mx-auto mt-16 max-w-2xl text-center">
-        <p className="text-sm text-gray-500">
+      <section className="px-6 pb-24">
+        <PricingCards />
+      </section>
+
+      <div className="mx-auto max-w-2xl px-6 pb-20 text-center">
+        <p className="text-sm text-muted-foreground">
           Genwel is a trading name of Chewy Bytes Limited. We use bank-grade
           Open Banking (TrueLayer) with read-only access. Genwel is not a
           regulated financial service and does not provide financial advice.
         </p>
       </div>
-    </div>
+
+      <Footer />
+    </main>
   );
 }

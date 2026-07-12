@@ -1,6 +1,10 @@
 'use client';
 
-import { faCheck } from '@fortawesome/pro-light-svg-icons';
+import {
+  faBoltLightning,
+  faCheck,
+  faWallet,
+} from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import UpgradeButton from '@/components/billing/UpgradeButton';
@@ -31,49 +35,71 @@ export default function PricingCards() {
 
   return (
     <div className="mx-auto w-full max-w-4xl">
-      {/* Billing toggle */}
-      <div className="mb-10 flex items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={() => setAnnual(false)}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            !annual
-              ? 'bg-black text-white'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Monthly
-        </button>
-        <button
-          type="button"
-          onClick={() => setAnnual(true)}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            annual ? 'bg-black text-white' : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Annual
-          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
-            Save 34%
-          </span>
-        </button>
+      {/* Billing toggle — segmented control */}
+      <div className="mb-10 flex justify-center">
+        <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1">
+          <button
+            type="button"
+            onClick={() => setAnnual(false)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              !annual
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            type="button"
+            onClick={() => setAnnual(true)}
+            className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              annual
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Annual
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                annual
+                  ? 'bg-accent text-accent-foreground'
+                  : 'bg-accent/20 text-accent-foreground'
+              }`}
+            >
+              Save 34%
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
         {/* Free */}
-        <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-8">
-          <h3 className="text-lg font-semibold text-gray-900">Free</h3>
-          <p className="mt-1 text-sm text-gray-500">See your money clearly.</p>
-          <p className="mt-6 text-4xl font-bold text-gray-900">£0</p>
-          <p className="mt-1 text-sm text-gray-500">forever</p>
-          <ul className="mt-8 flex flex-col gap-3">
+        <div className="flex flex-col rounded-3xl border border-border bg-card p-8">
+          <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-muted">
+            <FontAwesomeIcon
+              icon={faWallet}
+              className="h-5 w-5 text-muted-foreground"
+            />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">Free</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            See your money clearly.
+          </p>
+          <div className="mt-6 flex items-baseline gap-1">
+            <span className="text-4xl font-bold tracking-tight text-foreground">
+              £0
+            </span>
+            <span className="text-muted-foreground">forever</span>
+          </div>
+          <ul className="mt-8 flex flex-col gap-3.5">
             {FREE_FEATURES.map((f) => (
               <li
                 key={f}
-                className="flex items-start gap-3 text-sm text-gray-700"
+                className="flex items-start gap-3 text-sm text-foreground/80"
               >
                 <FontAwesomeIcon
                   icon={faCheck}
-                  className="mt-0.5 h-4 w-4 shrink-0 text-gray-400"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
                 />
                 {f}
               </li>
@@ -81,35 +107,44 @@ export default function PricingCards() {
           </ul>
           <a
             href="/dashboard"
-            className="mt-8 flex w-full items-center justify-center rounded-xl border border-gray-300 px-6 py-3.5 font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+            className="mt-8 flex w-full items-center justify-center rounded-xl border border-border px-6 py-3.5 font-semibold text-foreground transition-colors hover:bg-muted"
           >
             Get started free
           </a>
         </div>
 
-        {/* Pro */}
-        <div className="relative flex flex-col rounded-2xl border-2 border-black bg-white p-8 shadow-sm">
-          <span className="absolute -top-3 left-8 rounded-full bg-black px-3 py-1 text-xs font-semibold text-white">
+        {/* Pro — primary-ringed, accent badge */}
+        <div className="relative flex flex-col rounded-3xl border-2 border-primary bg-card p-8 shadow-xl shadow-primary/5">
+          <span className="absolute -top-3 left-8 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+            <FontAwesomeIcon icon={faBoltLightning} className="h-3 w-3" />
             Most popular
           </span>
-          <h3 className="text-lg font-semibold text-gray-900">Pro</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Everything, plus the AI that beats Emma.
+          <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10">
+            <FontAwesomeIcon
+              icon={faBoltLightning}
+              className="h-5 w-5 text-primary"
+            />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">Pro</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            The full picture, plus AI that does the work.
           </p>
           <div className="mt-6 flex items-baseline gap-1">
-            <span className="text-4xl font-bold text-gray-900">{price}</span>
-            <span className="text-gray-500">{per}</span>
+            <span className="text-4xl font-bold tracking-tight text-foreground">
+              {price}
+            </span>
+            <span className="text-muted-foreground">{per}</span>
           </div>
-          <p className="mt-1 text-sm text-gray-500">{effective}</p>
-          <ul className="mt-8 flex flex-col gap-3">
+          <p className="mt-1 text-sm text-muted-foreground">{effective}</p>
+          <ul className="mt-8 flex flex-col gap-3.5">
             {PRO_FEATURES.map((f) => (
               <li
                 key={f}
-                className="flex items-start gap-3 text-sm text-gray-700"
+                className="flex items-start gap-3 text-sm text-foreground/90"
               >
                 <FontAwesomeIcon
                   icon={faCheck}
-                  className="mt-0.5 h-4 w-4 shrink-0 text-black"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary"
                 />
                 {f}
               </li>
@@ -118,7 +153,7 @@ export default function PricingCards() {
           <div className="mt-8">
             <UpgradeButton billingPeriod={annual ? 'annual' : 'monthly'} />
           </div>
-          <p className="mt-3 text-center text-xs text-gray-400">
+          <p className="mt-3 text-center text-xs text-muted-foreground">
             Cancel anytime · Bank-grade security · Not financial advice
           </p>
         </div>
