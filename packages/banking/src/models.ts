@@ -13,6 +13,9 @@ import { openai } from '@ai-sdk/openai';
  *   enough for structured labelling; replaces Gemini, which throttled hard).
  * - Insights / budget suggestions are high-value/low-frequency → Claude Sonnet 5
  *   (strongest reasoning per £ for money advice).
+ * - Blog content + never-dry topic ideation → Claude Sonnet 5 (was gpt-4o).
+ *   Blog is the only consumer of `models.text`, so this switch is scoped to the
+ *   blog pipeline.
  * - Blog featured images → gpt-image-2 (quality 'high'). Pexels stock photos
  *   are still tried first; gpt-image-2 only runs as the fallback. Replaced
  *   Gemini 3 Pro Image, which was too expensive.
@@ -46,8 +49,10 @@ export const MODEL_IDS = {
 
 // Pre-configured model instances
 export const models = {
-  // Primary text model for complex tasks (blog content, structured output)
-  text: openai(MODEL_IDS.GPT_4O),
+  // Primary text model for complex tasks (blog content, structured output,
+  // never-dry topic ideation) — Claude Sonnet 5. Strongest reasoning per £ for
+  // long-form money-education copy; replaced gpt-4o (blog is the only consumer).
+  text: anthropic(MODEL_IDS.CLAUDE_SONNET_5),
 
   // Faster/cheaper text model for simpler tasks
   textFast: openai(MODEL_IDS.GPT_4O_MINI),

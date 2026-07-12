@@ -7,12 +7,15 @@ import {
   generateText,
 } from 'ai';
 import { z } from 'zod/v3';
+import { generateDynamicTopics, seedTopics } from '@/lib/ai/dynamic-topics';
 import { findBestImage, type ImageEvaluation } from '@/lib/ai/image-evaluation';
 import {
+  BLOG_AUTHORS,
   BLOG_CONTENT_PROMPT,
   BLOG_IMAGE_GENERATION_PROMPT,
   BLOG_META_PROMPT,
   BLOG_TOPICS,
+  type BlogAuthor,
 } from '@/lib/ai/prompts';
 import { createServerLogger } from '@/lib/logger';
 import {
@@ -119,7 +122,8 @@ async function generateBlogContent(
     prompt: `Write a blog post titled "${meta.title}" about ${meta.excerpt}`,
   });
 
-  return text;
+  // Belt-and-braces: strip any em dashes the model slipped in despite the prompt.
+  return text.replace(/\s*\u2014\s*/g, ', ');
 }
 
 /**
@@ -505,6 +509,46 @@ function markdownToPortableText(markdown: string): unknown[] {
   return blocks;
 }
 
+// Convert a plain-text bio into a single-block Portable Text array for Sanity.
+function bioToPortableText(bio: string): unknown[] {
+  return [
+    {
+      _type: 'block',
+      _key: 'bio-0',
+      style: 'normal',
+      children: [{ _type: 'span', _key: 'bio-span-0', text: bio }],
+    },
+  ];
+}
+
+// Pick a random persona author and return its Sanity reference, creating the
+// author document (with an honest bio) on first use. Randomly assigning from a
+// small set of subject-fitting bylines makes the blog read like a team of
+// finance writers rather than one anonymous voice.
+async function ensureRandomAuthor(): Promise<string> {
+  const persona: BlogAuthor =
+    BLOG_AUTHORS[Math.floor(Math.random() * BLOG_AUTHORS.length)];
+
+  const existing = await writeClient.fetch<{ _id: string } | null>(
+    `*[_type == "author" && slug.current == $slug][0]{ _id }`,
+    { slug: persona.slug },
+  );
+
+  if (existing?._id) {
+    return existing._id;
+  }
+
+  const created = await writeClient.create({
+    _type: 'author',
+    name: persona.name,
+    slug: { _type: 'slug', current: persona.slug },
+    title: persona.title,
+    bio: bioToPortableText(persona.bio),
+  });
+
+  return created._id;
+}
+
 // Create blog post in Sanity
 async function createSanityPost(
   meta: BlogMeta,
@@ -512,23 +556,8 @@ async function createSanityPost(
   featuredImage: FeaturedImage | null,
   topic: string,
 ): Promise<{ _id: string; slug: string }> {
-  // Find or create default author
-  const authors = await writeClient.fetch(
-    `*[_type == "author"][0]{ _id, name }`,
-  );
-
-  let authorRef = authors?._id;
-
-  if (!authorRef) {
-    // Create default author
-    const author = await writeClient.create({
-      _type: 'author',
-      name: 'Genwel Team',
-      slug: { _type: 'slug', current: 'genwel-team' },
-      title: 'Content Team',
-    });
-    authorRef = author._id;
-  }
+  // Randomly assign one of the persona authors (created on first use).
+  const authorRef = await ensureRandomAuthor();
 
   // Build featuredImage object for Sanity
   let featuredImageData = null;
@@ -664,17 +693,48 @@ export async function generateBlogPostForTopic(topic: string): Promise<{
   }
 }
 
-// Generate random blog post
+// Generate random blog post.
+//
+// Picks a random uncovered topic from the fixed BLOG_TOPICS seed list. When the
+// seed list is exhausted, falls back to the never-dry dynamic generator, which
+// asks the model for fresh, deduped, on-brand UK personal finance topics so the
+// daily cadence never runs out of things to write about.
 export async function generateRandomBlogPost(): Promise<{
   success: boolean;
   slug?: string;
   title?: string;
   error?: string;
 }> {
-  const topic = await getRandomUncoveredTopic();
+  let topic = await getRandomUncoveredTopic();
+
+  // Seed list exhausted → fall back to the never-dry dynamic generator.
+  if (!topic) {
+    const covered = new Set(await getCoveredTopics());
+    log.info('Seed topics exhausted, generating dynamic topics', {
+      coveredCount: covered.size,
+    });
+
+    try {
+      const dynamicTopics = await generateDynamicTopics(covered, seedTopics());
+      topic = dynamicTopics[0] ?? null;
+
+      if (topic) {
+        log.info('Using dynamically generated topic', { topic });
+      }
+    } catch (error) {
+      log.error(
+        'Dynamic topic generation failed',
+        {},
+        error instanceof Error ? error : undefined,
+      );
+    }
+  }
 
   if (!topic) {
-    return { success: false, error: 'All topics have been covered' };
+    return {
+      success: false,
+      error: 'No uncovered topic available (dynamic generation returned none)',
+    };
   }
 
   return generateBlogPostForTopic(topic);

@@ -131,6 +131,7 @@ Requirements:
 - Excerpt should be 150-160 characters, perfect for meta description
 - Keywords should be 5-8 relevant search terms
 - Category should be one of: Budgeting, Saving, Debt, Investing, Family Finance, UK Finance Tips
+- Titles and excerpts must frame content as general financial information and education, NOT regulated advice. Avoid promissory or guaranteed-outcome language and do not use em dashes.
 
 Return a JSON object with: title, slug, excerpt, keywords (array), category`;
 
@@ -147,6 +148,14 @@ Requirements:
 - Reference UK-specific information (ISAs, HMRC, benefits, etc.) where relevant
 - Avoid jargon - explain financial terms simply
 - Include a compelling introduction and conclusion
+
+Compliance and integrity (STRICT - this is a UK, FCA-adjacent personal finance niche):
+- This is GENERAL FINANCIAL INFORMATION and education, NOT regulated financial advice. Do not recommend specific products, providers, shares, or funds as "the right choice" for the reader.
+- Where a decision carries real financial risk (investing, pensions, debt solutions, mortgages, tax), encourage readers to consider speaking to a regulated financial adviser, or a free service such as MoneyHelper or Citizens Advice, before acting.
+- NEVER fabricate statistics, percentages, survey results, studies, or expert quotes. Do not invent numbers or cite sources you cannot verify. If you use a well-known figure (e.g. a current ISA allowance), keep it general and note that readers should confirm current figures, since rules and thresholds change.
+- Do NOT use em dashes (—) anywhere. Use commas, colons, brackets, or full stops instead.
+- Encourage internal linking: naturally reference and suggest linking to related Genwel guides on adjacent topics (e.g. budgeting, saving, debt, ISAs) where it genuinely helps the reader, so posts form a connected library.
+- Keep the house voice: warm, plain-spoken, non-judgemental, and practical, especially for readers who support family, juggle irregular income, or are rebuilding after debt.
 
 Format as markdown with proper headings (##, ###), bullet points, and emphasis.`;
 
@@ -180,3 +189,43 @@ For a UK personal finance blog, appropriate imagery includes:
 - People looking confident about their finances
 
 The image should visually represent the topic and be engaging without being overly literal.`;
+
+// Persona authors for auto-generated blog posts.
+//
+// A small set of subject-fitting bylines, randomly assigned per post so the blog
+// reads like a team of finance writers rather than a single anonymous voice.
+// Bios are honest about scope: these are content writers producing general
+// financial information and education, NOT regulated financial advisers.
+export type BlogAuthor = {
+  name: string;
+  slug: string;
+  title: string;
+  bio: string;
+};
+
+export const BLOG_AUTHORS: BlogAuthor[] = [
+  {
+    name: 'Genwel Team',
+    slug: 'genwel-team',
+    title: 'Content Team',
+    bio: 'The Genwel content team writes practical, jargon-free guides on UK money management. We share general financial information and education to help you budget, save, and rebuild, and we always encourage speaking to a regulated adviser before big decisions.',
+  },
+  {
+    name: 'Priya Sharma',
+    slug: 'priya-sharma',
+    title: 'Personal Finance Writer',
+    bio: 'Priya writes about everyday budgeting, saving, and supporting family on a UK income. She focuses on realistic, no-shame money habits. Her articles are general financial information and education, not regulated advice.',
+  },
+  {
+    name: 'Marcus Bell',
+    slug: 'marcus-bell',
+    title: 'Debt and Credit Writer',
+    bio: 'Marcus covers rebuilding after debt, understanding UK credit, and dealing with bills. He believes clear information beats jargon. His guides are general financial information and education, and he always points readers to free services like MoneyHelper and Citizens Advice.',
+  },
+  {
+    name: 'Leah Okafor',
+    slug: 'leah-okafor',
+    title: 'Money and Wellbeing Writer',
+    bio: 'Leah writes about the emotional side of money, irregular income, and building steady financial habits. She keeps things kind and practical. Her posts are general financial information and education, not regulated financial advice.',
+  },
+];
