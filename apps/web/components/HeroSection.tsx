@@ -4,6 +4,7 @@ import { faArrowRight, faPlay } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import HeroMockup from '@/components/HeroMockup';
 import { Button } from '@/components/ui/button';
 
 const HeroSection = () => {
@@ -92,16 +93,7 @@ const HeroSection = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
           >
-            <div className="relative w-full max-w-sm mx-auto">
-              <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl" />
-              <div className="relative bg-card rounded-3xl shadow-2xl border border-border overflow-hidden">
-                <img
-                  src="/mobile-finance-app-showing-budget-dashboard-with-f.jpg"
-                  alt="Genwel app interface showing budget dashboard"
-                  className="w-full h-auto"
-                />
-              </div>
-            </div>
+            <HeroMockup />
           </motion.div>
         </div>
       </div>
