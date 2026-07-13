@@ -24,7 +24,7 @@ export default async function InsightsPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Insights</h1>
+        <h1 className="text-2xl font-bold text-foreground">Insights</h1>
         <GenerateInsightsButton />
       </div>
 
@@ -47,7 +47,7 @@ async function buildTrendData(userId: string) {
   const now = new Date();
   const months: { label: string; start: Date; end: Date }[] = [];
 
-  for (let i = 2; i >= 0; i--) {
+  for (let i = 5; i >= 0; i--) {
     const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const end = new Date(
       now.getFullYear(),

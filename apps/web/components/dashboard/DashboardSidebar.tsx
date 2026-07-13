@@ -77,9 +77,6 @@ export default function DashboardSidebar({
             <Link href="/" aria-label="Genwel home">
               <Logo size={28} />
             </Link>
-            <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
-              Alpha
-            </span>
           </div>
 
           {/* Navigation */}
