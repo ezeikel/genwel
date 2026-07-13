@@ -71,11 +71,11 @@ export default async function BlogPage() {
                   <span className="text-3xl">📝</span>
                 </div>
                 <h2 className="text-2xl font-bold text-foreground mb-4">
-                  Coming Soon
+                  No articles yet
                 </h2>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  We&apos;re working on some great content for you. Check back
-                  soon for tips on budgeting, saving, and building wealth.
+                  New guides on budgeting, saving, and getting ahead with your
+                  money are on the way. Check back soon.
                 </p>
               </div>
             )}

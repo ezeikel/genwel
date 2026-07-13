@@ -28,9 +28,9 @@ const FaqSection = () => {
         'Yes. Genwel only has read-only access to your transaction data. We cannot move your money, make payments, or touch your accounts. Your funds stay exactly where they are.',
     },
     {
-      question: 'How much will it cost?',
+      question: 'How much does Genwel cost?',
       answer:
-        "We're finalising Genwel's launch pricing. Our goal is to keep it accessible, and early users will get special launch pricing.",
+        'Genwel is free to start, with everything you need to see your money in one place. Pro unlocks unlimited bank connections, smart insights, and Ask Genwel for £6.99 a month or £54.99 a year, with a 7-day free trial. See the pricing page for the full breakdown.',
     },
     {
       question: 'Do I have to use every feature?',
