@@ -158,6 +158,19 @@ export default function DashboardSidebar({
               <FontAwesomeIcon icon={faSignOut} className="w-4 h-4" />
               Sign out
             </button>
+            {/* logo.dev free-tier attribution (required for commercial use) —
+                kept present but unobtrusive at the base of the sidebar. */}
+            <p className="mt-3 px-3 text-[10px] text-gray-300">
+              Logos by{' '}
+              <a
+                href="https://logo.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-400"
+              >
+                Logo.dev
+              </a>
+            </p>
           </div>
         </div>
       </aside>

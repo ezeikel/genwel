@@ -167,18 +167,6 @@ export default async function DashboardPage() {
             providerName: tx.account.connection.providerName,
           }))}
         />
-        {/* logo.dev free-tier attribution (required for commercial use) */}
-        <p className="mt-3 text-right text-[11px] text-muted-foreground/70">
-          Merchant logos by{' '}
-          <a
-            href="https://logo.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-muted-foreground"
-          >
-            Logo.dev
-          </a>
-        </p>
       </div>
     </div>
   );
