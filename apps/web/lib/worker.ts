@@ -37,3 +37,29 @@ export async function triggerTransactionSync(
     console.error('[worker] failed to trigger transaction sync:', err);
   }
 }
+
+/**
+ * Generic fire-and-forget POST to the Genwel worker. The body carries only job
+ * params — never API keys. Auth is the shared bearer (WORKER_SECRET) that must
+ * match the worker's value. Returns the worker's Response (typically a fast 202
+ * ack); the actual work runs on the box. Throws if GENWEL_WORKER_URL is unset or
+ * the worker is unreachable — callers decide how to surface that.
+ */
+export async function postToWorker(
+  path: string,
+  body: unknown = {},
+): Promise<Response> {
+  const workerUrl = process.env.GENWEL_WORKER_URL?.replace(/\/+$/, '');
+  const workerSecret = process.env.WORKER_SECRET;
+  if (!workerUrl) throw new Error('GENWEL_WORKER_URL not set');
+  return fetch(`${workerUrl}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(workerSecret ? { Authorization: `Bearer ${workerSecret}` } : {}),
+    },
+    body: JSON.stringify(body ?? {}),
+    // 10s ack budget; the worker runs the job asynchronously.
+    signal: AbortSignal.timeout(10_000),
+  });
+}

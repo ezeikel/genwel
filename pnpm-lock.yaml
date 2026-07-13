@@ -447,12 +447,21 @@ importers:
       '@hono/node-server':
         specifier: ^1.19.11
         version: 1.19.11(hono@4.12.26)
+      '@sanity/client':
+        specifier: ^7.3.0
+        version: 7.14.0(debug@4.4.3)
       '@sentry/node':
         specifier: ^10.57.0
         version: 10.65.0(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))
+      ai:
+        specifier: ^6.0.208
+        version: 6.0.208(zod@4.4.3)
       hono:
         specifier: ^4.0.0
         version: 4.12.26
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/node':
         specifier: ^22.15.21

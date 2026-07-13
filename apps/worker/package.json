@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "npx tsx --env-file=.env src/index.ts",
     "start": "npx tsx --env-file=.env src/index.ts",
+    "blog:run": "npx tsx --env-file=.env src/scripts/run-blog.ts",
     "build": "echo \"worker: no build step\" && exit 0",
     "check-types": "tsc --noEmit"
   },
@@ -13,8 +14,11 @@
     "@genwel/banking": "workspace:*",
     "@genwel/db": "workspace:*",
     "@hono/node-server": "^1.19.11",
+    "@sanity/client": "^7.3.0",
     "@sentry/node": "^10.57.0",
-    "hono": "^4.0.0"
+    "ai": "^6.0.208",
+    "hono": "^4.0.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.15.21",

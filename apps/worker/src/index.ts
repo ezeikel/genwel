@@ -9,6 +9,7 @@ import { isSyncStale, syncUserTransactions } from '@genwel/banking/sync';
 import { serve } from '@hono/node-server';
 import { type Context, Hono } from 'hono';
 import { logger } from 'hono/logger';
+import { runBlogCron } from './blog/pipeline.js';
 
 // Genwel background worker. Runs on the shared Hetzner box (port 3080) as the
 // `genwel-worker` systemd service. It owns the long, rate-limited bank work —
@@ -46,6 +47,7 @@ const bearerAuth = async (
   return next();
 };
 app.use('/sync/*', bearerAuth);
+app.use('/generate/*', bearerAuth);
 
 app.get('/health', (c) => c.json({ status: 'ok', service: 'genwel-worker' }));
 
@@ -118,6 +120,19 @@ app.post('/sync/transactions', async (c) => {
   })();
 
   return c.json({ ok: true, accepted: true, userId }, 202);
+});
+
+// POST /generate/blog — generate one UK personal-finance blog post and
+// PUBLISH it to Sanity (status:'published'; compliance lives in the prompts,
+// there is no human-review gate). Fire-and-forget: ack immediately (the
+// caller — Vercel cron via the thin web route — only waits for the 202) and
+// run the generation in the background on the box, which has no timeout.
+app.post('/generate/blog', (c) => {
+  console.log('[/generate/blog] kickoff');
+  runBlogCron().catch((err) =>
+    console.error('[/generate/blog] uncaught:', err),
+  );
+  return c.json({ ok: true, accepted: true }, 202);
 });
 
 const port = parseInt(process.env.PORT ?? '3080', 10);
