@@ -245,7 +245,7 @@ async function getFeaturedImage(
     let evaluationResult: ImageEvaluation | null = null;
 
     if (pexelsResult.photos.length > 0) {
-      // 3. Evaluate photos with AI vision model (Gemini 3 Pro)
+      // 3. Evaluate photos with the Claude Opus 4.8 vision judge
       log.info('Evaluating Pexels images with AI', {
         candidateCount: pexelsResult.photos.length,
       });
@@ -660,7 +660,7 @@ export async function generateBlogPostForTopic(topic: string): Promise<{
     // 4. Generate content
     const content = await generateBlogContent(meta, coveredTopics);
 
-    // 5. Get featured image (Pexels first with AI evaluation, then Gemini)
+    // 5. Get featured image (Pexels first with AI evaluation, then gpt-image-2)
     const usedPexelsIds = await getUsedPexelsIds();
     log.debug('Excluding already-used Pexels photos', {
       count: usedPexelsIds.length,
@@ -742,7 +742,7 @@ export async function generateRandomBlogPost(): Promise<{
 
 /**
  * Regenerate featured image for an existing post
- * Uses AI Judge + Gemini fallback flow
+ * Uses the Opus 4.8 vision judge + gpt-image-2 fallback flow
  */
 export async function regeneratePostImage(postId: string): Promise<{
   success: boolean;
