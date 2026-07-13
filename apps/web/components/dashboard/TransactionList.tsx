@@ -1,10 +1,6 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { SpendingCategory } from '@genwel/db';
-import {
-  formatCategoryName,
-  getCategoryColor,
-  getCategoryIcon,
-} from '@/lib/budget-utils';
+import { formatCategoryName } from '@/lib/budget-utils';
+import MerchantIcon from './MerchantIcon';
 
 interface Transaction {
   id: string;
@@ -26,30 +22,22 @@ export default function TransactionList({
   transactions,
 }: TransactionListProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="divide-y divide-gray-100">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <div className="divide-y divide-border">
         {transactions.map((tx) => {
-          const category = tx.category;
-          const icon = getCategoryIcon(category);
-          const colorClass = getCategoryColor(category);
           const isCredit = tx.amount > 0;
+          const label = tx.merchantName || tx.description;
 
           return (
             <div
               key={tx.id}
-              className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-muted/40"
             >
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}
-              >
-                <FontAwesomeIcon icon={icon} className="w-4 h-4" />
-              </div>
+              <MerchantIcon merchant={label} category={tx.category} />
 
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 truncate">
-                  {tx.merchantName || tx.description}
-                </p>
-                <p className="text-sm text-gray-500 truncate">
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-foreground">{label}</p>
+                <p className="truncate text-sm text-muted-foreground">
                   {tx.accountName} &middot;{' '}
                   {new Intl.DateTimeFormat('en-GB', {
                     dateStyle: 'medium',
@@ -59,8 +47,8 @@ export default function TransactionList({
 
               <div className="text-right">
                 <p
-                  className={`font-semibold ${
-                    isCredit ? 'text-green-600' : 'text-gray-900'
+                  className={`font-semibold tabular-nums ${
+                    isCredit ? 'text-emerald-600' : 'text-foreground'
                   }`}
                 >
                   {isCredit ? '+' : '-'}
@@ -69,8 +57,8 @@ export default function TransactionList({
                     currency: tx.currency,
                   }).format(Math.abs(tx.amount))}
                 </p>
-                <p className="text-xs text-gray-400">
-                  {formatCategoryName(category)}
+                <p className="text-xs text-muted-foreground">
+                  {formatCategoryName(tx.category)}
                 </p>
               </div>
             </div>
