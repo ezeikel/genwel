@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
+import Logo from '@/components/Logo';
 
 interface DashboardSidebarProps {
   user: {
@@ -73,8 +74,8 @@ export default function DashboardSidebar({
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center h-16 px-6 border-b border-gray-200">
-            <Link href="/" className="text-xl font-bold text-gray-900">
-              Genwel
+            <Link href="/" aria-label="Genwel home">
+              <Logo size={28} />
             </Link>
             <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
               Alpha

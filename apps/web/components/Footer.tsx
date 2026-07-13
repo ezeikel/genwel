@@ -1,6 +1,7 @@
 import { faArrowRight } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { CookieSettingsButton } from './CookieConsent';
 
@@ -28,11 +29,8 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid lg:grid-cols-2 gap-12 mb-12">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-primary-foreground rounded-lg flex items-center justify-center">
-                <span className="text-primary font-bold text-lg">G</span>
-              </div>
-              <span className="text-xl font-bold">Genwel</span>
+            <div className="mb-4">
+              <Logo variant="reversed" size={32} />
             </div>
             <p className="text-primary-foreground/70 max-w-md mb-6">
               One clear view of your money, plus smart insights that show you

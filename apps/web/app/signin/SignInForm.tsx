@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import Logo from '@/components/Logo';
 import { useAnalytics } from '@/utils/analytics-client';
 
 type SignInFormProps = {
@@ -66,8 +67,8 @@ export default function SignInForm({ providers }: SignInFormProps) {
       >
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <Link href="/" className="inline-block">
-              <h1 className="text-3xl font-bold text-gray-900">Genwel</h1>
+            <Link href="/" className="inline-flex" aria-label="Genwel home">
+              <Logo size={40} />
             </Link>
             <p className="mt-2 text-gray-600">
               Sign in to access your dashboard

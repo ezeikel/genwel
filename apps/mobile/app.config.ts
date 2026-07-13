@@ -153,9 +153,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: {
         foregroundImage: pickIcon('adaptive-icon'),
-        // Genwel forest green — the adaptive foreground is a transparent white "G",
-        // so Android composites it edge-to-edge over this green, matching the iOS icon.
-        backgroundColor: '#114E37',
+        // Cream — the adaptive foreground is the transparent card-sleeve mark, so
+        // Android composites it over this cream, matching the iOS/web icon.
+        backgroundColor: '#faf9f7',
       },
       package: bundleId,
       intentFilters: [
