@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 export const metadata: Metadata = {
   title: 'Pricing — Genwel',
   description:
-    'Genwel is free to start. Upgrade to Pro for unlimited bank connections, AI insights, and Ask Genwel — from £6.99/month.',
+    'Genwel is free to start. Upgrade to Pro for unlimited bank connections, smart insights, and Ask Genwel — from £6.99/month.',
   alternates: { canonical: 'https://genwel.com/pricing' },
 };
 
@@ -30,7 +30,7 @@ export default function PricingPage() {
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-balance text-lg text-muted-foreground">
             Free to start — connect your bank in minutes. Go Pro for unlimited
-            accounts, AI insights, and a money assistant that actually knows
+            accounts, smart insights, and a money assistant that actually knows
             where your money goes.
           </p>
         </div>

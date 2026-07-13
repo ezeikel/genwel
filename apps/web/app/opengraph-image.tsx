@@ -3,7 +3,7 @@ import { accentColors, colors, OG_HEIGHT, OG_WIDTH } from '@/lib/og/constants';
 import { loadOGFonts, OG_FONT_CONFIG } from '@/lib/og/fonts';
 
 export const runtime = 'nodejs';
-export const alt = 'Genwel - From Minus to Generational Wealth';
+export const alt = 'Genwel - One Clear View of Your Money';
 export const size = { width: OG_WIDTH, height: OG_HEIGHT };
 export const contentType = 'image/png';
 
@@ -129,7 +129,7 @@ export default async function Image() {
             marginTop: '-8px',
           }}
         >
-          From Minus to Generational Wealth
+          One Clear View of Your Money
         </p>
 
         {/* Feature badges */}
@@ -140,7 +140,7 @@ export default async function Image() {
             marginTop: '24px',
           }}
         >
-          {['Budget Smarter', 'Support Family', 'Build Wealth'].map(
+          {['See Everything', 'Spot What Leaks', 'Fix It Faster'].map(
             (feature) => (
               <div
                 key={feature}

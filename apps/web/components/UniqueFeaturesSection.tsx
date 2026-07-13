@@ -13,31 +13,31 @@ const UniqueFeaturesSection = () => {
   const features = [
     {
       icon: faHeart,
-      title: 'Family & Support Mode',
+      title: 'Money you send to people',
       description:
-        'Tag and track money going to family or community. Set up shared support pots for relatives. See your true budget after obligations.',
-      highlight: 'Support without guilt',
+        'Tag what goes to family, relatives, or people you support and set aside a pot for it. See what you actually have left once those commitments are covered.',
+      highlight: 'Support the people who matter',
     },
     {
       icon: faGlobe,
-      title: 'Remittance-Aware Budgeting',
+      title: 'Budgeting on income that moves',
       description:
-        'Set monthly remittance goals and see your "true leftover" after sending money home. Built into the flow, not an afterthought.',
-      highlight: 'Sending money? We get it.',
+        'Paid in different amounts each month from shifts, side gigs, or self-employment. Genwel works from what you earn on average and shows what you can safely spend now.',
+      highlight: 'Built for irregular pay',
     },
     {
       icon: faArrowTrendUp,
-      title: 'Minus to Zero Journey',
+      title: 'A clear way out of debt',
       description:
-        'A guided path from overdraft, Klarna, and credit card debt to a positive balance and emergency fund. Real progress, visualised.',
-      highlight: 'Debt-first, not debt-shame',
+        'See every overdraft, Klarna, and credit card balance in one place, then follow a step-by-step path back to a positive balance and a first emergency fund.',
+      highlight: 'A path back to positive',
     },
     {
       icon: faGraduationCap,
-      title: 'Culture-Aware Education',
+      title: 'Money explained in plain English',
       description:
-        'Short lessons about credit, home buying, pensions, and saving—written for people starting from behind, not from privilege.',
-      highlight: "Learn what school didn't teach",
+        'Short, jargon-free guides on credit, buying a home, pensions, and saving. No lectures, no fine print, just what things mean and what to do next.',
+      highlight: 'The stuff nobody taught you',
     },
   ];
 
@@ -52,8 +52,8 @@ const UniqueFeaturesSection = () => {
             Built for real life, not just spreadsheets
           </h2>
           <p className="text-lg text-primary-foreground/80">
-            Features designed for the way you actually live, send, and save
-            money.
+            Features built around how money actually works: what comes in, what
+            you owe, and what you look after.
           </p>
         </div>
 

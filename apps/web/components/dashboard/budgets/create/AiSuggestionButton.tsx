@@ -38,7 +38,7 @@ export default function AiSuggestionButton({
         onSuggestionsReceived(result.suggestions);
       }
     } catch {
-      setError('Failed to get AI suggestions');
+      setError('Failed to get suggestions');
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function AiSuggestionButton({
           icon={loading ? faSpinner : faWandMagicSparkles}
           className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
         />
-        {loading ? 'Analysing spending...' : 'Get AI Suggestions'}
+        {loading ? 'Analysing spending...' : 'Suggest limits'}
       </Button>
       {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
       <div className="mt-2 max-w-xs">

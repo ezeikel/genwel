@@ -1,8 +1,7 @@
 // Blog topics for Genwel - UK-focused personal finance
-// Organized by category and targeting Genwel's core audience:
-// - Family supporters (sending money home)
-// - Hustlers (irregular/multiple incomes)
-// - Rebuilders (recovering from debt)
+// A broad mix of real-life money situations anyone in the UK might face:
+// budgeting, saving, debt and credit, irregular income, supporting family,
+// and getting ahead with money. Written to be useful to everyone.
 
 export const BLOG_TOPICS = [
   // ===== FAMILY SUPPORT & REMITTANCES =====
@@ -155,7 +154,7 @@ Compliance and integrity (STRICT - this is a UK, FCA-adjacent personal finance n
 - NEVER fabricate statistics, percentages, survey results, studies, or expert quotes. Do not invent numbers or cite sources you cannot verify. If you use a well-known figure (e.g. a current ISA allowance), keep it general and note that readers should confirm current figures, since rules and thresholds change.
 - Do NOT use em dashes (—) anywhere. Use commas, colons, brackets, or full stops instead.
 - Encourage internal linking: naturally reference and suggest linking to related Genwel guides on adjacent topics (e.g. budgeting, saving, debt, ISAs) where it genuinely helps the reader, so posts form a connected library.
-- Keep the house voice: warm, plain-spoken, non-judgemental, and practical, especially for readers who support family, juggle irregular income, or are rebuilding after debt.
+- Keep the house voice: warm, plain-spoken, non-judgemental, and practical. Write for everyone, whatever their situation, and meet readers wherever they are with their money.
 
 Format as markdown with proper headings (##, ###), bullet points, and emphasis.`;
 

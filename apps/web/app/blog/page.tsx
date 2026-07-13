@@ -9,14 +9,14 @@ import type { SanityPostSummary } from '@/lib/sanity/types';
 export const metadata: Metadata = {
   title: 'Blog',
   description:
-    'Expert UK personal finance tips on budgeting, saving, debt recovery, and building generational wealth from Genwel.',
+    'Expert UK personal finance tips on budgeting, saving, clearing debt, and getting ahead with your money from Genwel.',
   alternates: {
     canonical: 'https://genwel.com/blog',
   },
   openGraph: {
     title: 'Genwel Blog | UK Personal Finance Tips & Guides',
     description:
-      'Expert advice on budgeting, saving, debt recovery, and building generational wealth.',
+      'Expert advice on budgeting, saving, clearing debt, and getting ahead with your money.',
     url: 'https://genwel.com/blog',
   },
 };
@@ -43,9 +43,8 @@ export default async function BlogPage() {
                 The Genwel <span className="text-primary">Blog</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Practical advice on budgeting, saving, debt recovery, and
-                building generational wealth—written for real-life money
-                pressures.
+                Practical advice on budgeting, saving, clearing debt, and
+                getting ahead with your money, written for real life.
               </p>
             </div>
           </div>

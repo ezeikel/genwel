@@ -8,29 +8,34 @@ import {
 const FaqSection = () => {
   const faqs = [
     {
-      question: 'Is Genwel only for Black people?',
-      answer:
-        'No. Genwel is designed for anyone who relates to the "minus to wealth" journey. While we\'ve built features with Black British financial realities in mind—like family support and remittance tracking—the app is for anyone who wants a budgeting tool that gets real life.',
-    },
-    {
       question: 'How does Genwel connect to my bank?',
       answer:
-        "Genwel uses Open Banking to connect to your bank securely. You authorise access through your bank's own app or website. We never see your login credentials.",
+        "Genwel uses Open Banking to connect to your bank securely. You authorise access through your bank's own app or website, and we never see your login details.",
+    },
+    {
+      question: 'Which banks does Genwel support?',
+      answer:
+        'Every major UK bank, plus your credit cards. Genwel connects through Open Banking, so if your bank supports it, Genwel can bring your accounts together in one clear view.',
+    },
+    {
+      question: 'How is Genwel different from my banking app?',
+      answer:
+        'Your banking app shows one account. Genwel brings every bank and card into one view, sorts your spending automatically, and shows you what to fix, like duplicate subscriptions, price rises, and money leaking each month.',
     },
     {
       question: 'Is my money safe?',
       answer:
-        'Absolutely. Genwel only has read-only access to your transaction data. We cannot move your money, make payments, or access your accounts directly. Your funds stay exactly where they are.',
+        'Yes. Genwel only has read-only access to your transaction data. We cannot move your money, make payments, or touch your accounts. Your funds stay exactly where they are.',
     },
     {
       question: 'How much will it cost?',
       answer:
-        "We're finalising Genwel's launch pricing. Our goal is to keep it accessible, and early users will receive special launch pricing.",
+        "We're finalising Genwel's launch pricing. Our goal is to keep it accessible, and early users will get special launch pricing.",
     },
     {
-      question: 'Do I have to send remittances to use it?',
+      question: 'Do I have to use every feature?',
       answer:
-        'Not at all. Remittance tracking is just one feature. Genwel works for anyone with any money situation—whether you send money abroad or not.',
+        'No. Genwel adapts to your money situation, whether you have side-gig income, are paying down an overdraft or credit cards, or send money to family. Use what helps and ignore the rest.',
     },
     {
       question: 'Can I disconnect my bank at any time?',

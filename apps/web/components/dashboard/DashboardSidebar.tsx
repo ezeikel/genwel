@@ -124,7 +124,7 @@ export default function DashboardSidebar({
                   Upgrade to Pro
                 </div>
                 <p className="mt-1 text-xs text-gray-300">
-                  Unlimited banks, AI insights & Ask Genwel — 7 days free.
+                  Unlimited banks, smart insights & Ask Genwel — 7 days free.
                 </p>
               </Link>
             )}

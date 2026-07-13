@@ -14,23 +14,25 @@ const PersonasSection = () => {
       icon: faUsers,
       title: 'The Family Supporter',
       description:
-        'You send money home and top up relatives regularly. Genwel helps you support family without losing track of your own finances.',
+        'You help family and the people you care about, sometimes every month. Genwel keeps one clear view of your money so you can give without losing track of your own.',
       quote:
-        '"Finally, an app that doesn\'t make me feel bad for helping mum."',
+        '"I send money to my mum every month. Now I can see exactly what I have left, instead of guessing."',
     },
     {
       icon: faBriefcase,
       title: 'The Hustler',
       description:
-        'Side gigs, unpredictable income, multiple streams. Genwel adapts to your irregular cash flow and helps you plan ahead.',
-      quote: '"It gets that my income isn\'t 9-to-5."',
+        'Side gigs and income that lands when it lands. Genwel connects every account, sorts your spending automatically, and shows you where the money goes so a quiet month never catches you out.',
+      quote:
+        '"My income is never the same twice. Genwel finally makes it make sense."',
     },
     {
       icon: faSync,
       title: 'The Rebuilder',
       description:
-        'Working your way out of debt or rebuilding credit. Genwel shows you the path from minus to zero—and beyond.',
-      quote: '"For the first time, I can see the light."',
+        'Chipping away at the overdraft, Klarna, and the cards. Genwel finds what is leaking each month and shows you what to cut, so you can watch the balance climb back into the positive.',
+      quote:
+        '"I could feel myself getting out of my overdraft. Seeing the number go up kept me going."',
     },
   ];
 
@@ -45,8 +47,8 @@ const PersonasSection = () => {
             Built for people like you
           </h2>
           <p className="text-lg text-muted-foreground">
-            Whether you're supporting family, hustling hard, or
-            rebuilding—Genwel meets you where you are.
+            Whether you're helping family, juggling side gigs, or working your
+            way out of the red, Genwel gives you one clear view of your money.
           </p>
         </div>
 

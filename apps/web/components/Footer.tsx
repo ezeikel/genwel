@@ -35,8 +35,8 @@ const Footer = () => {
               <span className="text-xl font-bold">Genwel</span>
             </div>
             <p className="text-primary-foreground/70 max-w-md mb-6">
-              From minus to generational wealth, together. The UK budgeting app
-              built for real-life money pressures.
+              One clear view of your money, plus smart insights that show you
+              exactly what to fix. The UK budgeting app built for real life.
             </p>
             <Button variant="secondary" asChild>
               <Link href="/dashboard">

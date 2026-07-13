@@ -12,15 +12,15 @@ import UpgradeButton from '@/components/billing/UpgradeButton';
 const PRO_FEATURES = [
   'Unlimited bank & card connections',
   'Full Fixable Problems — every duplicate sub, price rise & overspend',
-  'Ask Genwel — your AI money assistant',
-  'Personalised AI insights',
-  'Budgets with AI-suggested limits',
+  'Ask Genwel — your money assistant',
+  'Personalised insights',
+  'Smart-suggested budget limits',
   'Custom categories, full history & data export',
 ];
 
 const FREE_FEATURES = [
   'Connect up to 2 banks',
-  'Automatic AI categorization',
+  'Automatic categorisation',
   'Net worth across your accounts',
   'This month’s spending by category',
   '1 Fixable Problem revealed each month',
@@ -127,7 +127,7 @@ export default function PricingCards() {
           </div>
           <h3 className="text-lg font-semibold text-foreground">Pro</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            The full picture, plus AI that does the work.
+            The full picture, done for you.
           </p>
           <div className="mt-6 flex items-baseline gap-1">
             <span className="text-4xl font-bold tracking-tight text-foreground">

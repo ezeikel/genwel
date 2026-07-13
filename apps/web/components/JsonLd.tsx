@@ -48,7 +48,7 @@ export function OrganizationJsonLd() {
     url: 'https://genwel.com',
     logo: 'https://genwel.com/icon.svg',
     description:
-      'UK budgeting app for people who support family financially. Track remittances, escape debt, and build generational wealth.',
+      'The UK budgeting app that connects every bank and card, sorts your spending automatically, and shows you exactly what to fix.',
     sameAs: [
       'https://twitter.com/genwelapp',
       'https://instagram.com/genwelapp',
@@ -69,7 +69,7 @@ export function WebApplicationJsonLd() {
     '@type': 'WebApplication',
     name: 'Genwel',
     description:
-      'UK budgeting app for family supporters and debt recovery. Track spending, manage remittances, and build generational wealth.',
+      'One clear view of your money across every bank and card, with smart insights that show you exactly what to fix.',
     url: 'https://genwel.com',
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'iOS, Android',

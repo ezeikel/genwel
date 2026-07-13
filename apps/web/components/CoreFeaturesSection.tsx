@@ -16,29 +16,31 @@ const CoreFeaturesSection = () => {
       icon: faUniversity,
       title: 'Account Aggregation',
       description:
-        'See all your bank accounts, cards, and accounts in one unified view.',
+        'Every UK bank account and card in one clear view, connected through Open Banking.',
     },
     {
       icon: faCalendarDay,
       title: 'Payday Budgets',
-      description: 'Budget by your payday cycle, not the calendar month.',
+      description:
+        'Budget from payday to payday, so you always know what is left to spend.',
     },
     {
       icon: faReceipt,
       title: 'Bill Tracking',
-      description: 'Never miss a subscription or bill payment again.',
+      description:
+        'Track every subscription and bill, and catch the ones quietly rising in price.',
     },
     {
       icon: faPiggyBank,
       title: 'Goals & Pots',
       description:
-        'Emergency fund, house deposit, holiday—save for what matters.',
+        'Set money aside for an emergency fund, a house deposit, or a holiday, and watch it grow.',
     },
     {
       icon: faChartLine,
       title: 'Insights & Trends',
       description:
-        'Understand where your money goes with clear, actionable insights.',
+        'See exactly where your money goes each month, and what to cut to keep more of it.',
     },
   ];
 
@@ -50,10 +52,11 @@ const CoreFeaturesSection = () => {
             Core Features
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">
-            Everything you expect from a budgeting app
+            Everything you need to see your money clearly
           </h2>
           <p className="text-lg text-muted-foreground">
-            All the essentials, done right. Connect, track, budget, and save.
+            Connect your accounts, sort your spending, and find what to fix. All
+            in one place.
           </p>
         </div>
 

@@ -20,20 +20,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://genwel.com'),
   title: {
-    default: 'Genwel | UK Budgeting App for Family Supporters & Debt Recovery',
+    default: 'Genwel | One Clear View of Your Money',
     template: '%s | Genwel',
   },
   description:
-    'UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth—starting from wherever you are today.',
+    'The UK budgeting app that connects every bank and card, sorts your spending automatically, and shows you exactly what to fix — duplicate subscriptions, price rises, and money leaking each month.',
   keywords: [
     'UK budgeting app',
     'budget tracker UK',
     'money management app',
-    'remittance budgeting',
-    'family support finances',
-    'debt recovery app',
+    'open banking app',
+    'spending tracker UK',
+    'subscription tracker',
     'personal finance UK',
-    'spending tracker',
+    'account aggregation app',
   ],
   authors: [{ name: 'Genwel' }],
   creator: 'Genwel',
@@ -59,15 +59,15 @@ export const metadata: Metadata = {
     locale: 'en_GB',
     url: 'https://genwel.com',
     siteName: 'Genwel',
-    title: 'Genwel | UK Budgeting App for Family Supporters & Debt Recovery',
+    title: 'Genwel | One Clear View of Your Money',
     description:
-      'UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth.',
+      'Connect every bank and card, see all your spending in one place, and get smart insights that show you exactly what to fix.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Genwel | UK Budgeting App for Family Supporters & Debt Recovery',
+    title: 'Genwel | One Clear View of Your Money',
     description:
-      'UK budgeting app for people who support family financially. Track remittances, escape debt, and build wealth.',
+      'Connect every bank and card, see all your spending in one place, and get smart insights that show you exactly what to fix.',
     creator: '@genwelapp',
   },
   alternates: {

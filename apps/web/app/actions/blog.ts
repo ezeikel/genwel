@@ -327,7 +327,7 @@ async function getFeaturedImage(
       return {
         asset: assetRef,
         alt: altText,
-        credit: 'Generated with AI',
+        credit: 'Illustration by Genwel',
       };
     }
 

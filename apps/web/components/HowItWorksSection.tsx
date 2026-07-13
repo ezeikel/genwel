@@ -22,21 +22,21 @@ const HowItWorksSection = () => {
       number: '02',
       title: 'See everything in one place',
       description:
-        'All your accounts, transactions, and spending patterns—finally visible together.',
+        'All your accounts, transactions, and spending, finally visible together.',
     },
     {
       icon: faCrosshairs,
       number: '03',
       title: 'Set budgets and goals',
       description:
-        'Create budgets that make sense for your life—including family support and remittances.',
+        'Set budgets that fit how you actually spend, whether that includes rent, savings, or money you send to family.',
     },
     {
       icon: faRocket,
       number: '04',
-      title: 'Follow your wealth plan',
+      title: 'See what to fix',
       description:
-        'A guided journey from minus to zero to generational wealth. Step by step, at your pace.',
+        'Genwel spots duplicate subscriptions, price rises, and money leaking each month, then shows you what to cut.',
     },
   ];
 
@@ -48,7 +48,7 @@ const HowItWorksSection = () => {
             How Genwel works
           </h2>
           <p className="text-lg text-muted-foreground">
-            From connecting your bank to building wealth—here's your journey.
+            Four steps from connecting your bank to seeing exactly what to fix.
           </p>
         </div>
 
