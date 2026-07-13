@@ -11,8 +11,13 @@ import { merchantDomain } from '@/lib/merchant-logos';
  *
  * Shows the merchant's brand logo (via our proxied /api/merchant-logo route)
  * where we can resolve one, and falls back to a single calm, on-brand category
- * circle otherwise. No rainbow of 16 hues — spend is a soft neutral/teal, income
- * is green. Amounts and merchant names stay the focus.
+ * circle otherwise. No rainbow of 16 hues.
+ *
+ * Bulletproofing: the fallback circle ALWAYS renders underneath. The logo <img>
+ * overlays it and only becomes visible once it has genuinely loaded (onLoad).
+ * If the logo 404s / errors / is missing (e.g. the LOGO_DEV_TOKEN isn't set),
+ * the <img> stays hidden and the circle shows through — so a failed logo can
+ * never leave a broken-image placeholder on screen.
  */
 
 // Calm, restrained fallback tints. Spend categories share one soft treatment;
@@ -40,34 +45,38 @@ export default function MerchantIcon({
   size?: number;
 }) {
   const domain = merchantDomain(merchant);
-  const [failed, setFailed] = useState(false);
-  const showLogo = domain && !failed;
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+  const tryLogo = Boolean(domain) && !errored;
 
   return (
     <span
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ring-border/60"
+      className="relative flex shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ring-border/60"
       style={{ width: size, height: size }}
     >
-      {showLogo ? (
+      {/* Fallback circle — always present underneath */}
+      <span
+        className={`flex h-full w-full items-center justify-center ${fallbackTint(category)}`}
+      >
+        <FontAwesomeIcon
+          icon={getCategoryIcon(category)}
+          style={{ width: size * 0.4, height: size * 0.4 }}
+        />
+      </span>
+
+      {/* Logo overlays the circle, only visible once it actually loads */}
+      {tryLogo && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={`/api/merchant-logo?domain=${encodeURIComponent(domain)}`}
+          src={`/api/merchant-logo?domain=${encodeURIComponent(domain as string)}`}
           alt=""
-          width={size}
-          height={size}
-          className="h-full w-full object-cover"
+          className={`absolute inset-0 h-full w-full bg-white object-contain transition-opacity ${
+            loaded ? 'opacity-100' : 'opacity-0'
+          }`}
           loading="lazy"
-          onError={() => setFailed(true)}
+          onLoad={() => setLoaded(true)}
+          onError={() => setErrored(true)}
         />
-      ) : (
-        <span
-          className={`flex h-full w-full items-center justify-center ${fallbackTint(category)}`}
-        >
-          <FontAwesomeIcon
-            icon={getCategoryIcon(category)}
-            style={{ width: size * 0.4, height: size * 0.4 }}
-          />
-        </span>
       )}
     </span>
   );
