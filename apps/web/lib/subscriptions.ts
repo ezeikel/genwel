@@ -25,10 +25,88 @@ export type TxnLike = {
 
 export type Cadence = 'weekly' | 'monthly' | 'yearly' | 'irregular';
 
+/**
+ * Service class — the "kind" of subscription, so we can spot OVERLAPPING
+ * services (two streaming, two mobile). Matched on word boundaries, never loose
+ * substrings — a false match here is a false money claim to the user.
+ */
+export type ServiceClass =
+  | 'streaming'
+  | 'music'
+  | 'mobile'
+  | 'broadband'
+  | 'cloud_storage'
+  | 'gym';
+
+const SERVICE_CLASS_KEYWORDS: Record<ServiceClass, string[]> = {
+  streaming: [
+    'netflix',
+    'disney+',
+    'disney plus',
+    'now tv',
+    'nowtv',
+    'paramount+',
+    'apple tv',
+    'britbox',
+    'hayu',
+    'discovery+',
+    'prime video',
+  ],
+  music: ['spotify', 'apple music', 'tidal', 'deezer', 'youtube music'],
+  mobile: [
+    'ee',
+    'o2',
+    'vodafone',
+    'three',
+    'tesco mobile',
+    'giffgaff',
+    'sky mobile',
+    'lebara',
+    'lyca',
+    'lycamobile',
+    't-mobile',
+    'id mobile',
+  ],
+  broadband: [
+    'talktalk',
+    'virgin media',
+    'sky broadband',
+    'plusnet',
+    'hyperoptic',
+    'community fibre',
+  ],
+  cloud_storage: ['icloud', 'dropbox', 'google one', 'onedrive'],
+  gym: ['puregym', 'nuffield', 'david lloyd', 'anytime fitness'],
+};
+
+function matchesKeyword(merchant: string, keyword: string): boolean {
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(merchant);
+}
+
+export function classifyService(merchant: string): ServiceClass | null {
+  const m = merchant.toLowerCase();
+  for (const [cls, keywords] of Object.entries(SERVICE_CLASS_KEYWORDS)) {
+    if (keywords.some((k) => matchesKeyword(m, k))) return cls as ServiceClass;
+  }
+  return null;
+}
+
+const SERVICE_CLASS_LABEL: Record<ServiceClass, string> = {
+  streaming: 'streaming',
+  music: 'music',
+  mobile: 'mobile phone',
+  broadband: 'broadband',
+  cloud_storage: 'cloud storage',
+  gym: 'gym',
+};
+
 export type Subscription = {
   key: string;
   name: string;
   category: SpendingCategory | null;
+  /** the service kind (streaming/mobile/…), or null if unclassified */
+  serviceClass: ServiceClass | null;
   cadence: Cadence;
   /** typical charge amount (most recent) */
   amount: number;
@@ -184,6 +262,7 @@ export function detectSubscriptions(txns: TxnLike[]): Subscription[] {
       key,
       name,
       category: sorted[sorted.length - 1].aiCategory,
+      serviceClass: classifyService(name),
       cadence,
       amount: latestAmount,
       monthlyAmount: latestAmount * factor,
@@ -199,34 +278,30 @@ export function detectSubscriptions(txns: TxnLike[]): Subscription[] {
   return subs.sort((a, b) => b.monthlyAmount - a.monthlyAmount);
 }
 
-// Categories where having two+ overlapping services is a common "cut one" case.
-const OVERLAP_LABELS: Partial<Record<SpendingCategory, string>> = {
-  ENTERTAINMENT: 'streaming & entertainment',
-  SUBSCRIPTIONS: 'subscriptions',
-};
-
-/** Find categories with 2+ subscriptions — candidate overlaps to cut. */
+/**
+ * Find overlapping subscriptions — candidates to cut. Grouped by SERVICE CLASS
+ * (two streaming, two mobile) using precise brand matching, which is a far
+ * stronger "you could cut one" signal than a shared spending category.
+ */
 function findDuplicates(subs: Subscription[]): DuplicateGroup[] {
-  const byCat = new Map<SpendingCategory, Subscription[]>();
+  const byClass = new Map<ServiceClass, Subscription[]>();
   for (const s of subs) {
-    if (!s.category) continue;
-    const label = OVERLAP_LABELS[s.category];
-    if (!label) continue;
-    const list = byCat.get(s.category) ?? [];
+    if (!s.serviceClass) continue;
+    const list = byClass.get(s.serviceClass) ?? [];
     list.push(s);
-    byCat.set(s.category, list);
+    byClass.set(s.serviceClass, list);
   }
 
   const groups: DuplicateGroup[] = [];
-  for (const [cat, list] of byCat) {
+  for (const [cls, list] of byClass) {
     if (list.length < 2) continue;
     const sorted = [...list].sort((a, b) => b.monthlyAmount - a.monthlyAmount);
-    // Saving = everything except the priciest one.
+    // Saving = everything except the priciest one (keep the one you likely want).
     const potentialMonthlySaving = sorted
       .slice(1)
       .reduce((sum, s) => sum + s.monthlyAmount, 0);
     groups.push({
-      label: OVERLAP_LABELS[cat] ?? cat.toLowerCase(),
+      label: SERVICE_CLASS_LABEL[cls],
       subscriptions: sorted,
       potentialMonthlySaving,
     });
