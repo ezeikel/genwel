@@ -82,7 +82,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         image: './assets/images/splash-icon.png',
         imageWidth: 200,
         resizeMode: 'contain',
-        backgroundColor: '#ffffff',
+        // Brand teal — the splash mark is cream/gold so it reads on teal.
+        backgroundColor: '#1a5a5a',
       },
     ],
     ...(env === 'development' ? ['expo-dev-client'] : []),
@@ -153,9 +154,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: {
         foregroundImage: pickIcon('adaptive-icon'),
-        // Cream — the adaptive foreground is the transparent card-sleeve mark, so
-        // Android composites it over this cream, matching the iOS/web icon.
-        backgroundColor: '#faf9f7',
+        // Brand teal — the adaptive foreground is the cream/gold card-sleeve mark
+        // on transparent, so Android composites it over teal to match the iOS/web
+        // icon (bold saturated background, the way premium fintech icons work).
+        backgroundColor: '#1a5a5a',
       },
       package: bundleId,
       intentFilters: [
