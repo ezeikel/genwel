@@ -1,11 +1,12 @@
 'use client';
 
 import {
-  faCalendarDay,
+  faArrowsRotate,
+  faBoltLightning,
   faChartLine,
+  faCommentDots,
+  faLayerGroup,
   faPiggyBank,
-  faReceipt,
-  faUniversity,
 } from '@fortawesome/pro-duotone-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,34 +14,40 @@ import { Card, CardContent } from '@/components/ui/card';
 const CoreFeaturesSection = () => {
   const features = [
     {
-      icon: faUniversity,
-      title: 'Account Aggregation',
+      icon: faLayerGroup,
+      title: 'One clear view',
       description:
-        'Every UK bank account and card in one clear view, connected through Open Banking.',
+        'Every UK bank account and card in one place. See your true net worth, cash, savings and card debt at a glance, updated to the day.',
     },
     {
-      icon: faCalendarDay,
-      title: 'Payday Budgets',
+      icon: faBoltLightning,
+      title: 'Find what to fix',
       description:
-        'Budget from payday to payday, so you always know what is left to spend.',
+        'Genwel spots duplicate subscriptions, quiet price rises and overspend, then shows you what to cut and how much you would save.',
     },
     {
-      icon: faReceipt,
-      title: 'Bill Tracking',
+      icon: faArrowsRotate,
+      title: 'Every subscription, tracked',
       description:
-        'Track every subscription and bill, and catch the ones quietly rising in price.',
+        'See what you pay each month, when things renew, and where you are paying twice, so nothing renews behind your back.',
     },
     {
-      icon: faPiggyBank,
-      title: 'Goals & Pots',
+      icon: faCommentDots,
+      title: 'Ask your money anything',
       description:
-        'Set money aside for an emergency fund, a house deposit, or a holiday, and watch it grow.',
+        'Ask Genwel a question in plain English and get an answer from your real spending, subscriptions and balances.',
     },
     {
       icon: faChartLine,
-      title: 'Insights & Trends',
+      title: 'Smart insights',
       description:
-        'See exactly where your money goes each month, and what to cut to keep more of it.',
+        'See exactly where your money goes each month, spot the trends, and get gentle nudges on where you could keep more of it.',
+    },
+    {
+      icon: faPiggyBank,
+      title: 'Budgets & goals',
+      description:
+        'Set budgets that fit how you actually get paid, put money aside for what matters, and watch it grow.',
     },
   ];
 
@@ -49,14 +56,14 @@ const CoreFeaturesSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-sm font-semibold text-accent uppercase tracking-wider mb-2 block">
-            Core Features
+            What Genwel does
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">
-            Everything you need to see your money clearly
+            See your money clearly, then fix what is leaking
           </h2>
           <p className="text-lg text-muted-foreground">
-            Connect your accounts, sort your spending, and find what to fix. All
-            in one place.
+            Connect your accounts, sort your spending automatically, and get the
+            money-saving finds that most banking apps bury.
           </p>
         </div>
 
