@@ -19,6 +19,7 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 import Logo from '@/components/Logo';
+import { displayName, initials } from '@/lib/user-display';
 
 interface DashboardSidebarProps {
   user: {
@@ -139,22 +140,23 @@ export default function DashboardSidebar({
           {/* User section */}
           <div className="border-t border-border p-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10">
                 {user.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={user.image}
                     alt=""
-                    className="w-10 h-10 rounded-full"
+                    className="h-10 w-10 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {user.name?.[0] || user.email?.[0] || '?'}
+                  <span className="text-sm font-semibold text-primary">
+                    {initials(user.name, user.email)}
                   </span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">
-                  {user.name || 'User'}
+                  {displayName(user.name, user.email)}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
                   {user.email}

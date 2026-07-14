@@ -3,9 +3,7 @@
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-
-const displayName = (name?: string | null, email?: string | null) =>
-  name?.split(' ')[0] || email?.split('@')[0] || 'Account';
+import { displayName } from '@/lib/user-display';
 
 const AuthNav = () => {
   const { data: session, status } = useSession();

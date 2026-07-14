@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
 import CoreFeaturesSection from '@/components/CoreFeaturesSection';
 import FaqSection from '@/components/FaqSection';
 import Footer from '@/components/Footer';
@@ -9,7 +11,13 @@ import SecuritySection from '@/components/SecuritySection';
 import TrustSection from '@/components/TrustSection';
 import UniqueFeaturesSection from '@/components/UniqueFeaturesSection';
 
-const HomePage = () => {
+const HomePage = async () => {
+  // Logged-in users land on the app, not the marketing page.
+  const session = await auth();
+  if (session?.user?.id) {
+    redirect('/dashboard');
+  }
+
   return (
     <main className="min-h-screen">
       <Header />
