@@ -69,7 +69,7 @@ export default function MobileHeaderMenu({
                 aria-label="Close"
                 className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                <FontAwesomeIcon icon={faXmark} className="h-6 w-6" />
+                <FontAwesomeIcon icon={faXmark} size="lg" />
               </button>
             </Dialog.Close>
           </div>
@@ -105,7 +105,7 @@ export default function MobileHeaderMenu({
             <div className="mt-4">
               {isPro ? (
                 <div className="flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground">
-                  <FontAwesomeIcon icon={faBoltLightning} className="h-5 w-5" />
+                  <FontAwesomeIcon icon={faBoltLightning} size="lg" />
                   Genwel Pro
                 </div>
               ) : (
@@ -115,10 +115,7 @@ export default function MobileHeaderMenu({
                   className="block rounded-2xl bg-primary p-4 text-primary-foreground"
                 >
                   <div className="flex items-center gap-2 text-sm font-semibold">
-                    <FontAwesomeIcon
-                      icon={faBoltLightning}
-                      className="h-5 w-5"
-                    />
+                    <FontAwesomeIcon icon={faBoltLightning} size="lg" />
                     Upgrade to Pro
                   </div>
                   <p className="mt-1 text-xs text-primary-foreground/80">
@@ -135,7 +132,7 @@ export default function MobileHeaderMenu({
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-4 rounded-2xl px-4 py-3.5 text-base font-medium text-foreground transition-colors hover:bg-muted"
               >
-                <FontAwesomeIcon icon={faChartPie} className="h-6 w-6" />
+                <FontAwesomeIcon icon={faChartPie} size="lg" fixedWidth />
                 Budgets
               </Link>
               <Link
@@ -143,7 +140,7 @@ export default function MobileHeaderMenu({
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-4 rounded-2xl px-4 py-3.5 text-base font-medium text-foreground transition-colors hover:bg-muted"
               >
-                <FontAwesomeIcon icon={faLightbulb} className="h-6 w-6" />
+                <FontAwesomeIcon icon={faLightbulb} size="lg" fixedWidth />
                 Insights
               </Link>
             </nav>
@@ -155,7 +152,7 @@ export default function MobileHeaderMenu({
                 onClick={() => signOut({ callbackUrl: '/' })}
                 className="flex w-full items-center gap-4 rounded-2xl px-4 py-3.5 text-base text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                <FontAwesomeIcon icon={faSignOut} className="h-6 w-6" />
+                <FontAwesomeIcon icon={faSignOut} size="lg" fixedWidth />
                 Sign out
               </button>
             </div>

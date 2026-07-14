@@ -29,7 +29,10 @@ export default function MobileTabBar() {
                 active ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
-              <FontAwesomeIcon icon={item.icon} className="h-[26px] w-[26px]" />
+              {/* Use the size prop — FA sizes off font-size (its CSS forces
+                  height:1em), so h-/w- utilities collapse to the parent's small
+                  label font-size. The size prop is the reliable lever. */}
+              <FontAwesomeIcon icon={item.icon} size="xl" />
               <span className="max-w-full truncate px-0.5">{item.name}</span>
             </Link>
           );
