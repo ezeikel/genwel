@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import MobileHeaderMenu from '@/components/dashboard/MobileHeaderMenu';
 import MobileTabBar from '@/components/dashboard/MobileTabBar';
+import NamePrompt from '@/components/dashboard/NamePrompt';
 import SyncTrigger from '@/components/dashboard/SyncTrigger';
 import Logo from '@/components/Logo';
 import { getEntitlementsForUser } from '@/lib/entitlements';
@@ -29,6 +30,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-muted">
       <SyncTrigger />
+      {!session.user.name && <NamePrompt userId={session.user.id} />}
       <DashboardSidebar user={session.user} isPro={entitlements.hasAccess} />
 
       {/* Mobile top bar — logo left, account menu right (Emma-style). Primary

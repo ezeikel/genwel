@@ -29,6 +29,11 @@ const TEAL = '#1a5a5a';
 const GOLD = '#d4a03c';
 const MUTED = '#8a9a9a';
 
+const compactGBP = (value: number) =>
+  value >= 1000
+    ? `£${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}k`
+    : `£${Math.round(value)}`;
+
 interface SpendingTrendChartProps {
   data: {
     month: string;
@@ -78,8 +83,8 @@ export default function SpendingTrendChart({ data }: SpendingTrendChartProps) {
               tick={{ fontSize: 12, fill: MUTED }}
               axisLine={false}
               tickLine={false}
-              width={56}
-              tickFormatter={(v) => formatCurrency(v)}
+              width={44}
+              tickFormatter={compactGBP}
             />
             <ReferenceLine y={avg} stroke={MUTED} strokeDasharray="4 4" />
             <Tooltip
