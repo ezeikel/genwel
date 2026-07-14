@@ -181,36 +181,20 @@ export async function generateInsights() {
 /**
  * Get non-expired insights. Generates new ones if none exist.
  */
+/** Why the insights list is empty, so the UI can show the right message. */
+export type InsightsEmptyReason =
+  | 'no_accounts' // user hasn't connected any bank
+  | 'no_recent_activity' // accounts exist but nothing to compare this month
+  | 'generation_failed' // the AI call errored
+  | null; // insights present, or generated fine
+
 export async function getInsights() {
   const session = await auth();
-  if (!session?.user?.id) return { error: 'Unauthorized' };
+  if (!session?.user?.id) return { error: 'Unauthorized' as const };
+  const userId = session.user.id;
 
-  let insights = await db.aiInsight.findMany({
-    where: {
-      userId: session.user.id,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  if (insights.length === 0) {
-    // Try to generate — silently fail if not enough data
-    try {
-      await generateInsights();
-      insights = await db.aiInsight.findMany({
-        where: {
-          userId: session.user.id,
-          expiresAt: { gt: new Date() },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
-    } catch {
-      // Not enough data
-    }
-  }
-
-  return {
-    insights: insights.map((i) => ({
+  const mapRows = (rows: Awaited<ReturnType<typeof fetchInsights>>) =>
+    rows.map((i) => ({
       id: i.id,
       type: i.type,
       title: i.title,
@@ -218,8 +202,65 @@ export async function getInsights() {
       metadata: i.metadata as Record<string, unknown> | null,
       read: i.read,
       createdAt: i.createdAt,
-    })),
-  };
+    }));
+
+  async function fetchInsights() {
+    return db.aiInsight.findMany({
+      where: { userId, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  let insights = await fetchInsights();
+  if (insights.length > 0) {
+    return {
+      insights: mapRows(insights),
+      emptyReason: null as InsightsEmptyReason,
+    };
+  }
+
+  // None stored — work out whether we CAN generate, and why not if we can't.
+  const accountCount = await db.bankAccount.count({
+    where: { connection: { userId } },
+  });
+  if (accountCount === 0) {
+    return { insights: [], emptyReason: 'no_accounts' as InsightsEmptyReason };
+  }
+
+  // Is there any spend in the current month to base insights on?
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const recentSpend = await db.transaction.count({
+    where: {
+      account: { connection: { userId } },
+      amount: { lt: 0 },
+      timestamp: { gte: monthStart },
+    },
+  });
+  if (recentSpend === 0) {
+    return {
+      insights: [],
+      emptyReason: 'no_recent_activity' as InsightsEmptyReason,
+    };
+  }
+
+  // We have data — try to generate. Surface a reason if it errors.
+  try {
+    await generateInsights();
+    insights = await fetchInsights();
+    return {
+      insights: mapRows(insights),
+      emptyReason: (insights.length === 0
+        ? 'no_recent_activity'
+        : null) as InsightsEmptyReason,
+    };
+  } catch {
+    return {
+      insights: [],
+      emptyReason: 'generation_failed' as InsightsEmptyReason,
+    };
+  }
 }
 
 /**

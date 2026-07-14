@@ -80,6 +80,31 @@ const FREE_ENTITLEMENTS: Entitlements = {
 };
 
 /**
+ * DEV-ONLY entitlement override. Set DEV_ENTITLEMENT=pro (or =free) in
+ * .env.local to force the plan locally without touching Stripe — flip it to
+ * eyeball the Free vs Pro states. Hard-guarded to development: it is IGNORED in
+ * production, so it can never grant free access to real users.
+ */
+function devEntitlementOverride(): Entitlements | null {
+  if (process.env.NODE_ENV === 'production') return null;
+  const flag = process.env.DEV_ENTITLEMENT?.toLowerCase();
+  if (flag === 'pro') {
+    return {
+      hasAccess: true,
+      plan: 'PRO',
+      status: 'ACTIVE',
+      platform: null,
+      expiresAt: null,
+      isTrialing: false,
+      isCancelled: false,
+      features: PLAN_FEATURES.PRO,
+    };
+  }
+  if (flag === 'free') return FREE_ENTITLEMENTS;
+  return null;
+}
+
+/**
  * Resolve a user's entitlements from the DB. A subscription grants access when
  * it is ACTIVE or TRIALING, is PAST_DUE but still within its grace period, or
  * is CANCELLED but not yet past the paid period end (cancel-at-period-end).
@@ -87,6 +112,9 @@ const FREE_ENTITLEMENTS: Entitlements = {
 export async function getEntitlementsForUser(
   userId: string,
 ): Promise<Entitlements> {
+  const override = devEntitlementOverride();
+  if (override) return override;
+
   const subscriptions = await db.subscription.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },

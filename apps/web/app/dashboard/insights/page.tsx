@@ -5,27 +5,32 @@ import { auth } from '@/auth';
 import GenerateInsightsButton from '@/components/dashboard/insights/GenerateInsightsButton';
 import InsightsEmptyState from '@/components/dashboard/insights/InsightsEmptyState';
 import InsightsList from '@/components/dashboard/insights/InsightsList';
+import InsightsProLocked from '@/components/dashboard/insights/InsightsProLocked';
 import SpendingTrendChart from '@/components/dashboard/insights/SpendingTrendChart';
 import { formatCategoryName } from '@/lib/budget-utils';
+import { getEntitlementsForUser } from '@/lib/entitlements';
 
 export default async function InsightsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  const result = await getInsights();
+  const entitlements = await getEntitlementsForUser(session.user.id);
+  const canUseInsights = entitlements.features.aiInsights;
 
-  // Build 3-month trend data for chart
+  // The spending chart is a "see your money" feature — free for everyone.
   const trendData = await buildTrendData(session.user.id);
 
-  if ('error' in result) return null;
-
-  const { insights } = result;
+  // AI insights themselves are Pro-gated. Only fetch/generate when unlocked.
+  const result = canUseInsights ? await getInsights() : null;
+  const insights = result && !('error' in result) ? result.insights : [];
+  const emptyReason =
+    result && !('error' in result) ? result.emptyReason : null;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Insights</h1>
-        <GenerateInsightsButton />
+        {canUseInsights && <GenerateInsightsButton />}
       </div>
 
       {trendData.length > 0 && (
@@ -34,8 +39,10 @@ export default async function InsightsPage() {
         </div>
       )}
 
-      {insights.length === 0 ? (
-        <InsightsEmptyState />
+      {!canUseInsights ? (
+        <InsightsProLocked />
+      ) : insights.length === 0 ? (
+        <InsightsEmptyState reason={emptyReason} />
       ) : (
         <InsightsList insights={insights} />
       )}
