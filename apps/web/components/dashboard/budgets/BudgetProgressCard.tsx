@@ -48,7 +48,7 @@ export default function BudgetProgressCard({
   const colorClass = getCategoryColor(category);
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <div
@@ -57,10 +57,10 @@ export default function BudgetProgressCard({
             <FontAwesomeIcon icon={icon} className="w-4 h-4" />
           </div>
           <div>
-            <p className="font-medium text-gray-900">
+            <p className="font-medium text-foreground">
               {formatCategoryName(category)}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {formatCurrency(spent)} of {formatCurrency(budgetAmount)}
             </p>
           </div>
@@ -68,14 +68,14 @@ export default function BudgetProgressCard({
         <Badge variant={variant}>{label}</Badge>
       </div>
 
-      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full ${progressColor} transition-all`}
           style={{ width: `${Math.min(percentUsed, 100)}%` }}
         />
       </div>
 
-      <div className="flex justify-between mt-2 text-xs text-gray-500">
+      <div className="flex justify-between mt-2 text-xs text-muted-foreground">
         <span>{Math.round(percentUsed)}% used</span>
         <span>{formatCurrency(remaining)} left</span>
       </div>

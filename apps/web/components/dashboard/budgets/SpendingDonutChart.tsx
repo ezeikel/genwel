@@ -23,8 +23,8 @@ export default function SpendingDonutChart({ items }: SpendingDonutChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex items-center justify-center h-64">
-        <p className="text-gray-400">No spending data yet</p>
+      <div className="bg-card rounded-2xl p-6 shadow-sm border border-border flex items-center justify-center h-64">
+        <p className="text-muted-foreground/70">No spending data yet</p>
       </div>
     );
   }
@@ -32,8 +32,8 @@ export default function SpendingDonutChart({ items }: SpendingDonutChartProps) {
   const totalSpent = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-      <h3 className="text-sm font-medium text-gray-500 mb-4">
+    <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+      <h3 className="text-sm font-medium text-muted-foreground mb-4">
         Spending Breakdown
       </h3>
       <div className="flex items-center gap-6">
@@ -48,7 +48,7 @@ export default function SpendingDonutChart({ items }: SpendingDonutChartProps) {
                 outerRadius={80}
                 dataKey="value"
                 strokeWidth={2}
-                stroke="#fff"
+                stroke="var(--card)"
               >
                 {data.map((entry, index) => (
                   <Cell key={index} fill={entry.color} />
@@ -58,7 +58,9 @@ export default function SpendingDonutChart({ items }: SpendingDonutChartProps) {
                 formatter={(value: number) => formatCurrency(value)}
                 contentStyle={{
                   borderRadius: '0.75rem',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--border)',
+                  background: 'var(--card)',
+                  color: 'var(--foreground)',
                   fontSize: '0.875rem',
                 }}
               />
@@ -76,16 +78,18 @@ export default function SpendingDonutChart({ items }: SpendingDonutChartProps) {
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-gray-700">{entry.name}</span>
+                <span className="text-foreground/80">{entry.name}</span>
               </div>
-              <span className="font-medium text-gray-900">
+              <span className="font-medium text-foreground">
                 {formatCurrency(entry.value)}
               </span>
             </div>
           ))}
-          <div className="pt-2 border-t border-gray-100 flex justify-between text-sm font-medium">
-            <span className="text-gray-700">Total</span>
-            <span className="text-gray-900">{formatCurrency(totalSpent)}</span>
+          <div className="pt-2 border-t border-border flex justify-between text-sm font-medium">
+            <span className="text-foreground/80">Total</span>
+            <span className="text-foreground">
+              {formatCurrency(totalSpent)}
+            </span>
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ export default function SpendingChart({ data }: SpendingChartProps) {
   const total = data.reduce((sum, item) => sum + item.amount, 0);
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
       <div className="flex flex-wrap gap-4">
         {/* Simple bar chart */}
         <div className="flex-1 min-w-[200px]">
@@ -26,17 +26,17 @@ export default function SpendingChart({ data }: SpendingChartProps) {
               return (
                 <div key={item.category}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">
+                    <span className="text-muted-foreground">
                       {formatCategoryName(item.category)}
                     </span>
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-foreground">
                       {new Intl.NumberFormat('en-GB', {
                         style: 'currency',
                         currency: 'GBP',
                       }).format(item.amount)}
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -52,15 +52,15 @@ export default function SpendingChart({ data }: SpendingChartProps) {
         </div>
 
         {/* Summary */}
-        <div className="w-full md:w-48 flex flex-col justify-center items-center p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-500 mb-1">Total Spent</p>
-          <p className="text-2xl font-bold text-gray-900">
+        <div className="w-full md:w-48 flex flex-col justify-center items-center p-4 bg-muted rounded-lg">
+          <p className="text-sm text-muted-foreground mb-1">Total Spent</p>
+          <p className="text-2xl font-bold text-foreground">
             {new Intl.NumberFormat('en-GB', {
               style: 'currency',
               currency: 'GBP',
             }).format(total)}
           </p>
-          <p className="text-xs text-gray-400 mt-1">Last 30 days</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">Last 30 days</p>
         </div>
       </div>
     </div>

@@ -6,27 +6,27 @@ import ConnectBankButton from './ConnectBankButton';
 
 export default function EmptyState() {
   return (
-    <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+    <div className="bg-card rounded-2xl p-12 text-center shadow-sm border border-border">
+      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
         <FontAwesomeIcon
           icon={faBuildingColumns}
-          className="w-8 h-8 text-gray-400"
+          className="w-8 h-8 text-muted-foreground/70"
         />
       </div>
 
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
+      <h2 className="text-xl font-semibold text-foreground mb-2">
         Connect your bank account
       </h2>
 
-      <p className="text-gray-500 mb-6 max-w-md mx-auto">
+      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
         Link your bank account to see your balances, transactions, and spending
         insights all in one place.
       </p>
 
       <ConnectBankButton />
 
-      <div className="mt-8 pt-8 border-t border-gray-100">
-        <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
+      <div className="mt-8 pt-8 border-t border-border">
+        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground/70">
           <div className="flex items-center gap-2">
             <svg
               className="w-4 h-4"

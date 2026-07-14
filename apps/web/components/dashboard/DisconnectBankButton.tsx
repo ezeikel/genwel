@@ -53,7 +53,7 @@ export default function DisconnectBankButton({
       type="button"
       onClick={handleDisconnect}
       disabled={isDisconnecting}
-      className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-red-600 border border-border hover:border-red-200 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <FontAwesomeIcon
         icon={isDisconnecting ? faSpinner : faTrash}

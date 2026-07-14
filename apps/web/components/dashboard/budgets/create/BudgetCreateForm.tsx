@@ -137,7 +137,7 @@ export default function BudgetCreateForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
         <BudgetPeriodSelector
           periodType={periodType}
           paydayDate={paydayDate}
@@ -146,9 +146,9 @@ export default function BudgetCreateForm({
         />
       </div>
 
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-gray-900">
+          <h3 className="text-sm font-medium text-foreground">
             Category Budgets
           </h3>
           <AiSuggestionButton
@@ -158,7 +158,7 @@ export default function BudgetCreateForm({
 
         <Separator className="mb-2" />
 
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-border">
           {BUDGETABLE_CATEGORIES.map((category) => (
             <BudgetCategoryRow
               key={category}

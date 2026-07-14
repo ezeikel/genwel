@@ -23,7 +23,7 @@ export default async function DashboardLayout({
   const entitlements = await getEntitlementsForUser(session.user.id);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <SyncTrigger />
       <DashboardSidebar user={session.user} isPro={entitlements.hasAccess} />
       <main className="lg:pl-64">

@@ -54,7 +54,7 @@ export default function DashboardSidebar({
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 bg-white rounded-lg shadow-md"
+          className="p-2 bg-card rounded-lg shadow-md"
         >
           <FontAwesomeIcon
             icon={mobileMenuOpen ? faXmark : faBars}
@@ -66,20 +66,20 @@ export default function DashboardSidebar({
       {/* Mobile menu overlay */}
       {mobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-foreground/50 z-40"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center h-16 px-6 border-b border-gray-200">
+          <div className="flex items-center h-16 px-6 border-b border-border">
             <Link href="/" aria-label="Genwel home">
               <Logo size={28} />
             </Link>
@@ -99,8 +99,8 @@ export default function DashboardSidebar({
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-muted text-foreground'
+                      : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
                   }`}
                 >
                   <FontAwesomeIcon icon={item.icon} className="w-5 h-5" />
@@ -113,7 +113,7 @@ export default function DashboardSidebar({
           {/* Upgrade CTA (free users) / Pro badge */}
           <div className="px-3 pb-2">
             {isPro ? (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium">
                 <FontAwesomeIcon icon={faBoltLightning} className="w-4 h-4" />
                 Genwel Pro
               </div>
@@ -121,13 +121,13 @@ export default function DashboardSidebar({
               <Link
                 href="/pricing"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-xl bg-gradient-to-br from-gray-900 to-gray-700 p-4 text-white transition-transform hover:scale-[1.02]"
+                className="block rounded-2xl bg-primary p-4 text-primary-foreground transition-transform hover:scale-[1.02]"
               >
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   <FontAwesomeIcon icon={faBoltLightning} className="w-4 h-4" />
                   Upgrade to Pro
                 </div>
-                <p className="mt-1 text-xs text-gray-300">
+                <p className="mt-1 text-xs text-primary-foreground/80">
                   Unlimited banks, smart insights & Ask Genwel — 7 days free.
                 </p>
               </Link>
@@ -135,9 +135,9 @@ export default function DashboardSidebar({
           </div>
 
           {/* User section */}
-          <div className="border-t border-gray-200 p-4">
+          <div className="border-t border-border p-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
                 {user.image ? (
                   <img
                     src={user.image}
@@ -145,34 +145,36 @@ export default function DashboardSidebar({
                     className="w-10 h-10 rounded-full"
                   />
                 ) : (
-                  <span className="text-sm font-medium text-gray-600">
+                  <span className="text-sm font-medium text-muted-foreground">
                     {user.name?.[0] || user.email?.[0] || '?'}
                   </span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-foreground truncate">
                   {user.name || 'User'}
                 </p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
               </div>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 rounded-lg transition-colors"
             >
               <FontAwesomeIcon icon={faSignOut} className="w-4 h-4" />
               Sign out
             </button>
             {/* logo.dev free-tier attribution (required for commercial use) —
                 kept present but unobtrusive at the base of the sidebar. */}
-            <p className="mt-3 px-3 text-[10px] text-gray-300">
+            <p className="mt-3 px-3 text-[10px] text-muted-foreground/70">
               Logos by{' '}
               <a
                 href="https://logo.dev"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-gray-400"
+                className="hover:text-muted-foreground"
               >
                 Logo.dev
               </a>

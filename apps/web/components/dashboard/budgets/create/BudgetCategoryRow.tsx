@@ -35,12 +35,12 @@ export default function BudgetCategoryRow({
       >
         <FontAwesomeIcon icon={icon} className="w-4 h-4" />
       </div>
-      <span className="text-sm font-medium text-gray-900 w-32 flex-shrink-0">
+      <span className="text-sm font-medium text-foreground w-32 flex-shrink-0">
         {formatCategoryName(category)}
       </span>
       <div className="flex items-center gap-2 flex-1">
         <div className="relative w-32">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 text-sm">
             £
           </span>
           <Input

@@ -59,7 +59,9 @@ export default async function TransactionsPage() {
   if (hasAccounts === 0) {
     return (
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-8">Transactions</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-8">
+          Transactions
+        </h1>
         <EmptyState />
       </div>
     );
@@ -87,12 +89,12 @@ export default async function TransactionsPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Transactions</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-8">Transactions</h1>
 
       {/* Spending Chart */}
       {chartData.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Spending by Category (Last 30 Days)
           </h2>
           <SpendingChart data={chartData} />
@@ -101,13 +103,13 @@ export default async function TransactionsPage() {
 
       {/* Transaction List */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-foreground mb-4">
           All Transactions
         </h2>
         {transactions.length === 0 ? (
-          <div className="bg-white rounded-xl p-8 text-center">
-            <p className="text-gray-500">No transactions yet</p>
-            <p className="text-sm text-gray-400 mt-1">
+          <div className="bg-card rounded-2xl p-8 text-center">
+            <p className="text-muted-foreground">No transactions yet</p>
+            <p className="text-sm text-muted-foreground/70 mt-1">
               Transactions will appear here once synced from your bank
             </p>
           </div>

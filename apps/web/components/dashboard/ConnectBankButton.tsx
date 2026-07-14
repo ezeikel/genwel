@@ -45,7 +45,7 @@ export default function ConnectBankButton() {
     <button
       onClick={handleConnect}
       disabled={isLoading}
-      className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <FontAwesomeIcon
         icon={isLoading ? faSpinner : faPlus}

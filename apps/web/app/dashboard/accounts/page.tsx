@@ -30,7 +30,7 @@ export default async function AccountsPage() {
   if (connections.length === 0) {
     return (
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-8">Accounts</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-8">Accounts</h1>
         <EmptyState />
       </div>
     );
@@ -39,7 +39,7 @@ export default async function AccountsPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Accounts</h1>
+        <h1 className="text-2xl font-bold text-foreground">Accounts</h1>
         <ConnectBankButton />
       </div>
 
@@ -48,10 +48,10 @@ export default async function AccountsPage() {
           <div key={connection.id}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   {connection.providerName}
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Connected{' '}
                   {new Intl.DateTimeFormat('en-GB', {
                     dateStyle: 'medium',

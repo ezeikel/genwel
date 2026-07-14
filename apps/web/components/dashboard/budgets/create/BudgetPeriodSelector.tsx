@@ -20,7 +20,7 @@ export default function BudgetPeriodSelector({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-medium text-gray-900 mb-3">
+        <h3 className="text-sm font-medium text-foreground mb-3">
           Budget Period
         </h3>
         <RadioGroup
@@ -30,7 +30,7 @@ export default function BudgetPeriodSelector({
           }
           className="space-y-3"
         >
-          <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/40 transition-colors">
             <RadioGroupItem
               value="CALENDAR_MONTH"
               id="calendar"
@@ -39,32 +39,32 @@ export default function BudgetPeriodSelector({
             <div>
               <Label
                 htmlFor="calendar"
-                className="font-medium text-gray-900 cursor-pointer"
+                className="font-medium text-foreground cursor-pointer"
               >
                 Calendar Month
               </Label>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-muted-foreground mt-0.5">
                 1st to last day of each month
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/40 transition-colors">
             <RadioGroupItem value="PAYDAY" id="payday" className="mt-0.5" />
             <div className="flex-1">
               <Label
                 htmlFor="payday"
-                className="font-medium text-gray-900 cursor-pointer"
+                className="font-medium text-foreground cursor-pointer"
               >
                 Payday to Payday
               </Label>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-muted-foreground mt-0.5">
                 Budget runs from your payday to the day before the next one
               </p>
               {periodType === 'PAYDAY' && (
                 <div className="mt-3">
                   <Label
                     htmlFor="payday-date"
-                    className="text-sm text-gray-600"
+                    className="text-sm text-muted-foreground"
                   >
                     I get paid on day
                   </Label>
@@ -80,7 +80,9 @@ export default function BudgetPeriodSelector({
                       }
                       className="w-20"
                     />
-                    <span className="text-sm text-gray-500">of each month</span>
+                    <span className="text-sm text-muted-foreground">
+                      of each month
+                    </span>
                   </div>
                 </div>
               )}

@@ -52,7 +52,7 @@ export default function InsightCard({
   const config = typeConfig[type] || typeConfig.spending_trend;
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+    <div className="bg-card rounded-2xl p-5 shadow-sm border border-border">
       <div className="flex items-start gap-4">
         <div
           className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${config.color}`}
@@ -61,21 +61,23 @@ export default function InsightCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-medium text-gray-900">{title}</h3>
+            <h3 className="font-medium text-foreground">{title}</h3>
             {!read && (
               <Badge variant="default" className="text-xs">
                 New
               </Badge>
             )}
           </div>
-          <p className="text-sm text-gray-600 leading-relaxed">{body}</p>
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {body}
+          </p>
+          <p className="text-xs text-muted-foreground/70 mt-2">
             {new Intl.DateTimeFormat('en-GB', {
               dateStyle: 'medium',
               timeStyle: 'short',
             }).format(createdAt)}
           </p>
-          <div className="mt-3 border-t border-gray-100 pt-3">
+          <div className="mt-3 border-t border-border pt-3">
             <AiGuidanceDisclaimer />
           </div>
         </div>

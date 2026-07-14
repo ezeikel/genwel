@@ -26,15 +26,17 @@ export default function BalanceCard({
 
   return (
     <div
-      className={`rounded-xl p-6 ${
+      className={`rounded-2xl p-6 ${
         variant === 'primary'
-          ? 'bg-black text-white'
-          : 'bg-white border border-gray-100 shadow-sm'
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-card border border-border shadow-sm'
       }`}
     >
       <p
         className={`text-sm font-medium ${
-          variant === 'primary' ? 'text-gray-300' : 'text-gray-500'
+          variant === 'primary'
+            ? 'text-primary-foreground/80'
+            : 'text-muted-foreground'
         }`}
       >
         {title}
@@ -43,10 +45,10 @@ export default function BalanceCard({
         <span
           className={`text-3xl font-bold ${
             variant === 'primary'
-              ? 'text-white'
+              ? 'text-primary-foreground'
               : isNegative
                 ? 'text-red-600'
-                : 'text-gray-900'
+                : 'text-foreground'
           }`}
         >
           {isNegative && !isCount && '-'}
@@ -55,7 +57,9 @@ export default function BalanceCard({
         {label && (
           <span
             className={`text-sm ${
-              variant === 'primary' ? 'text-gray-400' : 'text-gray-500'
+              variant === 'primary'
+                ? 'text-primary-foreground/70'
+                : 'text-muted-foreground'
             }`}
           >
             {label}

@@ -20,7 +20,7 @@ export default async function BudgetsPage() {
   if (!progress || progress.length === 0) {
     return (
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-8">Budgets</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-8">Budgets</h1>
         <BudgetEmptyState />
       </div>
     );
@@ -29,7 +29,7 @@ export default async function BudgetsPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Budgets</h1>
+        <h1 className="text-2xl font-bold text-foreground">Budgets</h1>
         <Button asChild variant="outline">
           <Link href="/dashboard/budgets/create">Edit Budget</Link>
         </Button>
@@ -43,7 +43,7 @@ export default async function BudgetsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Category Progress
             </h2>
             <BudgetProgressList items={progress} />
