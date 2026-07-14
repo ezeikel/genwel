@@ -1,10 +1,3 @@
-import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import {
-  faChartLine,
-  faLayerGroup,
-  faWallet,
-} from '@fortawesome/pro-duotone-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -17,7 +10,6 @@ import {
 } from 'react-native';
 import Animated, {
   Extrapolation,
-  FadeIn,
   interpolate,
   type SharedValue,
   useAnimatedScrollHandler,
@@ -27,53 +19,68 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GenwelLogo } from '@/components/Logo';
+import { AskGenwelPreview } from '@/components/onboarding/AskGenwelPreview';
+import { SpendingBreakdownPreview } from '@/components/onboarding/SpendingBreakdownPreview';
+import { SpendingTrendPreview } from '@/components/onboarding/SpendingTrendPreview';
 
 const SLIDES = [
   {
-    key: 'whole-picture',
-    icon: faWallet,
-    kicker: 'Your whole picture',
-    title: 'Every account, one calm view.',
-    body: 'See what you have, what you owe and what changed this month without hopping between banking apps.',
-    stat: '£12,480',
-    detail: 'net worth across 4 accounts',
+    key: 'breakdown',
+    kicker: 'Spending, decoded',
+    title: 'See where it went.',
+    body: 'Tap a category and turn one big total into something you can actually understand.',
+    cta: 'Show me the patterns',
   },
   {
-    key: 'subscriptions',
-    icon: faLayerGroup,
-    kicker: 'Quiet costs, surfaced',
-    title: 'Spot the bills that add up.',
-    body: 'Genwel finds recurring payments, upcoming renewals and overlapping services from your real transactions.',
-    stat: '£84.60',
-    detail: 'recurring each month',
+    key: 'patterns',
+    kicker: 'Patterns, not noise',
+    title: 'Catch the change early.',
+    body: 'Switch views or hold and drag across the chart to inspect any month.',
+    cta: 'Try Ask Genwel',
   },
   {
-    key: 'payday',
-    icon: faChartLine,
-    kicker: 'Built around payday',
-    title: 'Make a plan you can live with.',
-    body: 'Set simple category budgets, follow spending trends and ask clear questions about your own money.',
-    stat: '68%',
-    detail: 'of this month’s plan remaining',
+    key: 'ask',
+    kicker: 'Answers from your money',
+    title: 'Ask. Get a straight answer.',
+    body: 'Try a question and see how Genwel turns account activity into a clear explanation.',
+    cta: 'Get started',
   },
 ] as const;
+
+type SlideItem = (typeof SLIDES)[number];
+
+const Preview = ({ slide, active }: { slide: SlideItem; active: boolean }) => {
+  switch (slide.key) {
+    case 'breakdown':
+      return <SpendingBreakdownPreview />;
+    case 'patterns':
+      return <SpendingTrendPreview active={active} />;
+    default:
+      return <AskGenwelPreview />;
+  }
+};
 
 const Slide = ({
   item,
   index,
   width,
+  height,
   offset,
+  active,
 }: {
-  item: (typeof SLIDES)[number];
+  item: SlideItem;
   index: number;
   width: number;
+  height: number;
   offset: SharedValue<number>;
+  active: boolean;
 }) => {
+  const compact = height < 760;
   const style = useAnimatedStyle(() => ({
     opacity: interpolate(
       offset.value,
       [(index - 1) * width, index * width, (index + 1) * width],
-      [0.35, 1, 0.35],
+      [0.3, 1, 0.3],
       Extrapolation.CLAMP,
     ),
     transform: [
@@ -81,7 +88,7 @@ const Slide = ({
         scale: interpolate(
           offset.value,
           [(index - 1) * width, index * width, (index + 1) * width],
-          [0.92, 1, 0.92],
+          [0.94, 1, 0.94],
           Extrapolation.CLAMP,
         ),
       },
@@ -89,49 +96,23 @@ const Slide = ({
   }));
 
   return (
-    <Animated.View style={[{ width }, style]} className="flex-1 px-7">
-      <View className="flex-1 justify-center">
-        <Animated.View
-          entering={FadeIn.duration(500)}
-          className="rounded-[32px] border border-border bg-card p-6"
-          style={{
-            shadowColor: '#123f3f',
-            shadowOffset: { width: 0, height: 14 },
-            shadowOpacity: 0.12,
-            shadowRadius: 26,
-          }}
-        >
-          <View className="flex-row items-center justify-between">
-            <View className="h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-              <FontAwesomeIcon icon={item.icon} size={27} color="#1a5a5a" />
-            </View>
-            <View className="rounded-full bg-accent/15 px-3 py-1.5">
-              <Text className="font-sans-bold text-[11px] uppercase tracking-[1px] text-accent-foreground">
-                Live view
-              </Text>
-            </View>
-          </View>
-          <Text className="mt-8 font-sans-bold text-[36px] tracking-[-1.5px] text-foreground">
-            {item.stat}
-          </Text>
-          <Text className="mt-1 font-sans text-[13px] text-muted-foreground">
-            {item.detail}
-          </Text>
-          <View className="mt-6 h-2 overflow-hidden rounded-full bg-muted">
-            <View
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${62 + index * 10}%` }}
-            />
-          </View>
-        </Animated.View>
+    <Animated.View style={[{ width }, style]} className="flex-1 px-5">
+      <View className={`flex-1 justify-center ${compact ? 'py-1' : 'py-3'}`}>
+        <Preview slide={item} active={active} />
 
-        <Text className="mt-9 font-sans-bold text-[11px] uppercase tracking-[2px] text-accent">
+        <Text
+          className={`${compact ? 'mt-4' : 'mt-6'} font-sans-bold text-[10px] uppercase tracking-[2px] text-accent`}
+        >
           {item.kicker}
         </Text>
-        <Text className="mt-3 font-sans-bold text-[32px] leading-[38px] tracking-[-1.2px] text-foreground">
+        <Text
+          className={`${compact ? 'mt-1.5 text-[27px] leading-[32px]' : 'mt-2 text-[30px] leading-[36px]'} font-sans-bold tracking-[-1.1px] text-foreground`}
+        >
           {item.title}
         </Text>
-        <Text className="mt-3 font-sans text-[16px] leading-6 text-muted-foreground">
+        <Text
+          className={`${compact ? 'mt-1.5 text-[13px] leading-5' : 'mt-2 text-[14px] leading-[21px]'} font-sans text-muted-foreground`}
+        >
           {item.body}
         </Text>
       </View>
@@ -162,7 +143,7 @@ const Dot = ({
 };
 
 export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const ref = useRef<Animated.ScrollView>(null);
   const offset = useSharedValue(0);
@@ -174,7 +155,13 @@ export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
   });
   const onMomentumEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const next = Math.round(event.nativeEvent.contentOffset.x / width);
+      const next = Math.max(
+        0,
+        Math.min(
+          SLIDES.length - 1,
+          Math.round(event.nativeEvent.contentOffset.x / width),
+        ),
+      );
       if (next !== index) void Haptics.selectionAsync();
       setIndex(next);
     },
@@ -215,6 +202,7 @@ export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
         horizontal
         pagingEnabled
         bounces={false}
+        directionalLockEnabled
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={onScroll}
@@ -226,13 +214,15 @@ export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
             item={item}
             index={slideIndex}
             width={width}
+            height={height}
             offset={offset}
+            active={slideIndex === index}
           />
         ))}
       </Animated.ScrollView>
 
       <View style={{ paddingBottom: insets.bottom + 16 }} className="px-6">
-        <View className="mb-5 flex-row justify-center gap-1.5">
+        <View className="mb-4 flex-row justify-center gap-1.5">
           {SLIDES.map((slide, dotIndex) => (
             <Dot
               key={slide.key}
@@ -245,14 +235,14 @@ export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
         <Pressable
           onPress={next}
           accessibilityRole="button"
-          accessibilityLabel={last ? 'Get started' : 'Next'}
+          accessibilityLabel={SLIDES[index]?.cta ?? 'Next'}
           className="items-center rounded-2xl bg-primary px-6 py-4 active:bg-teal-deep"
         >
           <Text className="font-sans-bold text-[16px] text-primary-foreground">
-            {last ? 'Get started' : 'Next'}
+            {SLIDES[index]?.cta ?? 'Next'}
           </Text>
         </Pressable>
-        <Text className="mt-4 text-center font-sans text-[11px] text-muted-foreground">
+        <Text className="mt-3 text-center font-sans text-[11px] text-muted-foreground">
           General information, not regulated financial advice.
         </Text>
       </View>

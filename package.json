@@ -29,6 +29,18 @@
       "pnpm --filter @genwel/db exec prisma format"
     ]
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "@sentry/cli",
+      "@shopify/react-native-skia",
+      "core-js",
+      "esbuild",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
   "packageManager": "pnpm@10.6.1",
   "engines": {
     "node": ">=18"

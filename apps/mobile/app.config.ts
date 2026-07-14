@@ -85,6 +85,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     'expo-secure-store',
     'expo-apple-authentication',
     '@react-native-google-signin/google-signin',
+    // Keep CocoaPods on static libraries (Skia's supported layout) while
+    // exposing the two Google Sign-In pods that Swift needs as modules.
+    './plugins/withModularHeaders',
     // Facebook SDK (native FB login). Only added when the FB env is present.
     ...(facebookConfigured
       ? [
@@ -124,7 +127,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           usesCleartextTraffic: allowCleartext,
         },
         ios: {
-          useFrameworks: 'static',
           deploymentTarget: '16.4',
         },
       },
