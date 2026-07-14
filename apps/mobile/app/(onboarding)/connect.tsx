@@ -1,0 +1,81 @@
+import { faBuildingColumns, faLock } from '@fortawesome/pro-duotone-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { GenwelLogo } from '@/components/Logo';
+import { toast } from '@/components/ToastViewport';
+import { PrimaryButton } from '@/components/ui';
+import { ApiError } from '@/lib/api';
+import { connectBank } from '@/lib/connect-bank';
+import { useSession } from '@/lib/session';
+
+export default function ConnectOnboarding() {
+  const router = useRouter();
+  const token = useSession((state) => state.token);
+  const [busy, setBusy] = useState(false);
+
+  const connect = async () => {
+    if (!token) return router.replace('/(onboarding)/sign-in');
+    setBusy(true);
+    try {
+      const result = await connectBank(token);
+      if (result === 'success') {
+        router.replace('/(onboarding)/notifications');
+      } else if (result === 'failed') {
+        toast.error("We couldn't connect that bank. Please try again.");
+      }
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 402) {
+        router.push('/paywall');
+      } else {
+        toast.error(
+          error instanceof Error ? error.message : 'Connection failed',
+        );
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: '#faf9f7',
+        paddingHorizontal: 24,
+        paddingVertical: 16,
+      }}
+    >
+      <GenwelLogo />
+      <View className="flex-1 justify-center">
+        <View className="h-24 w-24 items-center justify-center rounded-[30px] bg-muted">
+          <FontAwesomeIcon icon={faBuildingColumns} size={42} color="#1a5a5a" />
+        </View>
+        <Text className="mt-8 font-sans-bold text-[34px] leading-[40px] tracking-[-1.4px] text-foreground">
+          Start with your real picture.
+        </Text>
+        <Text className="mt-3 font-sans text-[16px] leading-6 text-muted-foreground">
+          Connect a UK bank securely to see balances, spending and recurring
+          payments together.
+        </Text>
+        <View className="mt-7 flex-row items-start gap-3 rounded-2xl border border-border bg-card p-4">
+          <FontAwesomeIcon icon={faLock} size={17} color="#1a5a5a" />
+          <Text className="flex-1 font-sans text-[13px] leading-5 text-muted-foreground">
+            The connection is read-only and handled by TrueLayer. Genwel cannot
+            make payments.
+          </Text>
+        </View>
+      </View>
+      <View className="gap-3 pb-2">
+        <PrimaryButton label="Connect a bank" onPress={connect} busy={busy} />
+        <PrimaryButton
+          label="I’ll do this later"
+          secondary
+          onPress={() => router.replace('/(onboarding)/notifications')}
+        />
+      </View>
+    </SafeAreaView>
+  );
+}

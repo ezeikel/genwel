@@ -1,39 +1,31 @@
 @import "tailwindcss";
 @import "nativewind/theme";
 
-/* CADEM design tokens — mirrors the web app's app/globals.css @theme block.
- * Football-native, editorial: near-black ink, warm off-white surface, one volt
- * accent. Keep this in sync with apps/web + apps/store so all three surfaces
- * share the same palette. */
+/* Genwel mobile tokens — deep teal, warm gold, and cream. Keep these aligned
+ * with apps/web/app/globals.css while using literal sRGB values that native
+ * views, charts, and icon components can consume consistently. */
 @theme {
-  /* Fonts (PostScript names registered via the expo-font config plugin) */
-  --font-sans: "Inter-Regular";
-  --font-sans-medium: "Inter-Medium";
-  --font-sans-semibold: "Inter-SemiBold";
-  --font-sans-bold: "Inter-Bold";
-  --font-mono: "GeistMono-Regular";
+  --font-sans: "PlusJakartaSans_400Regular";
+  --font-sans-medium: "PlusJakartaSans_500Medium";
+  --font-sans-semibold: "PlusJakartaSans_600SemiBold";
+  --font-sans-bold: "PlusJakartaSans_700Bold";
 
-  /* Core palette */
-  --color-ink: #0a0a0a;
-  --color-surface: #f5f5f0;
-  --color-paper: #ffffff;
-  --color-cadem-accent: #e8f400;
-  --color-cadem-accent-ink: #5c6a00;
-
-  /* Payment-status colors (mirror deriveChildStatus severity) */
-  --color-paid: #137a3d;
-  --color-pending: #b8860b;
-  --color-overdue: #c81e1e;
-  --color-failed: #c81e1e;
-  --color-refunded: #707070;
-
-  /* Attendance-status colors */
-  --color-present: #137a3d;
-  --color-absent: #c81e1e;
-  --color-late: #b8860b;
-  --color-excused: #1f3a93;
-
-  /* Chrome */
-  --color-muted: #707070;
-  --color-border: #e6e6e0;
+  --color-background: #faf9f7;
+  --color-foreground: #172525;
+  --color-card: #ffffff;
+  --color-primary: #1a5a5a;
+  --color-primary-foreground: #faf9f7;
+  --color-accent: #d4a03c;
+  --color-accent-foreground: #3a2a0c;
+  --color-muted: #edf2f1;
+  --color-muted-foreground: #667a78;
+  --color-border: #dce6e4;
+  --color-input: #e7eeec;
+  --color-destructive: #c63f4f;
+  --color-success: #16825d;
+  --color-warning: #b87816;
+  --color-cream: #faf9f7;
+  --color-teal: #1a5a5a;
+  --color-teal-deep: #123f3f;
+  --color-gold: #d4a03c;
 }

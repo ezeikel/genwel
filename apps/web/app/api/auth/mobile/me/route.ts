@@ -1,4 +1,5 @@
 import { getCurrentUserFromToken } from '@/lib/auth-mobile';
+import { getEntitlementsForUser } from '@/lib/entitlements';
 
 /**
  * GET /api/auth/mobile/me — return the current user for the Bearer token. The RN
@@ -12,8 +13,10 @@ export async function GET() {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const entitlements = await getEntitlementsForUser(user.id);
+
     return Response.json(
-      { user },
+      { user, entitlements, needsName: !user.name?.trim() },
       { headers: corsHeaders('GET'), status: 200 },
     );
   } catch (error) {

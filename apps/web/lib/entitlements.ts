@@ -16,8 +16,8 @@ import { db } from '@genwel/db';
 export type Plan = PlanName | 'FREE';
 
 export type Features = {
-  /** Max bank/card connections (Infinity = unlimited). Free tier = 2. */
-  maxBankConnections: number;
+  /** Max bank/card connections (`null` = unlimited). Free tier = 2. */
+  maxBankConnections: number | null;
   /** Full Fixable-Problems wedge (vs 1/month teaser on free). */
   fullFixableProblems: boolean;
   /** AI insights beyond the free current-month category view. */
@@ -46,7 +46,7 @@ export const PLAN_FEATURES: Record<Plan, Features> = {
     dataExport: false,
   },
   PRO: {
-    maxBankConnections: Number.POSITIVE_INFINITY,
+    maxBankConnections: null,
     fullFixableProblems: true,
     aiInsights: true,
     askGenwel: true,
@@ -106,8 +106,8 @@ function devEntitlementOverride(): Entitlements | null {
 
 /**
  * Resolve a user's entitlements from the DB. A subscription grants access when
- * it is ACTIVE or TRIALING, is PAST_DUE but still within its grace period, or
- * is CANCELLED but not yet past the paid period end (cancel-at-period-end).
+ * it is ACTIVE or TRIALING before its stored expiry, is PAST_DUE but still in
+ * its paid/grace window, or is CANCELLED before the paid period end.
  */
 export async function getEntitlementsForUser(
   userId: string,
@@ -117,17 +117,17 @@ export async function getEntitlementsForUser(
 
   const subscriptions = await db.subscription.findMany({
     where: { userId },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { currentPeriodEnd: 'desc' },
   });
 
   const now = new Date();
   const active = subscriptions.find(
     (sub) =>
-      sub.status === 'ACTIVE' ||
-      sub.status === 'TRIALING' ||
+      ((sub.status === 'ACTIVE' || sub.status === 'TRIALING') &&
+        sub.currentPeriodEnd > now) ||
       (sub.status === 'PAST_DUE' &&
-        sub.gracePeriodEnd !== null &&
-        sub.gracePeriodEnd > now) ||
+        (sub.currentPeriodEnd > now ||
+          (sub.gracePeriodEnd !== null && sub.gracePeriodEnd > now))) ||
       (sub.status === 'CANCELLED' && sub.currentPeriodEnd > now),
   );
 

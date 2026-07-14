@@ -2,7 +2,8 @@ import { db } from '@genwel/db';
 import { OAuth2Client } from 'google-auth-library';
 import { createToken } from '@/lib/auth-mobile';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 /**
  * POST /api/auth/mobile/google — exchange a Google id token (from the RN app's
@@ -11,34 +12,52 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
  */
 export async function POST(req: Request) {
   try {
+    if (!GOOGLE_CLIENT_ID) {
+      return Response.json(
+        { error: 'Google sign-in is not configured' },
+        { status: 503, headers: corsHeaders('POST') },
+      );
+    }
     const { idToken } = await req.json();
 
-    if (!idToken) {
-      return Response.json({ error: 'idToken is required' }, { status: 400 });
+    if (!idToken || typeof idToken !== 'string') {
+      return Response.json(
+        { error: 'idToken is required' },
+        { status: 400, headers: corsHeaders('POST') },
+      );
     }
 
     const ticket = await client.verifyIdToken({
       idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
-    if (!payload?.email) {
-      return Response.json({ error: 'Invalid token' }, { status: 400 });
+    if (!payload?.email || payload.email_verified !== true) {
+      return Response.json(
+        { error: 'Invalid token' },
+        { status: 401, headers: corsHeaders('POST') },
+      );
     }
 
-    let user = await db.user.findUnique({ where: { email: payload.email } });
-    if (!user) {
-      user = await db.user.create({
-        data: {
-          email: payload.email,
-          name: payload.name || payload.email.split('@')[0],
-        },
+    const email = payload.email.trim().toLowerCase();
+    let user = await db.user.upsert({
+      where: { email },
+      update: {},
+      create: {
+        email,
+        name: payload.name || email.split('@')[0],
+      },
+    });
+    if (!user.name && payload.name) {
+      user = await db.user.update({
+        where: { id: user.id },
+        data: { name: payload.name },
       });
     }
 
     const sessionToken = await createToken({
-      email: payload.email,
+      email,
       id: user.id,
     });
 
@@ -48,7 +67,10 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error('[Auth] Google mobile sign-in error:', error);
-    return Response.json({ error: 'Bad request' }, { status: 400 });
+    return Response.json(
+      { error: 'Bad request' },
+      { status: 400, headers: corsHeaders('POST') },
+    );
   }
 }
 

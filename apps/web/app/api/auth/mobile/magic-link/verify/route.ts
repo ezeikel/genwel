@@ -1,6 +1,6 @@
 import { db } from '@genwel/db';
 import { NextRequest } from 'next/server';
-import { createToken, verifyToken } from '@/lib/auth-mobile';
+import { createToken, verifyMagicLinkToken } from '@/lib/auth-mobile';
 
 /**
  * POST /api/auth/mobile/magic-link/verify — exchange a magic-link token (15 min)
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Token is required' }, { status: 400 });
     }
 
-    const payload = await verifyToken(token);
+    const payload = await verifyMagicLinkToken(token);
     if (!payload?.email) {
       return Response.json(
         { error: 'Invalid or expired token' },
@@ -29,8 +29,13 @@ export async function POST(request: NextRequest) {
       user = await db.user.create({
         data: {
           email: payload.email,
-          name: payload.email.split('@')[0],
+          name: payload.name?.trim() || null,
         },
+      });
+    } else if (!user.name && payload.name?.trim()) {
+      user = await db.user.update({
+        where: { id: user.id },
+        data: { name: payload.name.trim() },
       });
     }
 

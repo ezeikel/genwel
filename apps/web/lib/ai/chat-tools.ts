@@ -1,9 +1,9 @@
 import { db, type SpendingCategory } from '@genwel/db';
 import { tool } from 'ai';
 import { z } from 'zod/v3';
-import { getFixableProblems } from '@/actions/fixable-problems';
 import { buildNetWorthSummary, type OverviewAccount } from '@/lib/accounts';
 import { effectiveCategory, formatCategoryName } from '@/lib/budget-utils';
+import { getFixableProblemsForUser } from '@/lib/fixable-problems-data';
 import { buildSubscriptionReport, type TxnLike } from '@/lib/subscriptions';
 
 /**
@@ -169,7 +169,7 @@ export function buildChatTools(userId: string) {
         "Get the user's ranked money-saving opportunities: duplicate subscriptions, price rises, and over-budget categories, with estimated savings.",
       inputSchema: z.object({}),
       execute: async () => {
-        const result = await getFixableProblems();
+        const result = await getFixableProblemsForUser(userId);
         return {
           totalPotentialSaving: gbp(result.totalSaving),
           problems: result.problems.map((p) => ({

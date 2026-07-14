@@ -24,11 +24,11 @@ export default function ConnectBankButton() {
         return;
       }
 
-      if (result.error) {
+      if ('error' in result && result.error) {
         throw new Error(result.error);
       }
 
-      if (result.url) {
+      if ('url' in result && result.url) {
         window.location.href = result.url;
       }
     } catch (err) {

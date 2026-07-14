@@ -71,18 +71,24 @@ export async function POST(req: Request) {
       );
     }
 
-    let user = await db.user.findUnique({ where: { email: me.email } });
-    if (!user) {
-      user = await db.user.create({
-        data: {
-          email: me.email,
-          name: me.name || me.email.split('@')[0],
-        },
+    const email = me.email.trim().toLowerCase();
+    let user = await db.user.upsert({
+      where: { email },
+      update: {},
+      create: {
+        email,
+        name: me.name || email.split('@')[0],
+      },
+    });
+    if (!user.name && me.name) {
+      user = await db.user.update({
+        where: { id: user.id },
+        data: { name: me.name },
       });
     }
 
     const sessionToken = await createToken({
-      email: me.email,
+      email,
       id: user.id,
     });
 

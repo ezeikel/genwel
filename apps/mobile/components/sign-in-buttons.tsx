@@ -7,11 +7,12 @@ import {
 import { faEnvelope } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useForm } from '@tanstack/react-form';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
-import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
-import { toast } from 'sonner-native';
+import { z } from 'zod';
+import { toast } from '@/components/ToastViewport';
 import { API_BASE } from '@/lib/api';
 import { useSession } from '@/lib/session';
 
@@ -42,7 +43,28 @@ const ProviderLabel = ({
 
 const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 const googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-const facebookEnabled = !!process.env.EXPO_PUBLIC_FACEBOOK_APP_ID;
+const facebookEnabled = Boolean(
+  process.env.EXPO_PUBLIC_FACEBOOK_APP_ID &&
+    process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_TOKEN,
+);
+
+type FacebookModules = Pick<
+  typeof import('react-native-fbsdk-next'),
+  'AccessToken' | 'LoginManager'
+>;
+let facebookModules: FacebookModules | null | undefined;
+
+// Loading AccessToken creates a native tracker immediately on Android. Only
+// require it when Facebook is configured; the config plugin initialises the
+// native SDK before React starts (see app.config.ts).
+const getFacebookModules = (): FacebookModules | null => {
+  if (!facebookEnabled || Platform.OS === 'web') return null;
+  if (facebookModules === undefined) {
+    const { AccessToken, LoginManager } = require('react-native-fbsdk-next');
+    facebookModules = { AccessToken, LoginManager };
+  }
+  return facebookModules;
+};
 
 const isCancel = (err: unknown): boolean => {
   const code = (err as { code?: string })?.code ?? '';
@@ -56,14 +78,50 @@ const isCancel = (err: unknown): boolean => {
   );
 };
 
-type Props = { onSignedIn?: () => void };
+type Props = { onSignedIn?: () => void; captureName?: boolean };
 
-export const SignInButtons = ({ onSignedIn }: Props) => {
+export const SignInButtons = ({ onSignedIn, captureName = false }: Props) => {
   const signIn = useSession((s) => s.signIn);
   const [busy, setBusy] = useState<null | string>(null);
-  const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
+
+  const form = useForm({
+    defaultValues: { name: '', email: '' },
+    onSubmit: async ({ value }) => {
+      const parsed = z
+        .object({
+          name: captureName
+            ? z.string().trim().min(2, 'Enter the name you’d like us to use')
+            : z.string().trim().optional(),
+          email: z.email('Enter a valid email address'),
+        })
+        .safeParse(value);
+      if (!parsed.success) {
+        toast.error(parsed.error.issues[0]?.message ?? 'Check your details.');
+        return;
+      }
+
+      setBusy('magic');
+      try {
+        const email = parsed.data.email.trim().toLowerCase();
+        const res = await fetch(`${API_BASE}/api/auth/mobile/magic-link`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            ...(parsed.data.name ? { name: parsed.data.name.trim() } : {}),
+          }),
+        });
+        if (!res.ok) throw new Error('send failed');
+        setSentTo(email);
+      } catch {
+        toast.error("Couldn't send the link. Please try again.");
+      } finally {
+        setBusy(null);
+      }
+    },
+  });
 
   useEffect(() => {
     if (googleWebClientId) {
@@ -105,7 +163,15 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
         ],
       });
       if (!cred.identityToken) throw new Error('no identity token');
-      await signIn({ kind: 'apple', identityToken: cred.identityToken });
+      const name = [cred.fullName?.givenName, cred.fullName?.familyName]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+      await signIn({
+        kind: 'apple',
+        identityToken: cred.identityToken,
+        ...(name ? { name } : {}),
+      });
       onSignedIn?.();
     } catch (err) {
       if (!isCancel(err)) toast.error("Couldn't sign in with Apple.");
@@ -117,12 +183,14 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
   const onFacebook = async () => {
     setBusy('facebook');
     try {
-      const result = await LoginManager.logInWithPermissions([
+      const facebook = getFacebookModules();
+      if (!facebook) throw new Error('Facebook is not configured');
+      const result = await facebook.LoginManager.logInWithPermissions([
         'public_profile',
         'email',
       ]);
       if (result.isCancelled) return;
-      const token = await AccessToken.getCurrentAccessToken();
+      const token = await facebook.AccessToken.getCurrentAccessToken();
       if (!token?.accessToken) throw new Error('no access token');
       await signIn({ kind: 'facebook', accessToken: token.accessToken });
       onSignedIn?.();
@@ -133,36 +201,14 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
     }
   };
 
-  const onMagicLink = async () => {
-    const value = email.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
-      toast.error('Enter a valid email address.');
-      return;
-    }
-    setBusy('magic');
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/mobile/magic-link`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: value }),
-      });
-      if (!res.ok) throw new Error('send failed');
-      setSent(true);
-    } catch {
-      toast.error("Couldn't send the link. Please try again.");
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  if (sent) {
+  if (sentTo) {
     return (
       <View className="items-center gap-2 py-2">
         <Text className="text-center text-[15px] font-semibold text-neutral-900">
           Check your email
         </Text>
         <Text className="text-center text-[13px] text-neutral-500">
-          We sent a sign-in link to {email.trim()}. Tap it to finish.
+          We sent a sign-in link to {sentTo}. Tap it to finish.
         </Text>
       </View>
     );
@@ -227,18 +273,76 @@ export const SignInButtons = ({ onSignedIn }: Props) => {
         <View className="h-px flex-1 bg-neutral-200" />
       </View>
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="you@email.com"
-        placeholderTextColor="#a3a3a3"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        autoComplete="email"
-        className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-[15px] text-neutral-900"
-      />
+      {captureName ? (
+        <form.Field
+          name="name"
+          validators={{
+            onBlur: z
+              .string()
+              .trim()
+              .min(2, 'Enter the name you’d like us to use'),
+          }}
+        >
+          {(field) => (
+            <View>
+              <TextInput
+                value={field.state.value}
+                onChangeText={field.handleChange}
+                onBlur={field.handleBlur}
+                placeholder="Your name"
+                placeholderTextColor="#8a9a98"
+                autoCapitalize="words"
+                autoComplete="name"
+                className="rounded-2xl border border-border bg-card px-4 py-4 font-sans text-[15px] text-foreground"
+              />
+              {field.state.meta.errors[0] ? (
+                <Text className="mt-1.5 px-1 font-sans text-[12px] text-destructive">
+                  {String(
+                    (field.state.meta.errors[0] as { message?: string })
+                      ?.message ?? field.state.meta.errors[0],
+                  )}
+                </Text>
+              ) : null}
+            </View>
+          )}
+        </form.Field>
+      ) : null}
+      <form.Field
+        name="email"
+        validators={{ onBlur: z.email('Enter a valid email address') }}
+      >
+        {(field) => (
+          <View>
+            <TextInput
+              value={field.state.value}
+              onChangeText={field.handleChange}
+              onBlur={field.handleBlur}
+              placeholder="you@email.com"
+              placeholderTextColor="#8a9a98"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              className="rounded-2xl border border-border bg-card px-4 py-4 font-sans text-[15px] text-foreground"
+            />
+            {field.state.meta.errors[0] ? (
+              <Text className="mt-1.5 px-1 font-sans text-[12px] text-destructive">
+                {String(
+                  (field.state.meta.errors[0] as { message?: string })
+                    ?.message ?? field.state.meta.errors[0],
+                )}
+              </Text>
+            ) : null}
+          </View>
+        )}
+      </form.Field>
       <Pressable
-        onPress={busy === 'magic' ? undefined : onMagicLink}
+        onPress={
+          busy === 'magic'
+            ? undefined
+            : () => {
+                void form.handleSubmit();
+              }
+        }
         disabled={busy === 'magic'}
         accessibilityRole="button"
         accessibilityLabel="Email me a sign-in link"

@@ -5,7 +5,7 @@ import { createToken } from '@/lib/auth-mobile';
 /**
  * POST /api/auth/mobile/apple — exchange an Apple identity token (from the RN
  * app's Sign in with Apple) for a Genwel session token.
- * Body: { identityToken: string }
+ * Body: { identityToken: string, name?: string }
  *
  * The identity token is VERIFIED against Apple's public keys before we trust
  * anything in it: signature (Apple's JWKS), issuer (appleid.apple.com), audience
@@ -28,7 +28,10 @@ const APPLE_AUDIENCES = (
 
 export async function POST(req: Request) {
   try {
-    const { identityToken } = await req.json();
+    const body = await req.json();
+    const identityToken = body?.identityToken;
+    const suppliedName =
+      typeof body?.name === 'string' ? body.name.trim().slice(0, 100) : '';
 
     if (!identityToken || typeof identityToken !== 'string') {
       return Response.json(
@@ -38,12 +41,17 @@ export async function POST(req: Request) {
     }
 
     let email: string | undefined;
+    let appleSubject: string | undefined;
     try {
       const { payload } = await jwtVerify(identityToken, APPLE_JWKS, {
         issuer: 'https://appleid.apple.com',
         audience: APPLE_AUDIENCES,
       });
-      email = typeof payload.email === 'string' ? payload.email : undefined;
+      email =
+        typeof payload.email === 'string'
+          ? payload.email.trim().toLowerCase()
+          : undefined;
+      appleSubject = typeof payload.sub === 'string' ? payload.sub : undefined;
     } catch (error) {
       console.error('[Auth] Apple identity token verification failed:', error);
       return Response.json(
@@ -52,25 +60,63 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!email) {
+    if (!appleSubject) {
       return Response.json(
-        { error: 'Apple token has no email' },
+        { error: 'Apple token has no subject' },
         { status: 400, headers: corsHeaders('POST') },
       );
     }
 
-    let user = await db.user.findUnique({ where: { email } });
+    const appleAccount = await db.account.findUnique({
+      where: {
+        provider_providerAccountId: {
+          provider: 'apple',
+          providerAccountId: appleSubject,
+        },
+      },
+      include: { user: true },
+    });
+    let user = appleAccount?.user;
     if (!user) {
-      user = await db.user.create({
-        data: {
+      if (!email) {
+        return Response.json(
+          { error: 'Apple token has no email for first sign-in' },
+          { status: 400, headers: corsHeaders('POST') },
+        );
+      }
+      user = await db.user.upsert({
+        where: { email },
+        update: {},
+        create: {
           email,
-          // Apple often withholds the name after the first authorisation.
-          name: email.split('@')[0],
+          // Apple only supplies the name on the first authorisation.
+          name: suppliedName || email.split('@')[0],
+        },
+      });
+      await db.account.upsert({
+        where: {
+          provider_providerAccountId: {
+            provider: 'apple',
+            providerAccountId: appleSubject,
+          },
+        },
+        update: {},
+        create: {
+          userId: user.id,
+          type: 'oauth',
+          provider: 'apple',
+          providerAccountId: appleSubject,
         },
       });
     }
+    if (!user.name && suppliedName) {
+      user = await db.user.update({
+        where: { id: user.id },
+        data: { name: suppliedName },
+      });
+    }
 
-    const sessionToken = await createToken({ email, id: user.id });
+    const sessionToken = await createToken({ email: user.email, id: user.id });
 
     return Response.json(
       { sessionToken },

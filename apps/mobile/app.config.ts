@@ -1,7 +1,29 @@
 import { ConfigContext, ExpoConfig } from 'expo/config';
+import { type ConfigPlugin, withGradleProperties } from 'expo/config-plugins';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import pkg from './package.json';
+
+const GRADLE_JVMARGS = '-Xmx6144m -XX:MaxMetaspaceSize=1024m';
+
+// Apply the shared release-build heap settings on every prebuild instead of
+// editing generated Android files.
+const withGradleHeap: ConfigPlugin = (config) =>
+  withGradleProperties(config, (gradleConfig) => {
+    const existing = gradleConfig.modResults.find(
+      (item) => item.type === 'property' && item.key === 'org.gradle.jvmargs',
+    );
+    if (existing?.type === 'property') {
+      existing.value = GRADLE_JVMARGS;
+    } else {
+      gradleConfig.modResults.push({
+        type: 'property',
+        key: 'org.gradle.jvmargs',
+        value: GRADLE_JVMARGS,
+      });
+    }
+    return gradleConfig;
+  });
 
 // Per-variant app identity (same pattern as go-unbeaten / titrra / cadem).
 // EXPO_PUBLIC_ENVIRONMENT is set per EAS build profile (eas.json) so dev /
@@ -40,9 +62,10 @@ const googleIosUrlScheme = googleIosClientId
 // isn't set, so the app builds/runs without a Facebook app configured.
 const facebookAppId = process.env.EXPO_PUBLIC_FACEBOOK_APP_ID;
 const facebookClientToken = process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_TOKEN;
+const facebookConfigured = Boolean(facebookAppId && facebookClientToken);
 
-// `eas init` (chewybytes org → @chewybytes/genwel) mints the real project id.
-// Until then this stays empty; OTA updates are inert (no id → no updates.url).
+// The EAS project id is stable across build variants. An env override supports
+// a future project transfer without changing source.
 const EAS_PROJECT_ID =
   process.env.EAS_PROJECT_ID ?? '53254185-1bd7-4d7b-8647-cd10bbb0020b';
 
@@ -63,7 +86,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     'expo-apple-authentication',
     '@react-native-google-signin/google-signin',
     // Facebook SDK (native FB login). Only added when the FB env is present.
-    ...(facebookAppId
+    ...(facebookConfigured
       ? [
           [
             'react-native-fbsdk-next',
@@ -72,6 +95,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               clientToken: facebookClientToken,
               displayName: 'Genwel',
               scheme: `fb${facebookAppId}`,
+              isAutoInitEnabled: true,
+              autoLogAppEventsEnabled: false,
+              advertiserIDCollectionEnabled: false,
             },
           ] as [string, Record<string, unknown>],
         ]
@@ -86,6 +112,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: '#1a5a5a',
       },
     ],
+    'expo-notifications',
     ...(env === 'development' ? ['expo-dev-client'] : []),
     [
       'expo-build-properties',
@@ -98,12 +125,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
         ios: {
           useFrameworks: 'static',
+          deploymentTarget: '16.4',
         },
       },
     ],
   ];
 
-  return {
+  const expoConfig: ExpoConfig = {
     ...config,
     name: appName,
     slug: 'genwel',
@@ -124,21 +152,22 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       // Native Sign in with Apple.
       usesAppleSignIn: true,
       // Universal links so shared genwel.com URLs open the app when installed.
-      associatedDomains: ['applinks:genwel.com'],
+      associatedDomains: ['applinks:genwel.com', 'applinks:www.genwel.com'],
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         // Google OAuth redirect scheme (reversed iOS client id) + Facebook's
         // fb<appId> scheme. Each only present when configured.
         CFBundleURLTypes: [
+          { CFBundleURLSchemes: ['genwel'] },
           ...(googleIosUrlScheme
             ? [{ CFBundleURLSchemes: [googleIosUrlScheme] }]
             : []),
-          ...(facebookAppId
+          ...(facebookConfigured
             ? [{ CFBundleURLSchemes: [`fb${facebookAppId}`] }]
             : []),
         ],
         // Facebook SDK Info.plist keys (only when configured).
-        ...(facebookAppId
+        ...(facebookConfigured
           ? {
               FacebookAppID: facebookAppId,
               FacebookClientToken: facebookClientToken,
@@ -149,6 +178,32 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
       entitlements: {
         'com.apple.developer.applesignin': ['Default'],
+      },
+      privacyManifests: {
+        NSPrivacyTracking: false,
+        NSPrivacyTrackingDomains: [],
+        NSPrivacyCollectedDataTypes: [],
+        NSPrivacyAccessedAPITypes: [
+          {
+            NSPrivacyAccessedAPIType:
+              'NSPrivacyAccessedAPICategoryUserDefaults',
+            NSPrivacyAccessedAPITypeReasons: ['CA92.1'],
+          },
+          {
+            NSPrivacyAccessedAPIType:
+              'NSPrivacyAccessedAPICategoryFileTimestamp',
+            NSPrivacyAccessedAPITypeReasons: ['C617.1'],
+          },
+          {
+            NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryDiskSpace',
+            NSPrivacyAccessedAPITypeReasons: ['E174.1'],
+          },
+          {
+            NSPrivacyAccessedAPIType:
+              'NSPrivacyAccessedAPICategorySystemBootTime',
+            NSPrivacyAccessedAPITypeReasons: ['35F9.1'],
+          },
+        ],
       },
     },
     android: {
@@ -164,7 +219,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         {
           action: 'VIEW',
           autoVerify: true,
-          data: [{ scheme: 'https', host: 'genwel.com', pathPrefix: '/' }],
+          data: [
+            { scheme: 'https', host: 'genwel.com', pathPrefix: '/' },
+            { scheme: 'https', host: 'www.genwel.com', pathPrefix: '/' },
+          ],
           category: ['BROWSABLE', 'DEFAULT'],
         },
         {
@@ -176,7 +234,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     plugins,
     experiments: { typedRoutes: true },
-    runtimeVersion: { policy: 'appVersion' },
+    // Expo prebuild produces a native project, where runtime policies are not
+    // supported. Keep updates aligned with the shipped app version explicitly.
+    runtimeVersion: pkg.version,
     updates: {
       url: EAS_PROJECT_ID ? `https://u.expo.dev/${EAS_PROJECT_ID}` : undefined,
       checkAutomatically: 'NEVER',
@@ -190,4 +250,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
     },
   };
+
+  return withGradleHeap(expoConfig);
 };

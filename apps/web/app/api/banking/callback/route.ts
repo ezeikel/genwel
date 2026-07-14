@@ -8,6 +8,12 @@ import {
 } from '@genwel/banking/truelayer';
 import { db } from '@genwel/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyBankConnectState } from '@/lib/auth-mobile';
+import {
+  BankConnectionLimitError,
+  createBankConnectionForUser,
+  getBankConnectionAllowanceForUser,
+} from '@/lib/banking/connections';
 import { triggerTransactionSync } from '@/lib/worker';
 import { track, trackWithUser } from '@/utils/analytics-server';
 
@@ -16,6 +22,23 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const state = searchParams.get('state');
   const error = searchParams.get('error');
+
+  const verifiedState = state ? await verifyBankConnectState(state) : null;
+  const redirect = (status: 'success' | 'error', reason?: string) => {
+    if (verifiedState?.target === 'mobile') {
+      const url = new URL('genwel://bank-connect');
+      url.searchParams.set('status', status);
+      if (reason) url.searchParams.set('reason', reason);
+      return NextResponse.redirect(url);
+    }
+
+    const url = new URL('/dashboard', request.url);
+    url.searchParams.set(
+      status === 'success' ? 'success' : 'error',
+      status === 'success' ? 'bank_connected' : (reason ?? 'connection_failed'),
+    );
+    return NextResponse.redirect(url);
+  };
 
   // Handle errors from TrueLayer
   if (error) {
@@ -26,26 +49,26 @@ export async function GET(request: NextRequest) {
       error,
       errorDescription,
     });
-    return NextResponse.redirect(
-      new URL('/dashboard?error=connection_failed', request.url),
-    );
+    return redirect('error', 'connection_failed');
   }
 
   if (!code || !state) {
-    return NextResponse.redirect(
-      new URL('/dashboard?error=invalid_callback', request.url),
-    );
+    return redirect('error', 'invalid_callback');
   }
 
-  // Extract user ID from state
-  const [userId] = state.split(':');
-  if (!userId) {
-    return NextResponse.redirect(
-      new URL('/dashboard?error=invalid_state', request.url),
-    );
+  if (!verifiedState) {
+    return redirect('error', 'invalid_state');
   }
+  const { userId } = verifiedState;
 
   try {
+    // Re-check at redemption so two links opened in parallel cannot bypass the
+    // free connection cap between URL creation and callback.
+    const allowance = await getBankConnectionAllowanceForUser(userId);
+    if (!allowance.allowed) {
+      return redirect('error', 'connection_limit');
+    }
+
     // Exchange code for tokens
     const tokens = await exchangeCode(code);
 
@@ -65,9 +88,7 @@ export async function GET(request: NextRequest) {
       await trackWithUser(userId, 'bank_connect_failed', {
         reason: 'no_accounts',
       });
-      return NextResponse.redirect(
-        new URL('/dashboard?error=no_accounts', request.url),
-      );
+      return redirect('error', 'no_accounts');
     }
 
     // Get provider info from the first account, falling back to the first card
@@ -78,9 +99,10 @@ export async function GET(request: NextRequest) {
     const tokenExpiresAt = new Date(Date.now() + tokens.expires_in * 1000);
 
     // Create bank connection
-    const bankConnection = await db.bankConnection.create({
-      data: {
-        userId,
+    const bankConnection = await createBankConnectionForUser(
+      userId,
+      allowance.max,
+      {
         providerId: provider.provider_id,
         providerName: provider.display_name,
         accessToken: tokens.access_token,
@@ -88,7 +110,9 @@ export async function GET(request: NextRequest) {
         tokenExpiresAt,
         lastSyncedAt: new Date(),
       },
-    });
+    );
+
+    let syncedAccountCount = 0;
 
     // Sync accounts and balances
     for (const account of accounts) {
@@ -109,6 +133,7 @@ export async function GET(request: NextRequest) {
             balanceUpdatedAt: new Date(balance.update_timestamp),
           },
         });
+        syncedAccountCount += 1;
       } catch (err) {
         console.error(`Failed to sync account ${account.account_id}:`, err);
         // Continue with other accounts
@@ -135,10 +160,21 @@ export async function GET(request: NextRequest) {
             balanceUpdatedAt: new Date(balance.update_timestamp),
           },
         });
+        syncedAccountCount += 1;
       } catch (err) {
         console.error(`Failed to sync card ${card.account_id}:`, err);
         // Continue with other cards
       }
+    }
+
+    // Don't leave behind a token-bearing connection with no usable accounts.
+    // The user can retry the provider flow once its balance API recovers.
+    if (syncedAccountCount === 0) {
+      await db.bankConnection.delete({ where: { id: bankConnection.id } });
+      await trackWithUser(userId, 'bank_connect_failed', {
+        reason: 'account_sync_failed',
+      });
+      return redirect('error', 'no_accounts');
     }
 
     // Hand the transaction sync + categorization to the background worker,
@@ -152,19 +188,19 @@ export async function GET(request: NextRequest) {
       providerId: provider.provider_id,
       accountCount: accounts.length,
       cardCount: cards.length,
+      syncedAccountCount,
     });
 
-    return NextResponse.redirect(
-      new URL('/dashboard?success=bank_connected', request.url),
-    );
+    return redirect('success');
   } catch (err) {
+    if (err instanceof BankConnectionLimitError) {
+      return redirect('error', 'connection_limit');
+    }
     console.error('Failed to connect bank:', err);
     await trackWithUser(userId, 'bank_connect_failed', {
       reason: 'exception',
       message: err instanceof Error ? err.message : String(err),
     });
-    return NextResponse.redirect(
-      new URL('/dashboard?error=connection_failed', request.url),
-    );
+    return redirect('error', 'connection_failed');
   }
 }

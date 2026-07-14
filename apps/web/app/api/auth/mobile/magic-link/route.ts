@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { Resend } from 'resend';
+import { z } from 'zod';
 import { createMagicLinkToken } from '@/lib/auth-mobile';
 
 // Construct the Resend client LAZILY (per request) — `new Resend(undefined)`
@@ -15,16 +16,23 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY);
  */
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const parsed = z
+      .object({
+        email: z.email(),
+        name: z.string().trim().min(1).max(80).optional(),
+      })
+      .safeParse(await request.json());
 
-    if (!email || !email.includes('@')) {
+    if (!parsed.success) {
       return Response.json(
         { error: 'Valid email is required' },
         { status: 400 },
       );
     }
 
-    const token = await createMagicLinkToken(email);
+    const { email, name } = parsed.data;
+
+    const token = await createMagicLinkToken(email.toLowerCase(), name);
 
     // Deep link into the Expo app (scheme `genwel`, see apps/mobile app config).
     const magicLinkUrl = `genwel://magic-link?token=${token}`;

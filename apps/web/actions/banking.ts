@@ -1,11 +1,11 @@
 'use server';
 
-import { getAuthUrl } from '@genwel/banking/truelayer';
-import { db } from '@genwel/db';
-import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
-import { getEntitlementsForUser } from '@/lib/entitlements';
+import {
+  createBankConnectUrlForUser,
+  disconnectBankForUser,
+} from '@/lib/banking/connections';
 
 /**
  * Initiate bank connection - returns TrueLayer auth URL.
@@ -20,27 +20,7 @@ export async function connectBank() {
   if (!session?.user?.id) {
     return { error: 'Unauthorized' };
   }
-  const userId = session.user.id;
-
-  // Enforce the free-tier connection cap.
-  const entitlements = await getEntitlementsForUser(userId);
-  const { maxBankConnections } = entitlements.features;
-  if (Number.isFinite(maxBankConnections)) {
-    const existing = await db.bankConnection.count({ where: { userId } });
-    if (existing >= maxBankConnections) {
-      return {
-        upgradeRequired: true as const,
-        error: `Free accounts can connect up to ${maxBankConnections} banks. Upgrade to Pro for unlimited connections.`,
-      };
-    }
-  }
-
-  // State carries the userId plus random entropy. Verified on callback.
-  const state = `${userId}:${randomBytes(16).toString('hex')}`;
-
-  const url = getAuthUrl(state);
-
-  return { url };
+  return createBankConnectUrlForUser(session.user.id, 'web');
 }
 
 /**
@@ -53,30 +33,12 @@ export async function disconnectBank(connectionId: string) {
     return { error: 'Unauthorized' };
   }
 
-  if (!connectionId) {
-    return { error: 'connectionId is required' };
-  }
-
-  // Verify the connection belongs to the user
-  const connection = await db.bankConnection.findFirst({
-    where: {
-      id: connectionId,
-      userId: session.user.id,
-    },
-  });
-
-  if (!connection) {
-    return { error: 'Connection not found' };
-  }
-
-  // Delete connection (cascades to accounts and transactions)
-  await db.bankConnection.delete({
-    where: { id: connectionId },
-  });
+  const result = await disconnectBankForUser(session.user.id, connectionId);
+  if ('error' in result) return result;
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/accounts');
   revalidatePath('/dashboard/transactions');
 
-  return { success: true };
+  return result;
 }
