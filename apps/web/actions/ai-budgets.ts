@@ -178,9 +178,6 @@ export async function generateInsights() {
   return { count: insights.length };
 }
 
-/**
- * Get non-expired insights. Generates new ones if none exist.
- */
 /** Why the insights list is empty, so the UI can show the right message. */
 export type InsightsEmptyReason =
   | 'no_accounts' // user hasn't connected any bank
