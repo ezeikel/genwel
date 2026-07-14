@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  faArrowsRotate,
   faBars,
   faBoltLightning,
   faChartPie,
@@ -32,6 +33,11 @@ const navigation = [
   { name: 'Accounts', href: '/dashboard/accounts', icon: faCreditCard },
   { name: 'Budgets', href: '/dashboard/budgets', icon: faChartPie },
   { name: 'Transactions', href: '/dashboard/transactions', icon: faReceipt },
+  {
+    name: 'Subscriptions',
+    href: '/dashboard/subscriptions',
+    icon: faArrowsRotate,
+  },
   { name: 'Insights', href: '/dashboard/insights', icon: faLightbulb },
 ];
 

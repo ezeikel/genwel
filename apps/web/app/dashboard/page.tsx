@@ -1,5 +1,6 @@
 import { db } from '@genwel/db';
 import { Suspense } from 'react';
+import { getSubscriptionReport } from '@/actions/subscriptions';
 import { auth } from '@/auth';
 import AccountGroup from '@/components/dashboard/AccountGroup';
 import BalanceSplitChart, {
@@ -10,6 +11,7 @@ import EmptyState from '@/components/dashboard/EmptyState';
 import FixableProblems from '@/components/dashboard/FixableProblems';
 import NetWorthHero from '@/components/dashboard/NetWorthHero';
 import OverviewInsight from '@/components/dashboard/OverviewInsight';
+import SubscriptionsCard from '@/components/dashboard/subscriptions/SubscriptionsCard';
 import TransactionList from '@/components/dashboard/TransactionList';
 import { buildNetWorthSummary, type OverviewAccount } from '@/lib/accounts';
 import { effectiveCategory } from '@/lib/budget-utils';
@@ -96,6 +98,10 @@ export default async function DashboardPage() {
   const creditDebt =
     summary.groups.find((g) => g.kind === 'credit')?.displayTotal ?? 0;
 
+  // Subscriptions summary for the overview card (deterministic detection).
+  const subResult = await getSubscriptionReport();
+  const subscriptionReport = 'report' in subResult ? subResult.report : null;
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex items-center justify-between">
@@ -137,6 +143,9 @@ export default async function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Subscriptions summary */}
+      {subscriptionReport && <SubscriptionsCard report={subscriptionReport} />}
 
       {/* Fixable Problems (the wedge) */}
       <FixableProblems />
