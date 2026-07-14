@@ -181,8 +181,41 @@ export const configuredProviders = {
 
 export const {
   handlers,
-  auth,
+  auth: nextAuth,
   signIn,
   signOut,
   // @ts-expect-error - Type 'typeof import("next-auth")' has no call signatures
 } = NextAuth(config);
+
+/**
+ * DEV-ONLY auth bypass. Set DEV_AUTH_USER_ID=<a real user id> in .env.local to
+ * skip sign-in locally — a bare `await auth()` then returns a synthetic session
+ * for that user. HARD-guarded to development: ignored in production, so it can
+ * never authenticate a request on the live site.
+ *
+ * Only the zero-arg `auth()` (get-session) path is overridden; the middleware /
+ * route-handler signatures pass straight through to NextAuth.
+ */
+const devAuthUserId =
+  process.env.NODE_ENV !== 'production'
+    ? process.env.DEV_AUTH_USER_ID?.trim()
+    : undefined;
+
+export const auth = (async (...args: unknown[]) => {
+  if (devAuthUserId && args.length === 0) {
+    // Enrich with the real user record so the UI (name/email/avatar) renders.
+    const user = await db.user.findUnique({
+      where: { id: devAuthUserId },
+      select: { id: true, name: true, email: true, image: true },
+    });
+    if (user) {
+      return {
+        user,
+        expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      };
+    }
+    // fall through to real auth if the id doesn't match a user
+  }
+  // @ts-expect-error - forward all other (middleware/handler) signatures
+  return nextAuth(...args);
+}) as typeof nextAuth;
