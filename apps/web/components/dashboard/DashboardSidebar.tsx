@@ -5,6 +5,7 @@ import {
   faBars,
   faBoltLightning,
   faChartPie,
+  faCommentDots,
   faCreditCard,
   faHome,
   faLightbulb,
@@ -39,6 +40,7 @@ const navigation = [
     icon: faArrowsRotate,
   },
   { name: 'Insights', href: '/dashboard/insights', icon: faLightbulb },
+  { name: 'Ask Genwel', href: '/dashboard/ask', icon: faCommentDots },
 ];
 
 export default function DashboardSidebar({
