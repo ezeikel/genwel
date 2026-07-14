@@ -16,16 +16,17 @@ const MagicLink = () => {
   const signIn = useSession((s) => s.signIn);
   const onboardingComplete = useOnboarding((s) => s.complete);
   const [failed, setFailed] = useState(false);
-  const ran = useRef(false);
+  const attemptedToken = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
+    if (!token) {
+      setFailed(true);
+      return;
+    }
+    if (attemptedToken.current === token) return;
     (async () => {
-      if (!token) {
-        setFailed(true);
-        return;
-      }
+      attemptedToken.current = token;
+      setFailed(false);
       try {
         await signIn({ kind: 'magic-link', token });
         router.replace(
