@@ -1,17 +1,56 @@
 import { faBuildingColumns, faLock } from '@fortawesome/pro-duotone-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useRouter } from 'expo-router';
-import { Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GenwelLogo } from '@/components/Logo';
 import { PrimaryButton } from '@/components/ui';
+import { hasConnectedBank } from '@/lib/connect-bank';
 import { useOnboarding } from '@/lib/onboarding';
 import { useSession } from '@/lib/session';
 
 export default function ConnectOnboarding() {
   const router = useRouter();
   const token = useSession((state) => state.token);
+  const onboardingComplete = useOnboarding((state) => state.complete);
   const setStage = useOnboarding((state) => state.setStage);
+  const [checkingConnections, setCheckingConnections] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!token) {
+      router.replace('/(onboarding)/sign-in');
+      return;
+    }
+
+    void hasConnectedBank(token)
+      .then(async (connected) => {
+        if (cancelled) return;
+        if (!connected) {
+          setCheckingConnections(false);
+          return;
+        }
+
+        if (onboardingComplete) {
+          router.replace('/(tabs)/accounts');
+          return;
+        }
+
+        await setStage('notifications');
+        if (!cancelled) router.replace('/(onboarding)/notifications');
+      })
+      .catch(() => {
+        // A temporary API failure should not block onboarding. The connect
+        // action remains available and will surface its own request errors.
+        if (!cancelled) setCheckingConnections(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [onboardingComplete, router, setStage, token]);
 
   const showNotifications = async () => {
     await setStage('notifications');
@@ -22,6 +61,27 @@ export default function ConnectOnboarding() {
     if (!token) return router.replace('/(onboarding)/sign-in');
     router.push('/bank-picker');
   };
+
+  if (checkingConnections) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: '#faf9f7',
+          paddingHorizontal: 24,
+          paddingVertical: 16,
+        }}
+      >
+        <GenwelLogo />
+        <View className="flex-1 items-center justify-center gap-3">
+          <ActivityIndicator size="large" color="#1a5a5a" />
+          <Text className="font-sans text-[14px] text-muted-foreground">
+            Checking your connections…
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView

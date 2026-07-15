@@ -24,7 +24,8 @@
         "simulator": true
       },
       "env": {
-        "EXPO_PUBLIC_ENVIRONMENT": "development"
+        "EXPO_PUBLIC_ENVIRONMENT": "development",
+        "EXPO_PUBLIC_API_URL": "http://localhost:3000"
       },
       "autoIncrement": false
     },
@@ -40,7 +41,8 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_ENVIRONMENT": "preview"
+        "EXPO_PUBLIC_ENVIRONMENT": "preview",
+        "EXPO_PUBLIC_API_URL": "https://www.genwel.com"
       },
       "autoIncrement": true
     },
@@ -50,7 +52,8 @@
       "distribution": "store",
       "developmentClient": false,
       "env": {
-        "EXPO_PUBLIC_ENVIRONMENT": "production"
+        "EXPO_PUBLIC_ENVIRONMENT": "production",
+        "EXPO_PUBLIC_API_URL": "https://www.genwel.com"
       },
       "autoIncrement": true,
       "channel": "production"
@@ -64,7 +67,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_ENVIRONMENT": "production"
+        "EXPO_PUBLIC_ENVIRONMENT": "production",
+        "EXPO_PUBLIC_API_URL": "https://www.genwel.com"
       },
       "autoIncrement": true,
       "channel": "production"

@@ -1,14 +1,29 @@
 /**
- * Thin client for the Genwel API (app.genwel.com). The mobile app is a client of
+ * Thin client for the Genwel API (www.genwel.com). The mobile app is a client of
  * the web app's routes: it authenticates and reads/writes through the Next.js
- * /api/* handlers. Base URL comes from EXPO_PUBLIC_API_URL (a local/staging
- * override in dev), else the production host.
+ * /api/* handlers. Development talks to the local Next.js app (which uses the
+ * Neon development branch + TrueLayer sandbox); preview and production talk
+ * to the deployed production API.
  */
 
-export const API_BASE =
-  process.env.EXPO_PUBLIC_API_URL ??
-  process.env.EXPO_PUBLIC_APP_URL ??
-  'https://www.genwel.com';
+import { Platform } from 'react-native';
+
+const environment = process.env.EXPO_PUBLIC_ENVIRONMENT ?? 'development';
+const configuredApi =
+  process.env.EXPO_PUBLIC_API_URL ?? process.env.EXPO_PUBLIC_APP_URL;
+const defaultApi =
+  environment === 'development'
+    ? 'http://localhost:3000'
+    : 'https://www.genwel.com';
+const resolvedApi = configuredApi ?? defaultApi;
+
+// Android emulators reach the host machine through 10.0.2.2. iOS Simulator
+// shares the Mac's localhost network, so it uses the configured URL verbatim.
+export const API_BASE = (
+  environment === 'development' && Platform.OS === 'android'
+    ? resolvedApi.replace('://localhost', '://10.0.2.2')
+    : resolvedApi
+).replace(/\/$/, '');
 
 type ApiOptions = Omit<RequestInit, 'headers'> & {
   /** Bearer session token, when the caller already has one in hand. */
