@@ -209,6 +209,8 @@ export default function BankPicker() {
           value={query}
           onChangeText={setQuery}
           placeholder="Search banks"
+          accessibilityLabel="Search banks"
+          accessibilityHint="Filters the available banks"
           placeholderTextColor="#80908e"
           returnKeyType="search"
           autoCapitalize="none"
