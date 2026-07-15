@@ -20,20 +20,27 @@ export default function MobileTabBar() {
       <nav className="pointer-events-auto flex w-full max-w-md items-stretch justify-around gap-1 rounded-[28px] border border-foreground/[0.06] bg-card/70 px-2 py-2 shadow-[0_12px_28px_-8px_rgba(20,32,31,0.18)] backdrop-blur-xl">
         {MOBILE_TABS.map((item) => {
           const active = isActiveRoute(pathname, item.href);
+          const label = item.mobileName ?? item.name;
           return (
             <Link
               key={item.name}
               href={item.href}
               aria-current={active ? 'page' : undefined}
-              className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl py-1.5 text-[11px] font-semibold tracking-tight transition-colors ${
+              aria-label={item.name}
+              className={`group flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl py-1 text-[10px] font-semibold tracking-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 ${
                 active ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
-              {/* Use the size prop — FA sizes off font-size (its CSS forces
-                  height:1em), so h-/w- utilities collapse to the parent's small
-                  label font-size. The size prop is the reliable lever. */}
-              <FontAwesomeIcon icon={item.icon} size="xl" />
-              <span className="max-w-full truncate px-0.5">{item.name}</span>
+              <span
+                className={`flex h-8 w-11 items-center justify-center rounded-[13px] transition-colors ${
+                  active
+                    ? 'bg-primary/10'
+                    : 'group-hover:bg-muted/70 group-focus-visible:bg-muted/70'
+                }`}
+              >
+                <FontAwesomeIcon icon={item.icon} size="lg" />
+              </span>
+              <span className="max-w-full truncate px-0.5">{label}</span>
             </Link>
           );
         })}

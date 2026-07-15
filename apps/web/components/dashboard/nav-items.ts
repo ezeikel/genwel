@@ -1,29 +1,43 @@
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
-  faArrowsRotate,
+  faArrowRightArrowLeft,
+  faBuildingColumns,
   faChartPie,
-  faCommentDots,
-  faCreditCard,
-  faHome,
+  faHouse,
   faLightbulb,
-  faReceipt,
-} from '@fortawesome/pro-light-svg-icons';
+  faMessages,
+  faRepeat,
+} from '@fortawesome/pro-regular-svg-icons';
 
-export type NavItem = { name: string; href: string; icon: IconDefinition };
+export type NavItem = {
+  name: string;
+  mobileName?: string;
+  href: string;
+  icon: IconDefinition;
+};
 
 /** Every dashboard nav destination (used by the desktop sidebar). */
 export const NAV_ITEMS: NavItem[] = [
-  { name: 'Overview', href: '/dashboard', icon: faHome },
-  { name: 'Accounts', href: '/dashboard/accounts', icon: faCreditCard },
-  { name: 'Budgets', href: '/dashboard/budgets', icon: faChartPie },
-  { name: 'Transactions', href: '/dashboard/transactions', icon: faReceipt },
+  { name: 'Overview', href: '/dashboard', icon: faHouse },
   {
-    name: 'Subscriptions',
-    href: '/dashboard/subscriptions',
-    icon: faArrowsRotate,
+    name: 'Accounts',
+    href: '/dashboard/accounts',
+    icon: faBuildingColumns,
   },
+  { name: 'Budgets', href: '/dashboard/budgets', icon: faChartPie },
+  {
+    name: 'Transactions',
+    href: '/dashboard/transactions',
+    icon: faArrowRightArrowLeft,
+  },
+  { name: 'Subscriptions', href: '/dashboard/subscriptions', icon: faRepeat },
   { name: 'Insights', href: '/dashboard/insights', icon: faLightbulb },
-  { name: 'Ask Genwel', href: '/dashboard/ask', icon: faCommentDots },
+  {
+    name: 'Ask Genwel',
+    mobileName: 'Ask',
+    href: '/dashboard/ask',
+    icon: faMessages,
+  },
 ];
 
 /**
