@@ -142,13 +142,21 @@ const Dot = ({
   );
 };
 
-export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
+export const IntroCarousel = ({
+  onComplete,
+  preview = false,
+}: {
+  onComplete: () => void;
+  preview?: boolean;
+}) => {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const ref = useRef<Animated.ScrollView>(null);
   const offset = useSharedValue(0);
   const [index, setIndex] = useState(0);
   const last = index === SLIDES.length - 1;
+  const actionLabel =
+    preview && last ? 'Back to Genwel' : (SLIDES[index]?.cta ?? 'Next');
 
   const onScroll = useAnimatedScrollHandler((event) => {
     offset.value = event.contentOffset.x;
@@ -187,12 +195,14 @@ export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
         <Pressable
           onPress={onComplete}
           accessibilityRole="button"
-          accessibilityLabel="Skip introduction"
+          accessibilityLabel={
+            preview ? 'Close introduction' : 'Skip introduction'
+          }
           hitSlop={12}
           className="px-2 py-2"
         >
           <Text className="font-sans-semibold text-[14px] text-muted-foreground">
-            Skip
+            {preview ? 'Close' : 'Skip'}
           </Text>
         </Pressable>
       </View>
@@ -235,11 +245,11 @@ export const IntroCarousel = ({ onComplete }: { onComplete: () => void }) => {
         <Pressable
           onPress={next}
           accessibilityRole="button"
-          accessibilityLabel={SLIDES[index]?.cta ?? 'Next'}
+          accessibilityLabel={actionLabel}
           className="items-center rounded-2xl bg-primary px-6 py-4 active:bg-teal-deep"
         >
           <Text className="font-sans-bold text-[16px] text-primary-foreground">
-            {SLIDES[index]?.cta ?? 'Next'}
+            {actionLabel}
           </Text>
         </Pressable>
         <Text className="mt-3 text-center font-sans text-[11px] text-muted-foreground">
