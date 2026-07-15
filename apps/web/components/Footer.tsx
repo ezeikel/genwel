@@ -15,6 +15,7 @@ const Footer = () => {
     ],
     Company: [
       { label: 'Blog', href: '/blog' },
+      { label: 'Support', href: '/support' },
       { label: 'Contact', href: 'mailto:developer@chewybytes.com' },
     ],
     Legal: [
