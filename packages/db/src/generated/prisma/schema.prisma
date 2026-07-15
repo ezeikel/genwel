@@ -215,7 +215,7 @@ model Subscription {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   platform   SubscriptionPlatform @default(STRIPE)
-  externalId String               @unique // Stripe subscription ID OR RevenueCat txn ID
+  externalId String               @unique // Stripe subscription ID OR stable RevenueCat customer key
 
   planName      PlanName
   billingPeriod BillingPeriod
@@ -228,7 +228,7 @@ model Subscription {
   cancelledAt        DateTime?
   gracePeriodEnd     DateTime?
 
-  storeProductId String? // e.g. RevenueCat product id "genwel_pro_monthly"
+  storeProductId String? // e.g. RevenueCat product id "genwel_pro_monthly_v1"
   metadata       Json?
 
   createdAt DateTime            @default(now())
