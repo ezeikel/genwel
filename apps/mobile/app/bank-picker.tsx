@@ -283,7 +283,6 @@ export default function BankPicker() {
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24 }}
         />
       ) : null}
     </SafeAreaView>
