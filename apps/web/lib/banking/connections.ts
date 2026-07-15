@@ -1,9 +1,11 @@
-import { getAuthUrl } from '@genwel/banking/truelayer';
+import { getAuthUrl, getAvailableProviders } from '@genwel/banking/truelayer';
 import { db, Prisma } from '@genwel/db';
 import { createBankConnectState } from '@/lib/auth-mobile';
 import { getEntitlementsForUser } from '@/lib/entitlements';
 
 export type BankConnectTarget = 'mobile' | 'web';
+
+export const getAvailableBankProviders = () => getAvailableProviders();
 
 export class BankConnectionLimitError extends Error {
   constructor() {
@@ -93,6 +95,7 @@ export async function getBankConnectionsForUser(userId: string) {
 export async function createBankConnectUrlForUser(
   userId: string,
   target: BankConnectTarget,
+  providerId?: string,
 ) {
   const allowance = await getBankConnectionAllowanceForUser(userId);
   if (!allowance.allowed) {
@@ -102,8 +105,23 @@ export async function createBankConnectUrlForUser(
     };
   }
 
+  const [providers, user] = await Promise.all([
+    providerId ? getAvailableBankProviders() : Promise.resolve(null),
+    db.user.findUnique({ where: { id: userId }, select: { email: true } }),
+  ]);
+  if (
+    providerId &&
+    !providers?.some((provider) => provider.id === providerId)
+  ) {
+    return {
+      error: 'That bank is not available. Refresh the list and try again.',
+    } as const;
+  }
+
   const state = await createBankConnectState(userId, target);
-  return { url: getAuthUrl(state) };
+  return {
+    url: getAuthUrl(state, { providerId, userEmail: user?.email }),
+  };
 }
 
 /** Delete only a connection belonging to this authenticated user. */

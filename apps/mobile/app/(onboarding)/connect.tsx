@@ -1,14 +1,10 @@
 import { faBuildingColumns, faLock } from '@fortawesome/pro-duotone-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GenwelLogo } from '@/components/Logo';
-import { toast } from '@/components/ToastViewport';
 import { PrimaryButton } from '@/components/ui';
-import { ApiError } from '@/lib/api';
-import { connectBank } from '@/lib/connect-bank';
 import { useOnboarding } from '@/lib/onboarding';
 import { useSession } from '@/lib/session';
 
@@ -16,34 +12,15 @@ export default function ConnectOnboarding() {
   const router = useRouter();
   const token = useSession((state) => state.token);
   const setStage = useOnboarding((state) => state.setStage);
-  const [busy, setBusy] = useState(false);
 
   const showNotifications = async () => {
     await setStage('notifications');
     router.replace('/(onboarding)/notifications');
   };
 
-  const connect = async () => {
+  const connect = () => {
     if (!token) return router.replace('/(onboarding)/sign-in');
-    setBusy(true);
-    try {
-      const result = await connectBank(token);
-      if (result === 'success') {
-        await showNotifications();
-      } else if (result === 'failed') {
-        toast.error("We couldn't connect that bank. Please try again.");
-      }
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 402) {
-        router.push('/paywall');
-      } else {
-        toast.error(
-          error instanceof Error ? error.message : 'Connection failed',
-        );
-      }
-    } finally {
-      setBusy(false);
-    }
+    router.push('/bank-picker');
   };
 
   return (
@@ -76,7 +53,7 @@ export default function ConnectOnboarding() {
         </View>
       </View>
       <View className="gap-3 pb-2">
-        <PrimaryButton label="Connect a bank" onPress={connect} busy={busy} />
+        <PrimaryButton label="Connect a bank" onPress={connect} />
         <PrimaryButton
           label="I’ll do this later"
           secondary

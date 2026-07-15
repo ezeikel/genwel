@@ -21,8 +21,7 @@ import {
   StateView,
 } from '@/components/ui';
 import { useMobileData } from '@/hooks/use-mobile-data';
-import { ApiError, apiFetch } from '@/lib/api';
-import { connectBank } from '@/lib/connect-bank';
+import { apiFetch } from '@/lib/api';
 import { money, relativeDate } from '@/lib/format';
 import { useSession } from '@/lib/session';
 import type { AccountsResponse, BankConnection } from '@/lib/types';
@@ -91,32 +90,12 @@ export default function AccountsTab() {
   const { data, loading, error, refreshing, refresh, retry } =
     useMobileData<AccountsResponse>('/api/mobile/accounts');
   const [moreOpen, setMoreOpen] = useState(false);
-  const [connecting, setConnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
 
-  const connect = async () => {
-    if (!token || connecting) return;
-    setConnecting(true);
-    try {
-      const result = await connectBank(token);
-      if (result === 'success') {
-        toast.success('Bank connected.');
-        await refresh();
-      } else if (result === 'failed') {
-        toast.error("We couldn't connect that bank.");
-      }
-    } catch (cause) {
-      if (cause instanceof ApiError && cause.status === 402) {
-        router.push('/paywall');
-      } else {
-        toast.error(
-          cause instanceof Error ? cause.message : 'Connection failed',
-        );
-      }
-    } finally {
-      setConnecting(false);
-    }
+  const connect = () => {
+    if (!token) return;
+    router.push('/bank-picker');
   };
 
   const sync = async () => {
@@ -192,11 +171,7 @@ export default function AccountsTab() {
           <View className="gap-5">
             <View className="flex-row gap-3">
               <View className="flex-1">
-                <PrimaryButton
-                  label="Connect bank"
-                  onPress={() => void connect()}
-                  busy={connecting}
-                />
+                <PrimaryButton label="Connect bank" onPress={connect} />
               </View>
               {data.connections.length ? (
                 <Pressable

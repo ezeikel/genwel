@@ -1,5 +1,7 @@
+import { z } from 'zod';
 import type {
   TrueLayerAccount,
+  TrueLayerAvailableProvider,
   TrueLayerBalance,
   TrueLayerCard,
   TrueLayerCardBalance,
@@ -36,6 +38,71 @@ const SCOPES = [
   'offline_access',
 ];
 
+const availableProviderSchema = z.object({
+  provider_id: z.string().min(1),
+  display_name: z.string().min(1),
+  country: z.string().min(1),
+  logo_url: z.string().optional(),
+  // Older responses used logo_uri. Accept it so a provider rollout cannot
+  // blank the native picker while TrueLayer's schemas are transitioning.
+  logo_uri: z.string().optional(),
+  scopes: z.array(z.string()).optional(),
+});
+
+const availableProvidersSchema = z.array(availableProviderSchema);
+
+const httpsAsset = (value: string | undefined) => {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
+};
+
+/** Parse and sanitize TrueLayer's public provider directory. */
+export function parseAvailableProviders(
+  input: unknown,
+): TrueLayerAvailableProvider[] {
+  return availableProvidersSchema
+    .parse(input)
+    .map((provider) => ({
+      id: provider.provider_id,
+      name: provider.display_name,
+      logoUrl: httpsAsset(provider.logo_url ?? provider.logo_uri),
+      country: provider.country.toLowerCase(),
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name, 'en-GB'));
+}
+
+/**
+ * Fetch only the banks enabled for Genwel's client and requested Data scopes.
+ * This stays server-side: the mobile app receives a small sanitized projection.
+ */
+export async function getAvailableProviders(): Promise<
+  TrueLayerAvailableProvider[]
+> {
+  if (!CLIENT_ID) throw new Error('TrueLayer client is not configured');
+
+  const url = new URL('/api/providers', AUTH_BASE_URL);
+  url.searchParams.set('clientId', CLIENT_ID);
+  url.searchParams.set('country', 'uk');
+  url.searchParams.set('scopes', SCOPES.join(' '));
+
+  const response = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(8_000),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `TrueLayer providers request failed: ${response.status} ${await safeErrorDetail(response)}`,
+    );
+  }
+
+  return parseAvailableProviders(await response.json());
+}
+
 /**
  * Read an error response body safely. TrueLayer error responses are sometimes
  * empty (e.g. a 403 with no body), which makes `response.json()` throw
@@ -60,7 +127,10 @@ async function safeErrorDetail(response: Response): Promise<string> {
 /**
  * Generate the TrueLayer authorization URL for bank connection
  */
-export function getAuthUrl(state: string): string {
+export function getAuthUrl(
+  state: string,
+  options: { providerId?: string; userEmail?: string | null } = {},
+): string {
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: CLIENT_ID,
@@ -69,6 +139,9 @@ export function getAuthUrl(state: string): string {
     state,
     providers: TRUELAYER_ENV === 'sandbox' ? 'mock' : 'uk-ob-all uk-oauth-all',
   });
+
+  if (options.providerId) params.set('provider_id', options.providerId);
+  if (options.userEmail) params.set('user_email', options.userEmail);
 
   return `${AUTH_BASE_URL}/?${params.toString()}`;
 }

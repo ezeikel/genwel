@@ -15,6 +15,14 @@ export interface TrueLayerProvider {
   country: string;
 }
 
+/** Provider-directory record used before a user starts an auth journey. */
+export interface TrueLayerAvailableProvider {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+  country: string;
+}
+
 export interface TrueLayerAccount {
   account_id: string;
   account_type: 'TRANSACTION' | 'SAVINGS' | 'BUSINESS' | 'CREDIT_CARD';
