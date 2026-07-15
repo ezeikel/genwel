@@ -60,6 +60,11 @@ type SessionState = {
   signIn: (provider: SignInProvider) => Promise<void>;
   refresh: () => Promise<void>;
   updateName: (name: string) => Promise<void>;
+  /**
+   * Permanently delete the account server-side, then clear local session state.
+   * `confirmation` must be DELETE or the account email (server-validated).
+   */
+  deleteAccount: (confirmation: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -175,6 +180,26 @@ export const useSession = create<SessionState>((set) => ({
       },
     );
     set({ user, needsName: false });
+  },
+  deleteAccount: async (confirmation) => {
+    const token = useSession.getState().token;
+    if (!token) throw new Error('Not signed in');
+    await apiFetch('/api/mobile/account', {
+      token,
+      method: 'DELETE',
+      body: JSON.stringify({ confirmation }),
+    });
+    await Promise.all([
+      SecureStore.deleteItemAsync(TOKEN_KEY),
+      clearRenewalNotifications(),
+      clearPurchasesUser(),
+    ]);
+    set({
+      token: null,
+      user: null,
+      entitlements: null,
+      needsName: false,
+    });
   },
   signOut: async () => {
     await Promise.all([

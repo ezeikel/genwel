@@ -11,13 +11,24 @@ import {
   faLifeRing,
   faRightFromBracket,
   faShieldHalved,
+  faTrashCan,
 } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import * as Application from 'expo-application';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { toast } from '@/components/ToastViewport';
 import { ModalBottomSheet } from '@/lib/bottom-sheet';
 import { initials } from '@/lib/format';
 import { useSession } from '@/lib/session';
@@ -102,7 +113,19 @@ export const MoreSheet = ({
 }) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user, entitlements, signOut } = useSession();
+  const { user, entitlements, signOut, deleteAccount } = useSession();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmation, setConfirmation] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setConfirmDelete(false);
+      setConfirmation('');
+      setDeleting(false);
+    }
+  }, [open]);
+
   const go = (route: '/insights' | '/budgets' | '/paywall') => {
     onClose();
     router.push(route);
@@ -162,6 +185,31 @@ export const MoreSheet = ({
     },
   ];
 
+  const canConfirmDelete = (() => {
+    const typed = confirmation.trim().toLowerCase();
+    if (!typed || deleting) return false;
+    if (typed === 'delete') return true;
+    return Boolean(user?.email && typed === user.email.trim().toLowerCase());
+  })();
+
+  const onDeleteAccount = async () => {
+    if (!canConfirmDelete) return;
+    setDeleting(true);
+    try {
+      await deleteAccount(confirmation.trim());
+      onClose();
+      toast.success('Your account has been deleted.');
+      router.replace('/(onboarding)/sign-in');
+    } catch (cause) {
+      toast.error(
+        cause instanceof Error
+          ? cause.message
+          : 'Could not delete your account. Please try again.',
+      );
+      setDeleting(false);
+    }
+  };
+
   return (
     <ModalBottomSheet
       index={open ? 1 : 0}
@@ -181,6 +229,7 @@ export const MoreSheet = ({
       >
         <View className="mb-4 h-1 w-10 self-center rounded-full bg-border" />
         <ScrollView
+          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
@@ -206,6 +255,113 @@ export const MoreSheet = ({
           <SheetGroup title="Explore" rows={featureRows} />
           <SheetGroup title="Settings" rows={settingsRows} />
           <SheetGroup title="Help & about" rows={aboutRows} />
+
+          <View className="mt-5">
+            <Text className="mb-2 px-1 font-sans-semibold text-[10px] uppercase tracking-[1.5px] text-muted-foreground">
+              Account
+            </Text>
+            <View className="overflow-hidden rounded-3xl border border-border bg-card px-4">
+              {!confirmDelete ? (
+                <Pressable
+                  onPress={() => setConfirmDelete(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Delete account and data"
+                  className="active:opacity-65"
+                >
+                  <View className="flex-row items-center gap-3 py-3.5">
+                    <View className="h-9 w-9 items-center justify-center rounded-xl bg-muted">
+                      <FontAwesomeIcon
+                        icon={faTrashCan}
+                        size={17}
+                        color="#c63f4f"
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="font-sans-semibold text-[14px] text-destructive">
+                        Delete account & data
+                      </Text>
+                      <Text className="mt-0.5 font-sans text-[11px] leading-4 text-muted-foreground">
+                        Permanently remove your Genwel account
+                      </Text>
+                    </View>
+                    <FontAwesomeIcon
+                      icon={faChevronRight}
+                      size={12}
+                      color="#667a78"
+                    />
+                  </View>
+                </Pressable>
+              ) : (
+                <View className="py-4">
+                  <Text className="font-sans-semibold text-[14px] text-foreground">
+                    Delete everything?
+                  </Text>
+                  <Text className="mt-2 font-sans text-[12px] leading-5 text-muted-foreground">
+                    This removes your Genwel profile, bank connections,
+                    transactions, budgets, insights, and local subscription
+                    records. Store subscriptions (App Store / Google Play /
+                    Stripe) are not cancelled automatically — cancel those in
+                    the store if needed.
+                  </Text>
+                  {user?.email ? (
+                    <Text className="mt-2 font-sans text-[12px] leading-5 text-muted-foreground">
+                      Type DELETE or {user.email} to confirm.
+                    </Text>
+                  ) : (
+                    <Text className="mt-2 font-sans text-[12px] leading-5 text-muted-foreground">
+                      Type DELETE to confirm.
+                    </Text>
+                  )}
+                  <TextInput
+                    value={confirmation}
+                    onChangeText={setConfirmation}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!deleting}
+                    placeholder={user?.email ? 'DELETE or email' : 'DELETE'}
+                    placeholderTextColor="#9aa8a6"
+                    accessibilityLabel="Deletion confirmation"
+                    className="mt-3 rounded-2xl border border-border bg-background px-3 py-3 font-sans text-[14px] text-foreground"
+                  />
+                  <View className="mt-3 flex-row gap-2">
+                    <Pressable
+                      onPress={() => {
+                        setConfirmDelete(false);
+                        setConfirmation('');
+                      }}
+                      disabled={deleting}
+                      accessibilityRole="button"
+                      accessibilityLabel="Cancel account deletion"
+                      className="flex-1 items-center rounded-2xl border border-border bg-muted py-3 active:opacity-70"
+                    >
+                      <Text className="font-sans-semibold text-[13px] text-foreground">
+                        Keep account
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => void onDeleteAccount()}
+                      disabled={!canConfirmDelete}
+                      accessibilityRole="button"
+                      accessibilityLabel="Confirm delete account"
+                      className={`flex-1 items-center rounded-2xl py-3 ${
+                        canConfirmDelete
+                          ? 'bg-destructive active:opacity-80'
+                          : 'bg-destructive/40'
+                      }`}
+                    >
+                      {deleting ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text className="font-sans-semibold text-[13px] text-white">
+                          Delete forever
+                        </Text>
+                      )}
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
 
           <Pressable
             onPress={() => {
