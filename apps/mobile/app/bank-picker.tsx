@@ -241,7 +241,7 @@ export default function BankPicker() {
 
   return (
     <SafeAreaView
-      edges={['top', 'bottom']}
+      edges={['top']}
       style={{ flex: 1, backgroundColor: '#faf9f7' }}
     >
       {loading && !data ? <StateView loading /> : null}
