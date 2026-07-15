@@ -20,6 +20,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { FLOATING_TAB_BAR_SCROLL_PAD } from '@/components/GlassTabBar';
 import { GenwelMark } from '@/components/Logo';
 import { MoreSheet } from '@/components/MoreSheet';
 import { ProGate } from '@/components/ProGate';
@@ -204,7 +205,10 @@ export default function AskTab() {
 
             <View
               className="border-t border-border bg-background px-5 pt-3"
-              style={{ paddingBottom: Math.max(insets.bottom, 8) + 84 }}
+              style={{
+                paddingBottom:
+                  Math.max(insets.bottom, 8) + FLOATING_TAB_BAR_SCROLL_PAD,
+              }}
             >
               <View className="flex-row items-end gap-2 rounded-[26px] border border-border bg-card p-2 pl-4">
                 <TextInput

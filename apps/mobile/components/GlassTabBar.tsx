@@ -11,6 +11,13 @@ import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useMoreSheetOpen } from '@/lib/more-sheet-state';
+
+/**
+ * Extra scroll padding (bar height + breathing room) so list content can clear
+ * the absolute-positioned floating tab bar. Pair with safe-area bottom.
+ */
+export const FLOATING_TAB_BAR_SCROLL_PAD = 84;
 
 type TabRoute = { key: string; name: string };
 export type GlassTabBarProps = {
@@ -41,7 +48,13 @@ const LIQUID_GLASS = isLiquidGlassAvailable();
 
 export const GlassTabBar = ({ state, navigation }: GlassTabBarProps) => {
   const insets = useSafeAreaInsets();
+  const moreOpen = useMoreSheetOpen((s) => s.open);
   const focusedName = state.routes[state.index]?.name;
+
+  // MoreSheet is mounted inside each tab screen, under this absolute bar. Hide
+  // the bar while More is open so sheet footer actions stay tappable.
+  if (moreOpen) return null;
+
   const items = TABS.map((tab) => {
     const focused = focusedName === tab.name;
     const route = state.routes.find((item) => item.name === tab.name);

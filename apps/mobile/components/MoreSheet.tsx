@@ -17,7 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import * as Application from 'expo-application';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
@@ -31,6 +31,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { toast } from '@/components/ToastViewport';
 import { ModalBottomSheet } from '@/lib/bottom-sheet';
 import { initials } from '@/lib/format';
+import { useMoreSheetOpen } from '@/lib/more-sheet-state';
 import { useSession } from '@/lib/session';
 
 const SUPPORT_URL = 'https://www.genwel.com/support';
@@ -113,10 +114,18 @@ export const MoreSheet = ({
 }) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const setMoreOpen = useMoreSheetOpen((s) => s.setOpen);
+  const scrollRef = useRef<ScrollView>(null);
   const { user, entitlements, signOut, deleteAccount } = useSession();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmation, setConfirmation] = useState('');
   const [deleting, setDeleting] = useState(false);
+
+  // Drive tab-bar visibility from a shared flag (see GlassTabBar).
+  useEffect(() => {
+    setMoreOpen(open);
+    return () => setMoreOpen(false);
+  }, [open, setMoreOpen]);
 
   useEffect(() => {
     if (!open) {
@@ -125,6 +134,15 @@ export const MoreSheet = ({
       setDeleting(false);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!confirmDelete) return;
+    // Bring the typed-confirm controls clear of the keyboard / sheet edge.
+    const id = requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [confirmDelete]);
 
   const go = (route: '/insights' | '/budgets' | '/paywall') => {
     onClose();
@@ -229,11 +247,14 @@ export const MoreSheet = ({
       >
         <View className="mb-4 h-1 w-10 self-center rounded-full bg-border" />
         <ScrollView
+          ref={scrollRef}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingBottom: insets.bottom + 18,
+            // Home indicator only — tab bar is hidden while this sheet is open.
+            paddingBottom: Math.max(insets.bottom, 12) + 28,
           }}
         >
           <View className="mb-5 flex-row items-center gap-3 rounded-3xl border border-border bg-card p-4">
@@ -263,7 +284,9 @@ export const MoreSheet = ({
             <View className="overflow-hidden rounded-3xl border border-border bg-card px-4">
               {!confirmDelete ? (
                 <Pressable
-                  onPress={() => setConfirmDelete(true)}
+                  onPress={() => {
+                    setConfirmDelete(true);
+                  }}
                   accessibilityRole="button"
                   accessibilityLabel="Delete account and data"
                   className="active:opacity-65"
