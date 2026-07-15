@@ -7,11 +7,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GenwelLogo } from '@/components/Logo';
 import { PrimaryButton } from '@/components/ui';
 import { requestNotificationPermission } from '@/lib/notifications';
+import { useOnboarding } from '@/lib/onboarding';
 
 export default function NotificationsOnboarding() {
   const router = useRouter();
+  const finishOnboarding = useOnboarding((state) => state.finish);
   const [busy, setBusy] = useState(false);
-  const next = () => router.replace('/paywall');
+  const next = async () => {
+    await finishOnboarding();
+    router.replace('/(tabs)');
+  };
 
   const enable = async () => {
     setBusy(true);
@@ -19,7 +24,7 @@ export default function NotificationsOnboarding() {
       await requestNotificationPermission();
     } finally {
       setBusy(false);
-      next();
+      await next();
     }
   };
 
@@ -55,7 +60,11 @@ export default function NotificationsOnboarding() {
       </View>
       <View className="gap-3 pb-2">
         <PrimaryButton label="Turn on reminders" onPress={enable} busy={busy} />
-        <PrimaryButton label="Maybe later" secondary onPress={next} />
+        <PrimaryButton
+          label="Maybe later"
+          secondary
+          onPress={() => void next()}
+        />
       </View>
     </SafeAreaView>
   );

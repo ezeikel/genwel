@@ -8,20 +8,32 @@ import { useSession } from '@/lib/session';
 export default function Entry() {
   const router = useRouter();
   const user = useSession((state) => state.user);
-  const complete = useOnboarding((state) => state.complete);
+  const stage = useOnboarding((state) => state.stage);
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      if (stage === 'paywall') {
+        router.replace({
+          pathname: '/paywall',
+          params: { source: 'onboarding' },
+        });
+        return;
+      }
+
       if (!user) {
-        router.replace(complete ? '/(onboarding)/sign-in' : '/(onboarding)');
-      } else if (!complete) {
-        router.replace('/(onboarding)/connect');
-      } else {
+        router.replace(
+          stage === 'intro' ? '/(onboarding)' : '/(onboarding)/sign-in',
+        );
+      } else if (stage === 'complete') {
         router.replace('/(tabs)');
+      } else if (stage === 'notifications') {
+        router.replace('/(onboarding)/notifications');
+      } else {
+        router.replace('/(onboarding)/connect');
       }
     }, 0);
     return () => clearTimeout(timer);
-  }, [complete, router, user]);
+  }, [router, stage, user]);
 
   return (
     <View className="flex-1 bg-background">

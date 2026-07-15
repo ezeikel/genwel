@@ -78,7 +78,10 @@ const isCancel = (err: unknown): boolean => {
   );
 };
 
-type Props = { onSignedIn?: () => void; captureName?: boolean };
+type Props = {
+  onSignedIn?: () => void | Promise<void>;
+  captureName?: boolean;
+};
 
 export const SignInButtons = ({ onSignedIn, captureName = false }: Props) => {
   const signIn = useSession((s) => s.signIn);
@@ -145,7 +148,7 @@ export const SignInButtons = ({ onSignedIn, captureName = false }: Props) => {
       const idToken = info.data?.idToken;
       if (!idToken) throw new Error('no id token');
       await signIn({ kind: 'google', idToken });
-      onSignedIn?.();
+      await onSignedIn?.();
     } catch (err) {
       if (!isCancel(err)) toast.error("Couldn't sign in with Google.");
     } finally {
@@ -172,7 +175,7 @@ export const SignInButtons = ({ onSignedIn, captureName = false }: Props) => {
         identityToken: cred.identityToken,
         ...(name ? { name } : {}),
       });
-      onSignedIn?.();
+      await onSignedIn?.();
     } catch (err) {
       if (!isCancel(err)) toast.error("Couldn't sign in with Apple.");
     } finally {
@@ -193,7 +196,7 @@ export const SignInButtons = ({ onSignedIn, captureName = false }: Props) => {
       const token = await facebook.AccessToken.getCurrentAccessToken();
       if (!token?.accessToken) throw new Error('no access token');
       await signIn({ kind: 'facebook', accessToken: token.accessToken });
-      onSignedIn?.();
+      await onSignedIn?.();
     } catch (err) {
       if (!isCancel(err)) toast.error("Couldn't sign in with Facebook.");
     } finally {

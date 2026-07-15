@@ -9,9 +9,22 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GenwelLogo } from '@/components/Logo';
 import { SignInButtons } from '@/components/sign-in-buttons';
+import { useOnboarding } from '@/lib/onboarding';
 
 export default function SignInScreen() {
   const router = useRouter();
+  const onboardingComplete = useOnboarding((state) => state.complete);
+  const setStage = useOnboarding((state) => state.setStage);
+
+  const continueAfterSignIn = async () => {
+    if (onboardingComplete) {
+      router.replace('/(tabs)');
+      return;
+    }
+    await setStage('connect');
+    router.replace('/(onboarding)/connect');
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#faf9f7' }}>
       <KeyboardAvoidingView
@@ -33,10 +46,7 @@ export default function SignInScreen() {
               understand.
             </Text>
             <View className="mt-9">
-              <SignInButtons
-                captureName
-                onSignedIn={() => router.replace('/(onboarding)/connect')}
-              />
+              <SignInButtons captureName onSignedIn={continueAfterSignIn} />
             </View>
           </View>
           <Text className="text-center font-sans text-[11px] leading-4 text-muted-foreground">

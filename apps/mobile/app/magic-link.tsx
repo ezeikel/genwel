@@ -15,6 +15,7 @@ const MagicLink = () => {
   const { token } = useLocalSearchParams<{ token?: string }>();
   const signIn = useSession((s) => s.signIn);
   const onboardingComplete = useOnboarding((s) => s.complete);
+  const setStage = useOnboarding((s) => s.setStage);
   const [failed, setFailed] = useState(false);
   const attemptedToken = useRef<string | undefined>(undefined);
 
@@ -29,14 +30,17 @@ const MagicLink = () => {
       setFailed(false);
       try {
         await signIn({ kind: 'magic-link', token });
-        router.replace(
-          onboardingComplete ? '/(tabs)' : '/(onboarding)/connect',
-        );
+        if (onboardingComplete) {
+          router.replace('/(tabs)');
+        } else {
+          await setStage('connect');
+          router.replace('/(onboarding)/connect');
+        }
       } catch {
         setFailed(true);
       }
     })();
-  }, [onboardingComplete, token, router, signIn]);
+  }, [onboardingComplete, token, router, setStage, signIn]);
 
   return (
     <View className="flex-1 items-center justify-center gap-3 bg-white px-8">

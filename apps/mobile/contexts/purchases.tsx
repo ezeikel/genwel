@@ -11,13 +11,17 @@ import type {
   PurchasesOffering,
   PurchasesPackage,
 } from 'react-native-purchases';
+import { apiFetch } from '@/lib/api';
 import {
   buyPackage,
   checkTrialEligibility,
-  clearPurchasesUser,
+  clearPurchasePendingLink,
   configurePurchases,
+  getCustomerInfo,
   getOffering,
   hasPro,
+  hasPurchasePendingLink,
+  markPurchasePendingLink,
   PACKAGE_IDS,
   packageFrom,
   restore as restoreNative,
@@ -68,12 +72,33 @@ const pollServer = async () => {
   return false;
 };
 
+const reconcileServer = async () => {
+  const token = useSession.getState().token;
+  if (!token) return false;
+  try {
+    await withTimeout(
+      apiFetch('/api/mobile/billing/reconcile', {
+        method: 'POST',
+        token,
+      }),
+      12_000,
+    );
+    await useSession.getState().refresh();
+    return useSession.getState().entitlements?.hasAccess ?? false;
+  } catch (cause) {
+    console.warn('[purchases] server reconciliation deferred', cause);
+    return false;
+  }
+};
+
 export const PurchasesProvider = ({ children }: { children: ReactNode }) => {
   const userId = useSession((state) => state.user?.id);
+  const sessionToken = useSession((state) => state.token);
   const serverPro = useSession(
     (state) => state.entitlements?.hasAccess ?? false,
   );
   const [localProUserId, setLocalProUserId] = useState<string | null>(null);
+  const [anonymousPro, setAnonymousPro] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
   const [offering, setOffering] = useState<PurchasesOffering | null>(null);
@@ -88,18 +113,68 @@ export const PurchasesProvider = ({ children }: { children: ReactNode }) => {
       setReady(false);
       setError(false);
       setAnnualTrialEligible(false);
-      if (!userId) {
-        setLocalProUserId(null);
-        await clearPurchasesUser();
-        setOffering(null);
+
+      // A persisted token with no hydrated user means /me is temporarily
+      // unavailable. Do not switch RevenueCat identities during that outage.
+      if (sessionToken && !userId) {
         if (!cancelled) setReady(true);
         return;
+      }
+
+      if (userId) {
+        // Anonymous access must never bleed into an authenticated session when
+        // RevenueCat identity linking fails. Keep the persisted pending-link
+        // marker so retry can still merge/restore the purchase later.
+        setAnonymousPro(false);
+      } else {
+        setLocalProUserId(null);
       }
       const configured = await configurePurchases(userId);
       if (!configured) {
-        if (!cancelled) setReady(true);
+        if (!cancelled) {
+          setOffering(null);
+          setReady(true);
+        }
         return;
       }
+
+      try {
+        let info = await withTimeout(getCustomerInfo(), 6_000).catch(
+          () => null,
+        );
+        const pendingLink = await hasPurchasePendingLink();
+
+        // An anonymous purchase normally aliases during logIn. If RevenueCat
+        // did not merge it, one restore is safe because this flag is written
+        // only after a successful purchase on this device.
+        if (userId && pendingLink && (!info || !hasPro(info))) {
+          info = await withTimeout(restoreNative(), 8_000).catch(() => info);
+        }
+        if (cancelled) return;
+
+        const active = info ? hasPro(info) : false;
+        if (active && userId) {
+          setLocalProUserId(userId);
+          setAnonymousPro(false);
+          if (pendingLink) await clearPurchasePendingLink();
+          await reconcileServer();
+        } else if (active) {
+          setAnonymousPro(true);
+          await markPurchasePendingLink();
+        } else if (userId) {
+          setLocalProUserId(null);
+          setAnonymousPro(false);
+          // RevenueCat is authoritative during an authenticated boot. Reconcile
+          // inactive state too so a missed refund/expiration webhook cannot
+          // leave a stale server entitlement unlocked.
+          await reconcileServer();
+        } else {
+          setAnonymousPro(false);
+        }
+      } catch (cause) {
+        console.error('[purchases] customer identity sync failed', cause);
+      }
+
       try {
         const current = await withTimeout(getOffering());
         const annualPackage = packageFrom(current, PACKAGE_IDS.annual);
@@ -109,6 +184,7 @@ export const PurchasesProvider = ({ children }: { children: ReactNode }) => {
               6_000,
             ).catch(() => false)
           : false;
+
         if (!cancelled) {
           setOffering(current);
           setAnnualTrialEligible(trialEligible);
@@ -124,7 +200,7 @@ export const PurchasesProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       cancelled = true;
     };
-  }, [userId, attempt]);
+  }, [attempt, sessionToken, userId]);
 
   const retry = useCallback(() => setAttempt((value) => value + 1), []);
 
@@ -133,8 +209,14 @@ export const PurchasesProvider = ({ children }: { children: ReactNode }) => {
       try {
         const info = await buyPackage(pkg);
         const active = hasPro(info);
-        if (active && userId) setLocalProUserId(userId);
-        const confirmed = active ? await pollServer() : false;
+        if (active && userId) {
+          setLocalProUserId(userId);
+          await reconcileServer();
+        } else if (active) {
+          setAnonymousPro(true);
+          await markPurchasePendingLink();
+        }
+        const confirmed = active && userId ? await pollServer() : false;
         return { ok: active || confirmed, cancelled: false };
       } catch (cause) {
         const cancelled = Boolean(
@@ -154,8 +236,14 @@ export const PurchasesProvider = ({ children }: { children: ReactNode }) => {
     try {
       const info = await restoreNative();
       const active = hasPro(info);
-      if (active && userId) setLocalProUserId(userId);
-      if (active) await pollServer();
+      if (active && userId) {
+        setLocalProUserId(userId);
+        await reconcileServer();
+        await pollServer();
+      } else if (active) {
+        setAnonymousPro(true);
+        await markPurchasePendingLink();
+      }
       return { restored: active, failed: false };
     } catch (cause) {
       console.error('[purchases] restore failed', cause);
@@ -163,7 +251,8 @@ export const PurchasesProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [userId]);
 
-  const localPro = Boolean(userId && localProUserId === userId);
+  const localPro =
+    (!userId && anonymousPro) || Boolean(userId && localProUserId === userId);
 
   const value = useMemo(
     () => ({

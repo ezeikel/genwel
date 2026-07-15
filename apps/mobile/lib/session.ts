@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 import { ApiError, apiFetch } from './api';
 import { clearRenewalNotifications } from './notifications';
+import { clearPurchasesUser } from './purchases';
 import type { Entitlements } from './types';
 
 /**
@@ -94,7 +95,10 @@ export const useSession = create<SessionState>((set) => ({
             return;
           }
           await SecureStore.deleteItemAsync(TOKEN_KEY);
-          await clearRenewalNotifications();
+          await Promise.all([
+            clearRenewalNotifications(),
+            clearPurchasesUser(),
+          ]);
         }
       }
       set({
@@ -149,7 +153,7 @@ export const useSession = create<SessionState>((set) => ({
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         await SecureStore.deleteItemAsync(TOKEN_KEY);
-        await clearRenewalNotifications();
+        await Promise.all([clearRenewalNotifications(), clearPurchasesUser()]);
         set({
           token: null,
           user: null,
@@ -176,6 +180,7 @@ export const useSession = create<SessionState>((set) => ({
     await Promise.all([
       SecureStore.deleteItemAsync(TOKEN_KEY),
       clearRenewalNotifications(),
+      clearPurchasesUser(),
     ]);
     set({
       token: null,

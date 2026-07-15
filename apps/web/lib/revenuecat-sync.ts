@@ -1,4 +1,16 @@
 import { db, Prisma, type SubscriptionStatus } from '@genwel/db';
+import {
+  REVENUECAT_PRO_ENTITLEMENT,
+  REVENUECAT_PRODUCTS,
+} from '@/lib/revenuecat-config';
+import {
+  isRevenueCatAnonymousId,
+  revenueCatIdentityCandidates,
+  revenueCatSubscriptionExternalId,
+  selectRevenueCatIdentityUser,
+} from '@/lib/revenuecat-identity';
+
+export { REVENUECAT_PRO_ENTITLEMENT, REVENUECAT_PRODUCTS };
 
 export type RevenueCatEventType =
   | 'INITIAL_PURCHASE'
@@ -39,18 +51,14 @@ export type RevenueCatEvent = {
   environment?: 'SANDBOX' | 'PRODUCTION';
   store?: string;
   cancel_reason?: string;
+  cancelled_at_ms?: number;
+  source?: 'RECONCILE';
 };
 
 export type RevenueCatWebhookBody = {
   api_version?: string;
   event: RevenueCatEvent;
 };
-
-export const REVENUECAT_PRO_ENTITLEMENT = 'genwel_pro';
-export const REVENUECAT_PRODUCTS = {
-  monthly: 'genwel_pro_monthly',
-  annual: 'genwel_pro_annual',
-} as const;
 
 const isProProduct = (event: RevenueCatEvent) => {
   if (event.entitlement_ids?.length) {
@@ -101,9 +109,19 @@ const mapStatus = (
   }
 };
 
-const mapEventType = (event: RevenueCatEvent) => {
+const mapEventType = (
+  event: RevenueCatEvent,
+  existingStatus?: SubscriptionStatus,
+) => {
   switch (event.type) {
     case 'INITIAL_PURCHASE':
+      if (event.source === 'RECONCILE' && existingStatus) {
+        return existingStatus === 'CANCELLED' ||
+          existingStatus === 'EXPIRED' ||
+          existingStatus === 'PAUSED'
+          ? ('REACTIVATED' as const)
+          : ('RENEWAL_SUCCESS' as const);
+      }
       return event.period_type === 'TRIAL'
         ? ('TRIAL_STARTED' as const)
         : ('SUBSCRIPTION_STARTED' as const);
@@ -147,9 +165,126 @@ const eventMetadata = (
     store: event.store ?? null,
     environment: event.environment ?? null,
     entitlement: REVENUECAT_PRO_ENTITLEMENT,
+    lastSource: event.source ?? 'WEBHOOK',
+    originalTransactionId:
+      event.original_transaction_id ??
+      previousMetadata.originalTransactionId ??
+      null,
+    transactionId:
+      event.transaction_id ?? previousMetadata.transactionId ?? null,
     lastEventAtMs:
       event.event_timestamp_ms ?? previousMetadata.lastEventAtMs ?? 0,
   };
+};
+
+type RevenueCatInactiveReason =
+  | 'expired_entitlement'
+  | 'missing_entitlement'
+  | 'refunded';
+
+/**
+ * RevenueCat's subscriber endpoint is authoritative during an authenticated
+ * reconciliation. If it no longer reports active Pro access, expire any stale
+ * RevenueCat-backed local rows so a missed refund/transfer/expiration webhook
+ * cannot leave the account unlocked until the cached period end.
+ */
+export const expireRevenueCatAccessForUser = async (
+  userId: string,
+  reason: RevenueCatInactiveReason,
+  observedAt = new Date(),
+) =>
+  db.$transaction(async (tx) => {
+    const subscriptions = await tx.subscription.findMany({
+      where: {
+        userId,
+        platform: 'REVENUECAT',
+        status: { not: 'EXPIRED' },
+      },
+    });
+
+    for (const subscription of subscriptions) {
+      const currentPeriodEnd =
+        subscription.currentPeriodEnd.getTime() > observedAt.getTime()
+          ? observedAt
+          : subscription.currentPeriodEnd;
+      const externalEventId = [
+        'rc:reconcile-inactive',
+        subscription.id,
+        subscription.updatedAt.getTime(),
+      ].join(':');
+      const metadata: Prisma.InputJsonObject = {
+        ...objectMetadata(subscription.metadata),
+        entitlement: REVENUECAT_PRO_ENTITLEMENT,
+        lastEventAtMs: observedAt.getTime(),
+        lastInactiveReason: reason,
+        lastSource: 'RECONCILE',
+      };
+
+      await tx.subscription.update({
+        where: { id: subscription.id },
+        data: {
+          status: 'EXPIRED',
+          currentPeriodEnd,
+          gracePeriodEnd: null,
+          cancelledAt:
+            reason === 'refunded' ? observedAt : subscription.cancelledAt,
+          metadata,
+        },
+      });
+      await tx.subscriptionEvent.upsert({
+        where: { externalEventId },
+        update: {},
+        create: {
+          subscriptionId: subscription.id,
+          eventType: reason === 'refunded' ? 'CANCELLED' : 'EXPIRED',
+          platform: 'REVENUECAT',
+          externalEventId,
+          previousStatus: subscription.status,
+          newStatus: 'EXPIRED',
+          previousPlan: 'PRO',
+          newPlan: 'PRO',
+          rawPayload: {
+            source: 'RECONCILE',
+            reason,
+            observedAt: observedAt.toISOString(),
+          },
+        },
+      });
+    }
+
+    return { expired: subscriptions.length } as const;
+  });
+
+const findRevenueCatUser = async (event: RevenueCatEvent) => {
+  const candidates = revenueCatIdentityCandidates(event);
+  if (!candidates.length) return null;
+
+  const users = await db.user.findMany({
+    where: {
+      OR: [
+        { id: { in: candidates } },
+        { revenuecatUserId: { in: candidates } },
+      ],
+    },
+    select: { id: true, revenuecatUserId: true },
+  });
+  return selectRevenueCatIdentityUser(users, event);
+};
+
+const ensureRevenueCatUserId = async (
+  user: { id: string; revenuecatUserId: string | null },
+  event: RevenueCatEvent,
+) => {
+  const candidates = revenueCatIdentityCandidates(event);
+  const preferredId = candidates.includes(user.id)
+    ? user.id
+    : (user.revenuecatUserId ??
+      candidates.find((candidate) => !isRevenueCatAnonymousId(candidate)));
+  if (!preferredId || user.revenuecatUserId === preferredId) return;
+  await db.user.update({
+    where: { id: user.id },
+    data: { revenuecatUserId: preferredId },
+  });
 };
 
 const isStale = (event: RevenueCatEvent, metadata: unknown) => {
@@ -281,21 +416,16 @@ const syncTransfer = async (event: RevenueCatEvent) => {
 };
 
 const syncTemporaryEntitlement = async (event: RevenueCatEvent) => {
-  const appUserId = event.app_user_id;
-  if (!appUserId || appUserId.startsWith('$RCAnonymousID:')) {
+  const candidates = revenueCatIdentityCandidates(event);
+  if (
+    !candidates.length ||
+    candidates.every((candidate) => isRevenueCatAnonymousId(candidate))
+  ) {
     return { ignored: 'anonymous_user' } as const;
   }
-  const user = await db.user.findFirst({
-    where: { OR: [{ id: appUserId }, { revenuecatUserId: appUserId }] },
-    select: { id: true, revenuecatUserId: true },
-  });
+  const user = await findRevenueCatUser(event);
   if (!user) return { ignored: 'unknown_user' } as const;
-  if (!user.revenuecatUserId) {
-    await db.user.update({
-      where: { id: user.id },
-      data: { revenuecatUserId: appUserId },
-    });
-  }
+  await ensureRevenueCatUserId(user, event);
 
   const startedAt = dateFromMs(event.event_timestamp_ms) ?? new Date();
   const currentPeriodEnd =
@@ -352,16 +482,15 @@ export async function syncRevenueCatEvent(event: RevenueCatEvent) {
     }
     return syncTemporaryEntitlement(event);
   }
-  if (!event.app_user_id || event.app_user_id.startsWith('$RCAnonymousID:')) {
+  const candidates = revenueCatIdentityCandidates(event);
+  if (
+    !candidates.length ||
+    candidates.every((candidate) => isRevenueCatAnonymousId(candidate))
+  ) {
     return { ignored: 'anonymous_user' } as const;
   }
 
-  const user = await db.user.findFirst({
-    where: {
-      OR: [{ id: event.app_user_id }, { revenuecatUserId: event.app_user_id }],
-    },
-    select: { id: true, revenuecatUserId: true },
-  });
+  const user = await findRevenueCatUser(event);
   if (!user) return { ignored: 'unknown_user' } as const;
 
   const transactionId =
@@ -372,13 +501,16 @@ export async function syncRevenueCatEvent(event: RevenueCatEvent) {
           where: { externalId: transactionId },
         })
       : null) ??
+    (await db.subscription.findUnique({
+      where: { externalId: revenueCatSubscriptionExternalId(user.id) },
+    })) ??
     (await db.subscription.findFirst({
       where: { userId: user.id, platform: 'REVENUECAT' },
       orderBy: { updatedAt: 'desc' },
     }));
 
   const status = mapStatus(event, existing?.status);
-  const auditType = mapEventType(event);
+  const auditType = mapEventType(event, existing?.status);
   if (!status || !auditType) return { ignored: event.type } as const;
   if (
     (hasProductSignal(event) && !isProProduct(event)) ||
@@ -390,12 +522,7 @@ export async function syncRevenueCatEvent(event: RevenueCatEvent) {
     return { ignored: 'stale_event' } as const;
   }
 
-  if (!user.revenuecatUserId) {
-    await db.user.update({
-      where: { id: user.id },
-      data: { revenuecatUserId: event.app_user_id },
-    });
-  }
+  await ensureRevenueCatUserId(user, event);
 
   const purchasedAt =
     dateFromMs(event.purchased_at_ms) ??
@@ -416,7 +543,8 @@ export async function syncRevenueCatEvent(event: RevenueCatEvent) {
       ? ('ANNUAL' as const)
       : ('MONTHLY' as const)
     : (existing?.billingPeriod ?? ('MONTHLY' as const));
-  const externalId = existing?.externalId ?? transactionId ?? `rc:${user.id}`;
+  const externalId =
+    existing?.externalId ?? revenueCatSubscriptionExternalId(user.id);
   const gracePeriodEnd =
     event.type === 'BILLING_ISSUE'
       ? (dateFromMs(event.grace_period_expiration_at_ms) ??
@@ -424,7 +552,9 @@ export async function syncRevenueCatEvent(event: RevenueCatEvent) {
       : null;
   const cancelledAt =
     event.type === 'CANCELLATION'
-      ? (dateFromMs(event.event_timestamp_ms) ?? new Date())
+      ? (dateFromMs(event.cancelled_at_ms) ??
+        dateFromMs(event.event_timestamp_ms) ??
+        new Date())
       : event.type === 'UNCANCELLATION' ||
           event.type === 'RENEWAL' ||
           event.type === 'REFUND_REVERSED' ||

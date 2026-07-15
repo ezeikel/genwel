@@ -8,7 +8,12 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import {
+  type GestureResponderEvent,
+  Pressable,
+  Text,
+  View,
+} from 'react-native';
 import Animated, {
   FadeIn,
   useAnimatedProps,
@@ -62,6 +67,7 @@ const CENTRE = SIZE / 2;
 const RADIUS = 49;
 const CIRCUMFERENCE = Math.PI * 2 * RADIUS;
 const GAP = 5;
+const DONUT_HIT_SLOP = 18;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const DonutArc = ({
@@ -70,14 +76,12 @@ const DonutArc = ({
   offset,
   dimmed,
   selected,
-  onPress,
 }: {
   color: string;
   dash: number;
   offset: number;
   dimmed: boolean;
   selected: boolean;
-  onPress: () => void;
 }) => {
   const opacity = useSharedValue(1);
   const strokeWidth = useSharedValue(17);
@@ -104,7 +108,6 @@ const DonutArc = ({
       strokeDasharray={[dash, CIRCUMFERENCE - dash]}
       strokeDashoffset={-offset}
       transform={`rotate(-90 ${CENTRE} ${CENTRE})`}
-      onPress={onPress}
     />
   );
 };
@@ -129,6 +132,35 @@ export const SpendingBreakdownPreview = () => {
   const select = (index: number) => {
     void Haptics.selectionAsync();
     setActive((current) => (current === index ? null : index));
+  };
+
+  const selectDonutSegment = (event: GestureResponderEvent) => {
+    const { locationX, locationY } = event.nativeEvent;
+    const x = locationX - CENTRE;
+    const y = locationY - CENTRE;
+    const distance = Math.hypot(x, y);
+
+    // Keep the centre available for the value label, but make the visible ring
+    // substantially easier to hit than its 17pt SVG stroke.
+    if (
+      distance < RADIUS - DONUT_HIT_SLOP ||
+      distance > RADIUS + DONUT_HIT_SLOP
+    ) {
+      return;
+    }
+
+    // The SVG starts at 12 o'clock and draws clockwise. Convert the touch point
+    // to the same coordinate system, then find the segment containing it.
+    const angle =
+      (Math.atan2(y, x) + Math.PI / 2 + Math.PI * 2) % (Math.PI * 2);
+    const valueAtAngle = (angle / (Math.PI * 2)) * total;
+    let boundary = 0;
+    const segmentIndex = SEGMENTS.findIndex((segment) => {
+      boundary += segment.value;
+      return valueAtAngle < boundary;
+    });
+
+    if (segmentIndex >= 0) select(segmentIndex);
   };
 
   return (
@@ -158,7 +190,15 @@ export const SpendingBreakdownPreview = () => {
       </View>
 
       <View className="mt-4 flex-row items-center gap-3">
-        <View className="relative" style={{ width: SIZE, height: SIZE }}>
+        <Pressable
+          onPress={selectDonutSegment}
+          hitSlop={4}
+          accessibilityRole="button"
+          accessibilityLabel="Spending breakdown chart"
+          accessibilityHint="Tap a coloured segment to explore that category"
+          className="relative"
+          style={{ width: SIZE, height: SIZE }}
+        >
           <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
             <Circle
               cx={CENTRE}
@@ -176,7 +216,6 @@ export const SpendingBreakdownPreview = () => {
                 offset={arcs[index]?.offset ?? 0}
                 dimmed={active !== null && active !== index}
                 selected={active === index}
-                onPress={() => select(index)}
               />
             ))}
           </Svg>
@@ -200,7 +239,7 @@ export const SpendingBreakdownPreview = () => {
               </Text>
             </Animated.View>
           </View>
-        </View>
+        </Pressable>
 
         <View className="flex-1 gap-1">
           {SEGMENTS.map((segment, index) => {

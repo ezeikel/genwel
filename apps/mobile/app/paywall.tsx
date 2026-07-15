@@ -7,7 +7,7 @@ import {
 } from '@fortawesome/pro-duotone-svg-icons';
 import { faCheck } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import type { PurchasesPackage } from 'react-native-purchases';
@@ -25,6 +25,7 @@ import { toast } from '@/components/ToastViewport';
 import { PrimaryButton } from '@/components/ui';
 import { usePurchases } from '@/contexts/purchases';
 import { useOnboarding } from '@/lib/onboarding';
+import { useSession } from '@/lib/session';
 
 type Plan = 'annual' | 'monthly';
 
@@ -160,8 +161,11 @@ const PlanRow = ({
 export default function Paywall() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { source } = useLocalSearchParams<{ source?: string }>();
+  const user = useSession((state) => state.user);
   const onboardingComplete = useOnboarding((state) => state.complete);
-  const finishOnboarding = useOnboarding((state) => state.finish);
+  const onboardingStage = useOnboarding((state) => state.stage);
+  const setOnboardingStage = useOnboarding((state) => state.setStage);
   const {
     annual,
     annualTrialEligible,
@@ -194,9 +198,27 @@ export default function Paywall() {
     transform: [{ translateY: bodyY.value }],
   }));
 
-  const finish = async () => {
-    if (!onboardingComplete) await finishOnboarding();
-    router.replace('/(tabs)');
+  const leavePaywall = async () => {
+    const inPreAuthOnboarding =
+      !onboardingComplete &&
+      (source === 'onboarding' || onboardingStage === 'paywall');
+
+    if (inPreAuthOnboarding) {
+      if (user) {
+        await setOnboardingStage('connect');
+        router.replace('/(onboarding)/connect');
+      } else {
+        await setOnboardingStage('sign-in');
+        router.replace('/(onboarding)/sign-in');
+      }
+      return;
+    }
+
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace(user ? '/(tabs)' : '/(onboarding)/sign-in');
+    }
   };
   const chosen: PurchasesPackage | null =
     selected === 'annual' ? annual : monthly;
@@ -211,7 +233,7 @@ export default function Paywall() {
       const result = await purchase(chosen);
       if (result.ok) {
         toast.success('Welcome to Genwel Pro.');
-        await finish();
+        await leavePaywall();
       } else if (!result.cancelled) {
         toast.error('Purchase failed. Check your connection and try again.');
       }
@@ -226,7 +248,7 @@ export default function Paywall() {
       const result = await restore();
       if (result.restored) {
         toast.success('Purchases restored.');
-        await finish();
+        await leavePaywall();
       } else if (result.failed) {
         toast.error("Couldn't reach the store. Please try again.");
       } else {
@@ -268,7 +290,7 @@ export default function Paywall() {
       importantForAccessibility="yes"
     >
       <Pressable
-        onPress={() => void finish()}
+        onPress={() => void leavePaywall()}
         accessibilityRole="button"
         accessibilityLabel="Close"
         hitSlop={14}
@@ -378,7 +400,7 @@ export default function Paywall() {
                       : 'Subscribe annually'
                     : 'Subscribe monthly'
               }
-              onPress={isPro ? () => void finish() : buy}
+              onPress={isPro ? () => void leavePaywall() : buy}
               busy={busy || !ready}
               disabled={error}
             />
@@ -400,7 +422,7 @@ export default function Paywall() {
             </Text>
           </Pressable>
           <Pressable
-            onPress={() => void finish()}
+            onPress={() => void leavePaywall()}
             className="items-center py-2"
           >
             <Text className="font-sans-semibold text-[13px] text-muted-foreground">

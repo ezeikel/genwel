@@ -9,12 +9,19 @@ import { toast } from '@/components/ToastViewport';
 import { PrimaryButton } from '@/components/ui';
 import { ApiError } from '@/lib/api';
 import { connectBank } from '@/lib/connect-bank';
+import { useOnboarding } from '@/lib/onboarding';
 import { useSession } from '@/lib/session';
 
 export default function ConnectOnboarding() {
   const router = useRouter();
   const token = useSession((state) => state.token);
+  const setStage = useOnboarding((state) => state.setStage);
   const [busy, setBusy] = useState(false);
+
+  const showNotifications = async () => {
+    await setStage('notifications');
+    router.replace('/(onboarding)/notifications');
+  };
 
   const connect = async () => {
     if (!token) return router.replace('/(onboarding)/sign-in');
@@ -22,7 +29,7 @@ export default function ConnectOnboarding() {
     try {
       const result = await connectBank(token);
       if (result === 'success') {
-        router.replace('/(onboarding)/notifications');
+        await showNotifications();
       } else if (result === 'failed') {
         toast.error("We couldn't connect that bank. Please try again.");
       }
@@ -73,7 +80,7 @@ export default function ConnectOnboarding() {
         <PrimaryButton
           label="I’ll do this later"
           secondary
-          onPress={() => router.replace('/(onboarding)/notifications')}
+          onPress={() => void showNotifications()}
         />
       </View>
     </SafeAreaView>
