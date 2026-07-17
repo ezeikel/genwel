@@ -6,6 +6,9 @@ import {
   PlusJakartaSans_700Bold,
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
+import * as Sentry from '@sentry/react-native';
+import * as Application from 'expo-application';
+import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -18,7 +21,26 @@ import { useSession } from '@/lib/session';
 
 void SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+// release/dist must match the source maps uploaded at build time so crashes
+// symbolicate. version+build is stable per binary; dist = native build number.
+// (Pattern mirrors salt-mammal.) Env-gated: with no EXPO_PUBLIC_SENTRY_DSN set
+// this init is a no-op, so local dev and CI need no Sentry project.
+const SENTRY_RELEASE = `${Constants.expoConfig?.version ?? '0.0.0'}+${
+  Application.nativeBuildVersion ?? '0'
+}`;
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  // OFF in local dev (Metro HMR noise), ON for preview/production builds.
+  enabled: !__DEV__ && Boolean(process.env.EXPO_PUBLIC_SENTRY_DSN),
+  environment: process.env.EXPO_PUBLIC_ENVIRONMENT ?? 'development',
+  release: SENTRY_RELEASE,
+  dist: String(Application.nativeBuildVersion ?? '0'),
+  tracesSampleRate: 1.0,
+  sendDefaultPii: false,
+});
+
+function RootLayout() {
   const router = useRouter();
   const hydrateSession = useSession((state) => state.hydrate);
   const hydrateOnboarding = useOnboarding((state) => state.hydrate);
@@ -89,3 +111,7 @@ export default function RootLayout() {
     </Providers>
   );
 }
+
+// Wrap the root component so Sentry captures render errors + navigation
+// context (no-op while Sentry is disabled in dev).
+export default Sentry.wrap(RootLayout);

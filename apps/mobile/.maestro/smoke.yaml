@@ -1,0 +1,9 @@
+# Smoke: the dev build installs, the bundle boots, and the app reaches its first
+# real screen past every dev overlay. Fast sanity check.
+appId: com.chewybytes.genwel.app.dev
+---
+- runFlow: launch.yaml
+# Whichever entry the app lands on — the onboarding intro carousel (fresh
+# install) or the signed-in tabs — a stable Genwel anchor is present.
+- assertVisible:
+    text: '.*(Genwel|See where it went|Get started|Catch the change early|Home|Insights).*'
