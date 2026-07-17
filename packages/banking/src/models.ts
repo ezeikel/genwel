@@ -25,8 +25,6 @@ import { openai } from '@ai-sdk/openai';
 // Model identifiers
 export const MODEL_IDS = {
   // OpenAI text models
-  GPT_4O: 'gpt-4o',
-  GPT_4O_MINI: 'gpt-4o-mini',
   // GPT-5.6 Luna — cheapest 5.6 tier ($1/$6). Fast structured output; used for
   // high-volume transaction categorization.
   GPT_5_6_LUNA: 'gpt-5.6-luna',
@@ -53,8 +51,9 @@ export const models = {
   // long-form money-education copy; replaced gpt-4o (blog is the only consumer).
   text: anthropic(MODEL_IDS.CLAUDE_SONNET_5),
 
-  // Faster/cheaper text model for simpler tasks
-  textFast: openai(MODEL_IDS.GPT_4O_MINI),
+  // Faster/cheaper text model for simpler tasks — Claude Sonnet 5
+  // (replaced gpt-4o-mini; fleet text default).
+  textFast: anthropic(MODEL_IDS.CLAUDE_SONNET_5),
 
   // High-volume analytics/categorization — GPT-5.6 Luna.
   // Best for: transaction categorization, structured extraction at scale.
