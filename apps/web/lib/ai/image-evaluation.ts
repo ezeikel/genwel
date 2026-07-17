@@ -1,7 +1,7 @@
 /**
  * AI-powered image evaluation for blog posts
  *
- * Uses Gemini 3 Pro vision model to evaluate whether stock photos
+ * Uses the Claude Opus 4.8 vision judge to evaluate whether stock photos
  * are relevant and appropriate for blog post content.
  */
 
@@ -44,7 +44,7 @@ export interface EvaluateImageOptions {
 /**
  * Evaluate whether a stock photo is suitable for a blog post
  *
- * Uses Gemini 3 Pro vision model to analyze the image and determine
+ * Uses the Claude Opus 4.8 vision judge to analyze the image and determine
  * if it's relevant to the blog post content.
  *
  * @returns Evaluation result with relevance decision, confidence, and reasoning
@@ -133,8 +133,8 @@ export async function findBestImage(
   selectedIndex: number | null;
   evaluations: ImageEvaluation[];
 }> {
-  // Evaluate sequentially (concurrency 1) — Gemini free tier is ~5 req/min,
-  // so parallel evaluation reliably triggers 429s.
+  // Evaluate sequentially (concurrency 1) to keep vision-judge request rate
+  // low and avoid provider 429s under load; withRetry backs off on the rest.
   const evaluations = await mapWithConcurrency(images, 1, (img) =>
     evaluateImageRelevance({
       ...context,

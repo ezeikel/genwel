@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
 import { getAuthUrl, parseAvailableProviders } from '@genwel/banking/truelayer';
+import { test } from 'vitest';
 
 test('normalizes, sanitizes and alphabetizes available banks', () => {
   assert.deepEqual(

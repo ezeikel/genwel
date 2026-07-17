@@ -23,17 +23,17 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.0.1",
+    "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@prisma/client-runtime-utils": "^7.8.0",
-    "ws": "^8.18.2"
+    "ws": "^8.21.1"
   },
   "devDependencies": {
-    "@types/node": "^22.15.21",
+    "@types/node": "^22.20.1",
     "@types/ws": "^8.18.1",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.4.2",
     "prisma": "^7.8.0",
-    "typescript": "^5.8.3"
+    "typescript": "~6.0.3"
   }
 }

@@ -116,6 +116,18 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
     ],
     'expo-notifications',
+    // Sentry native crash reporting + build-time source-map upload. The upload
+    // step needs SENTRY_AUTH_TOKEN in the EAS build env; runtime reporting
+    // needs EXPO_PUBLIC_SENTRY_DSN (init in app/_layout.tsx is a no-op without
+    // it, so local builds work with neither set).
+    [
+      '@sentry/react-native/expo',
+      {
+        url: 'https://sentry.io/',
+        project: 'genwel-app',
+        organization: 'chewybytes',
+      },
+    ],
     ...(env === 'development' ? ['expo-dev-client'] : []),
     [
       'expo-build-properties',
