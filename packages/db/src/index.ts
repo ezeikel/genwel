@@ -1,5 +1,5 @@
-// Re-export the Prisma client
-export { prisma as db } from './client';
+// Re-export the Prisma client (lazy proxy — safe to import without env)
+export { getDb, isDatabaseConfigured, prisma as db } from './client';
 // Re-export specific model types with Db prefix for convenience
 export type {
   Account as DbAccount,
