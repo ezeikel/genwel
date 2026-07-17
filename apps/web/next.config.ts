@@ -78,7 +78,7 @@ const sentryConfig = withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   widenClientFileUpload: true,
   tunnelRoute: '/monitoring',
-  // Sentry v9 hides source maps from the client bundle by default and removes
+  // Sentry v9+ hides source maps from the client bundle by default and removes
   // them after upload (the old `hideSourceMaps` option was removed).
   sourcemaps: { deleteSourcemapsAfterUpload: true },
   disableLogger: true,

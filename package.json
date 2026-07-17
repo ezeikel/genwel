@@ -10,16 +10,17 @@
     "check:fix": "biome check --write .",
     "format": "biome format --write .",
     "check-types": "turbo run check-types",
+    "test": "turbo run test",
     "clean": "rm -rf apps/*/node_modules packages/*/node_modules",
     "clean:deep": "rm -rf apps/*/node_modules packages/*/node_modules pnpm-lock.yaml && pnpm install",
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.0",
+    "@biomejs/biome": "^2.5.4",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.0",
-    "turbo": "^2.5.6",
-    "typescript": "5.8.3"
+    "lint-staged": "^16.4.0",
+    "turbo": "^2.10.5",
+    "typescript": "~6.0.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,jsonc,css,md}": [
@@ -28,6 +29,10 @@
     "**/prisma/schema.prisma": [
       "pnpm --filter @genwel/db exec prisma format"
     ]
+  },
+  "packageManager": "pnpm@10.25.0",
+  "engines": {
+    "node": ">=20"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -39,16 +44,13 @@
       "prisma",
       "sharp",
       "unrs-resolver"
-    ]
-  },
-  "packageManager": "pnpm@10.6.1",
-  "engines": {
-    "node": ">=18"
-  },
-  "resolutions": {
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "@types/react": "19.2.14",
-    "lightningcss": "1.30.1"
+    ],
+    "overrides": {
+      "react": "19.2.3",
+      "react-dom": "19.2.3",
+      "@types/react": "19.2.14",
+      "@types/react-dom": "19.2.3",
+      "lightningcss": "1.30.1"
+    }
   }
 }
