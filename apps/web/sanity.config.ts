@@ -11,7 +11,7 @@ export default defineConfig({
   title: 'Genwel Blog',
   projectId,
   dataset,
-  plugins: [structureTool(), visionTool({ defaultApiVersion: '2025-01-17' })],
+  plugins: [structureTool(), visionTool({ defaultApiVersion: '2026-01-01' })],
   schema: {
     types: schemaTypes,
   },

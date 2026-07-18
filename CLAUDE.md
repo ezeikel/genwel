@@ -95,7 +95,7 @@ Then add the project ID to your environment variables.
 ```env
 NEXT_PUBLIC_SANITY_PROJECT_ID=<your-project-id>
 NEXT_PUBLIC_SANITY_DATASET=production
-NEXT_PUBLIC_SANITY_API_VERSION=2025-01-17
+NEXT_PUBLIC_SANITY_API_VERSION=2026-01-01
 SANITY_API_TOKEN=<write-token>
 SANITY_REVALIDATE_SECRET=<webhook-secret>
 ```
