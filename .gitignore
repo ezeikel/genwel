@@ -66,3 +66,5 @@ next-env.d.ts
 .cursor/
 .claude/
 .codex/
+.zed/
+.mcp.json
