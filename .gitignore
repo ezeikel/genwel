@@ -61,3 +61,8 @@ android/app/build/
 # Next.js generated
 next-env.d.ts
 .auth-secrets/
+
+# Editor / AI-assistant config — machine-local, never committed
+.cursor/
+.claude/
+.codex/
