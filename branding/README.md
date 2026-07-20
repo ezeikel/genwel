@@ -3,16 +3,23 @@
 > Fleet convention: `docs` repo → `BRAND-STORE-ASSETS.md`. Salt Mammal's
 > `branding/README.md` is the reference implementation.
 
-## Figma (logo system)
+## Figma (canonical)
 
-- **[Genwel — App Icon](https://www.figma.com/design/yPNka3oWJUF23n5vq5HHlf)**
+**[Genwel — Brand](https://www.figma.com/design/yPNka3oWJUF23n5vq5HHlf)** (file may still show as “App Icon” in the browser title — rename when convenient).
 
-TODO — grow the App Icon file into `Genwel — Brand` with the standard lockup set (or create fresh and fold the icon in).
+Pages: Logo Lockups · App Icons · Store Screenshots · Social. Production / Internal / Dev tiles are on **App Icons**.
 
-Standard lockup set (masters + instances): `Logo / Mark / App Icon`, `Logo / Mark`
-(transparent light/dark variants), `Logo / Wordmark`, `Logo / Horizontal`, `Logo / Stacked`.
-Edit via Figma MCP; export canonical SVG/PNG into this folder and list them below.
+## App icon variants (Expo)
+
+| File | Env |
+|---|---|
+| `apps/mobile/assets/images/icon.png` | production |
+| `apps/mobile/assets/images/icon-preview.png` | preview → Internal (grid) |
+| `apps/mobile/assets/images/icon-dev.png` | development → Dev (code) |
+
+Also `adaptive-icon{,-preview,-dev}.png`. Regenerator:
+`~/Development/Personal/scripts/generate-app-icon-variants.sh`
 
 ## Canonical assets
 
-None exported yet — current icon/splash sources live in `apps/mobile/assets/` (Expo).
+Expo icons live in `apps/mobile/assets/images/`.
