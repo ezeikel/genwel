@@ -13,6 +13,15 @@
 | **Store Screenshots** | (fill as needed) |
 | **Social** | (fill as needed) |
 
+### Type
+
+| Role | Face |
+|---|---|
+| **Wordmark / UI** | **Plus Jakarta Sans Bold** (web `layout.tsx` + mobile) |
+| Mono | Geist Mono (data only — not wordmark) |
+
+Do **not** use Inter for the Genwel wordmark.
+
 _Canonical Brand file — use this link only._
 
 ## App icon variants (Expo)
