@@ -1,25 +1,31 @@
 # Genwel — Brand Assets
 
-> Fleet convention: `docs` repo → `BRAND-STORE-ASSETS.md`. Salt Mammal's
-> `branding/README.md` is the reference implementation.
+> Fleet convention: `~/Development/docs/BRAND-STORE-ASSETS.md`.
 
-## Figma (canonical)
+## Figma — **one file only**
 
-**[Genwel — Brand](https://www.figma.com/design/yPNka3oWJUF23n5vq5HHlf)** (file may still show as “App Icon” in the browser title — rename when convenient).
+**[Genwel — Brand](https://www.figma.com/design/yPNka3oWJUF23n5vq5HHlf)**
 
-Pages: Logo Lockups · App Icons · Store Screenshots · Social. Production / Internal / Dev tiles are on **App Icons**.
+| Page | Contents |
+|---|---|
+| **Logo Lockups** | App icon + on-dark / white / mono marks; horizontal, stacked, wordmark |
+| **App Icons** | Production / Internal (purple+grid) / Dev (teal+code) 1024² |
+| **Store Screenshots** | (fill as needed) |
+| **Social** | (fill as needed) |
+
+_Canonical Brand file — use this link only._
 
 ## App icon variants (Expo)
 
-| File | Env |
-|---|---|
-| `apps/mobile/assets/images/icon.png` | production |
-| `apps/mobile/assets/images/icon-preview.png` | preview → Internal (grid) |
-| `apps/mobile/assets/images/icon-dev.png` | development → Dev (code) |
+| File | Env | BG |
+|---|---|---|
+| `icon.png` | production | Brand store art |
+| `icon-preview.png` | preview → Internal | Purple `#5B2C6F` + light grid |
+| `icon-dev.png` | development → Dev | Teal `#0E6655` + large code |
 
-Also `adaptive-icon{,-preview,-dev}.png`. Regenerator:
+Wired via `pickIcon` in mobile `app.config.ts`. Regenerator:
 `~/Development/Personal/scripts/generate-app-icon-variants.sh`
 
-## Canonical assets
+## Repo exports
 
-Expo icons live in `apps/mobile/assets/images/`.
+`branding/lockups/` — mark tiles exported for Figma.
